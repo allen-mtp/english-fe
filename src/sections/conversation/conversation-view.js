@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -11,8 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import Chip from '@mui/material/Chip';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import Pagination from '@mui/material/Pagination';
@@ -24,6 +23,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 
 const topics = ['daily-life', 'travel', 'food', 'work', 'health', 'shopping', 'technology', 'education', 'entertainment', 'hobbies'];
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 const speakerConfig = [
   { bg: 'rgba(99,102,241,0.06)', dot: '#6366f1', name: '#6366f1', border: 'rgba(99,102,241,0.08)' },
@@ -34,7 +34,7 @@ export function ConversationView() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [genTopic, setGenTopic] = useState('daily-life');
-  const [genLevel, setGenLevel] = useState('A2');
+  const [genLevel, setGenLevel] = useState('B1');
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState('');
   const [expanded, setExpanded] = useState(null);
@@ -109,24 +109,35 @@ export function ConversationView() {
               AI creates natural, level-appropriate conversations
             </Typography>
             {genError && <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 3 }}>{genError}</Alert>}
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'flex-end' }}>
-              <Box sx={{ flex: { xs: 'unset', sm: 1 } }}>
-                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>Topic</Typography>
-                <Select value={genTopic} onChange={e => setGenTopic(e.target.value)} fullWidth size="small" MenuProps={{ PaperProps: { sx: { borderRadius: 3 } } }} sx={{ borderRadius: 2.5, '& .MuiSelect-select': { fontWeight: 600 } }}>
-                  {topics.map(t => <MenuItem key={t} value={t}><Box component="span" sx={{ textTransform: 'capitalize' }}>{t}</Box></MenuItem>)}
-                </Select>
+            <Stack spacing={2.5}>
+              <TopicInput
+                value={genTopic}
+                onChange={setGenTopic}
+                label="Topic"
+                placeholder="Pick a suggestion or type any topic"
+                suggestions={topics}
+                size="small"
+                showRandom
+              />
+
+              <Box>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                  {LEVELS.map(lvl => (
+                    <Chip
+                      key={lvl}
+                      label={lvl}
+                      color={genLevel === lvl ? 'primary' : 'default'}
+                      onClick={() => setGenLevel(lvl)}
+                      clickable
+                    />
+                  ))}
+                </Stack>
               </Box>
-              <Box sx={{ flex: { xs: 'unset', sm: 1 } }}>
-                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>Level</Typography>
-                <Select value={genLevel} onChange={e => setGenLevel(e.target.value)} fullWidth size="small" sx={{ borderRadius: 2.5, '& .MuiSelect-select': { fontWeight: 600 } }}>
-                  {['A1', 'A2', 'B1', 'B2', 'C1'].map(l => <MenuItem key={l} value={l}>{l}</MenuItem>)}
-                </Select>
-              </Box>
-              <Box sx={{ pt: { xs: 1, sm: 0 } }}>
-                <Button variant="contained" onClick={generate} disabled={genLoading} sx={{ ...gradientBtn, minWidth: 140, height: 42, px: 3 }}>
-                  {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Generate'}
-                </Button>
-              </Box>
+
+              <Button variant="contained" onClick={generate} disabled={genLoading || !genTopic.trim()} startIcon={genLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />} sx={{ ...gradientBtn, alignSelf: 'flex-start', px: 3, py: 1.1 }}>
+                {genLoading ? 'Generating...' : 'Generate'}
+              </Button>
             </Stack>
           </CardContent>
         </Card>

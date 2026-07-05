@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -58,6 +59,7 @@ export function RolePlayView() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState(null);
+  const [customTopic, setCustomTopic] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -314,20 +316,46 @@ export function RolePlayView() {
         </Button>
       </Stack>
 
-      <Card sx={{ mb: 3, p: 2, background: 'linear-gradient(135deg, #ede9fe, #f5f3ff)' }}>
-        <Typography variant="subtitle2" sx={{ mb: 1.5 }}>Or pick a topic:</Typography>
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-          {SUGGESTED_TOPICS.map(topic => (
-            <Chip
-              key={topic}
-              label={topic}
-              onClick={() => startNewConversation(topic)}
-              disabled={creating}
-              clickable
-              sx={{ mb: 0.5 }}
-            />
-          ))}
-        </Stack>
+      <Card sx={{ mb: 3, p: 2.5, background: 'linear-gradient(135deg, #ede9fe, #f5f3ff)' }}>
+        <TopicInput
+          value={customTopic}
+          onChange={setCustomTopic}
+          label="Custom scenario (optional)"
+          placeholder="Type any scenario you want to practice, or pick a suggestion below"
+          suggestions={SUGGESTED_TOPICS}
+          size="small"
+        />
+        {customTopic.trim() && (
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AutoAwesomeIcon />}
+            onClick={() => { startNewConversation(customTopic.trim()); setCustomTopic(''); }}
+            disabled={creating}
+            sx={{ mt: 1.5, borderRadius: 2, textTransform: 'none', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+          >
+            Start "{customTopic.trim()}"
+          </Button>
+        )}
+        {!customTopic.trim() && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+            Or pick a suggested topic:
+          </Typography>
+        )}
+        {!customTopic.trim() && (
+          <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mt: 1 }}>
+            {SUGGESTED_TOPICS.map(topic => (
+              <Chip
+                key={topic}
+                label={topic}
+                onClick={() => startNewConversation(topic)}
+                disabled={creating}
+                clickable
+                sx={{ mb: 0.5 }}
+              />
+            ))}
+          </Stack>
+        )}
       </Card>
 
       <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -53,7 +54,7 @@ export function QuizView() {
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
-  const [config, setConfig] = useState({ type: 'practice', category: 'mixed', level: 'B1', questionCount: 10 });
+  const [config, setConfig] = useState({ type: 'practice', category: 'mixed', level: 'B1', questionCount: 10, topic: '' });
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
@@ -81,7 +82,10 @@ export function QuizView() {
     setGenerating(true);
     setError('');
     try {
-      const res = await axiosInstance.post('/quizzes/generate', config);
+      const payload = { ...config };
+      if (!payload.topic?.trim()) delete payload.topic;
+      else payload.topic = payload.topic.trim();
+      const res = await axiosInstance.post('/quizzes/generate', payload);
       setActiveQuiz(res.data.quiz);
       setAnswers({});
       setResults(null);
@@ -410,6 +414,18 @@ export function QuizView() {
                   ))}
                 </Stack>
               </Grid>
+              {config.type !== 'placement' && (
+                <Grid item xs={12}>
+                  <TopicInput
+                    value={config.topic || ''}
+                    onChange={(v) => setConfig({ ...config, topic: v })}
+                    label="Topic / Theme (optional)"
+                    placeholder="Type any topic, or pick a suggestion — all questions will revolve around it"
+                    suggestions={['general', 'business', 'technology', 'travel', 'culture', 'science', 'sports', 'movies', 'music', 'history', 'nature', 'food']}
+                    size="small"
+                  />
+                </Grid>
+              )}
             </Grid>
           </Grid>
         </Grid>

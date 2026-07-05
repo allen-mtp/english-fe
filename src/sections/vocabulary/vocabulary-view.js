@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -117,6 +118,7 @@ function FlashcardDialog({ word, open, onClose }) {
 function AddNewTab({ onGenerated }) {
   const [genWord, setGenWord] = useState('');
   const [genBatch, setGenBatch] = useState('');
+  const [genTopic, setGenTopic] = useState('');
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState('');
   const [genSuccess, setGenSuccess] = useState('');
@@ -126,7 +128,7 @@ function AddNewTab({ onGenerated }) {
     if (!word) return;
     setGenLoading(true); setGenError(''); setGenSuccess('');
     try {
-      await axiosInstance.post('/vocabularies/generate', { word });
+      await axiosInstance.post('/vocabularies/generate', { word, topic: genTopic.trim() || undefined });
       setGenSuccess(`"${word}" generated!`);
       setGenWord('');
       onGenerated();
@@ -141,7 +143,7 @@ function AddNewTab({ onGenerated }) {
     if (words.length === 0) return;
     setGenLoading(true); setGenError(''); setGenSuccess('');
     try {
-      await axiosInstance.post('/vocabularies/generate-batch', { words });
+      await axiosInstance.post('/vocabularies/generate-batch', { words, topic: genTopic.trim() || undefined });
       setGenSuccess(`${words.length} words generated!`);
       setGenBatch('');
       onGenerated();
@@ -162,6 +164,15 @@ function AddNewTab({ onGenerated }) {
     <Stack spacing={4}>
       {genError && <Alert severity="error" onClose={() => setGenError('')} sx={{ borderRadius: 3 }}>{genError}</Alert>}
       {genSuccess && <Alert severity="success" onClose={() => setGenSuccess('')} sx={{ borderRadius: 3 }}>{genSuccess}</Alert>}
+
+      <TopicInput
+        value={genTopic}
+        onChange={setGenTopic}
+        label="Topic / Context (optional)"
+        placeholder="e.g. business, travel, technology — AI will tailor examples to this topic"
+        suggestions={['business', 'technology', 'travel', 'food', 'sports', 'science', 'music', 'movies', 'health', 'academic', 'daily-life', 'nature']}
+        size="medium"
+      />
 
       <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: 4 }}>

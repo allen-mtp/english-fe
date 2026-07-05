@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -12,13 +13,13 @@ import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import Chip from '@mui/material/Chip';
 import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import MicIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
@@ -26,6 +27,11 @@ import HistoryIcon from '@mui/icons-material/History';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+
+const SHADOWING_TOPICS = ['daily-life', 'travel', 'food', 'work', 'shopping', 'health', 'technology', 'education', 'entertainment', 'small-talk', 'business', 'movies'];
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export function ShadowingView() {
   const [conversations, setConversations] = useState([]);
@@ -40,12 +46,40 @@ export function ShadowingView() {
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+
+  const [showGen, setShowGen] = useState(false);
+  const [genTopic, setGenTopic] = useState('');
+  const [genLevel, setGenLevel] = useState('B1');
+  const [genLoading, setGenLoading] = useState(false);
+  const [genError, setGenError] = useState('');
+  const [genSuccess, setGenSuccess] = useState('');
+
   const mediaRecorderRef = useRef(null);
   const streamRef = useRef(null);
 
-  useEffect(() => {
-    axiosInstance.get('/conversations').then(res => setConversations(res.data.conversations)).catch(console.error).finally(() => setLoading(false));
-  }, []);
+  const fetchConversations = async () => {
+    try {
+      const res = await axiosInstance.get('/conversations');
+      setConversations(res.data.conversations);
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchConversations(); }, []);
+
+  const generateConversation = async () => {
+    setGenLoading(true); setGenError(''); setGenSuccess('');
+    const topic = genTopic.trim() || 'daily-life';
+    try {
+      const res = await axiosInstance.post('/conversations/generate', { topic, level: genLevel });
+      setConversations(prev => [res.data.conversation, ...prev]);
+      setGenSuccess(`Generated "${res.data.conversation.title}" successfully!`);
+      setGenTopic('');
+      setTimeout(() => setGenSuccess(''), 3000);
+    } catch (err) {
+      setGenError(err.response?.data?.error || 'Generation failed');
+    } finally { setGenLoading(false); }
+  };
 
   const fetchHistory = async () => {
     setHistoryLoading(true);
@@ -121,6 +155,15 @@ export function ShadowingView() {
   const currentSentence = dialogue[sentenceIndex];
   const progressPercent = dialogue.length ? Math.round(((sentenceIndex + 1) / dialogue.length) * 100) : 0;
 
+  const gradientBtn = {
+    borderRadius: 2.5,
+    textTransform: 'none',
+    fontWeight: 700,
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+    transition: 'all 0.2s',
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 1 }}>
@@ -134,47 +177,119 @@ export function ShadowingView() {
 
       {!selected ? (
         <Stack spacing={2.5} sx={{ mt: 2 }}>
-          <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>Choose a conversation</Typography>
-          {conversations.length === 0 ? (
-            <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 2px 14px rgba(0,0,0,0.035)' }}>
-              <CardContent sx={{ py: 8, textAlign: 'center' }}>
-                <Typography variant="body2" color="text.secondary">No conversations yet. Generate one in the Chat section first.</Typography>
-              </CardContent>
-            </Card>
-          ) : (
-            conversations.slice(0, 8).map(c => (
-              <Card
-                key={c._id}
-                sx={{
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
-                  transition: 'all 0.2s',
-                  '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 32px rgba(0,0,0,0.06)', borderColor: 'primary.light' },
-                }}
-                onClick={() => setSelected(c)}
-              >
-                <CardContent sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Box>
-                    <Typography fontWeight={700} fontSize={16}>{c.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">{c.topic} · {c.level?.toUpperCase()}</Typography>
-                  </Box>
-                  <Chip
-                    label={`${c.dialogue?.length || 0} sentences`}
+          {/* Generate card */}
+          <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.035)', border: '1px solid', borderColor: 'divider' }}>
+            <CardContent sx={{ p: 3.5 }}>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.75 }}>
+                <Box sx={{ width: 30, height: 30, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 16 }} />
+                </Box>
+                <Typography variant="h6" fontWeight={700}>Generate new conversation</Typography>
+              </Stack>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+                Create a custom conversation to practice shadowing with any topic you want
+              </Typography>
+
+              <Collapse in={showGen}>
+                <Stack spacing={2.5} sx={{ mb: 2 }}>
+                  {genError && <Alert severity="error" sx={{ borderRadius: 3 }}>{genError}</Alert>}
+                  {genSuccess && <Alert severity="success" sx={{ borderRadius: 3 }}>{genSuccess}</Alert>}
+
+                  <TopicInput
+                    value={genTopic}
+                    onChange={setGenTopic}
+                    label="Topic"
+                    placeholder="Pick a suggestion or type any topic"
+                    suggestions={SHADOWING_TOPICS}
                     size="small"
-                    variant="outlined"
-                    sx={{ borderRadius: 2, fontWeight: 500 }}
+                    showRandom
                   />
+
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                    <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                      {LEVELS.map((lvl) => (
+                        <Chip
+                          key={lvl}
+                          label={lvl}
+                          color={genLevel === lvl ? 'primary' : 'default'}
+                          onClick={() => setGenLevel(lvl)}
+                          clickable
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    onClick={generateConversation}
+                    disabled={genLoading}
+                    startIcon={genLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />}
+                    sx={{ ...gradientBtn, alignSelf: 'flex-start', px: 3, py: 1.1 }}
+                  >
+                    {genLoading ? 'Generating...' : 'Generate'}
+                  </Button>
+                </Stack>
+              </Collapse>
+
+              {!showGen && (
+                <Button
+                  variant="outlined"
+                  startIcon={<AddCircleIcon />}
+                  onClick={() => setShowGen(true)}
+                  sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 600, borderColor: '#cbd5e1', color: '#475569', '&:hover': { borderColor: '#6366f1', color: '#6366f1', bgcolor: 'rgba(99,102,241,0.04)' } }}
+                >
+                  Generate new conversation
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Conversations list */}
+          <Box>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>Choose a conversation</Typography>
+            {conversations.length === 0 ? (
+              <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 2px 14px rgba(0,0,0,0.035)' }}>
+                <CardContent sx={{ py: 8, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">No conversations yet. Generate one above to start practicing.</Typography>
                 </CardContent>
               </Card>
-            ))
-          )}
+            ) : (
+              <Stack spacing={1.5}>
+                {conversations.slice(0, 12).map(c => (
+                  <Card
+                    key={c._id}
+                    sx={{
+                      borderRadius: 3,
+                      cursor: 'pointer',
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
+                      transition: 'all 0.2s',
+                      '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 32px rgba(0,0,0,0.06)', borderColor: 'primary.light' },
+                    }}
+                    onClick={() => setSelected(c)}
+                  >
+                    <CardContent sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Box>
+                        <Typography fontWeight={700} fontSize={16}>{c.title}</Typography>
+                        <Typography variant="body2" color="text.secondary">{c.topic} · {c.level?.toUpperCase()}</Typography>
+                      </Box>
+                      <Chip
+                        label={`${c.dialogue?.length || 0} sentences`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ borderRadius: 2, fontWeight: 500 }}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </Stack>
+            )}
+          </Box>
         </Stack>
       ) : (
         <Stack spacing={4}>
-          {/* Back button + title */}
           <Stack direction="row" alignItems="center" spacing={1}>
             <Button
               startIcon={<ArrowBackIcon />}
@@ -185,7 +300,6 @@ export function ShadowingView() {
             </Button>
           </Stack>
 
-          {/* Main practice card */}
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.035)', border: '1px solid', borderColor: 'divider' }}>
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>{selected.title}</Typography>
@@ -193,7 +307,6 @@ export function ShadowingView() {
                 Listen to each sentence, then record yourself reading it
               </Typography>
 
-              {/* Progress bar */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
                 <Box sx={{ flex: 1, height: 6, borderRadius: 3, bgcolor: '#f1f5f9', overflow: 'hidden' }}>
                   <Box
@@ -209,7 +322,6 @@ export function ShadowingView() {
                 <Typography variant="caption" fontWeight={600} color="primary.main">{progressPercent}%</Typography>
               </Box>
 
-              {/* Current sentence */}
               {currentSentence && (
                 <Box
                   sx={{
@@ -248,7 +360,6 @@ export function ShadowingView() {
                 </Box>
               )}
 
-              {/* Navigation */}
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
                 <Button
                   disabled={sentenceIndex === 0}
@@ -275,7 +386,6 @@ export function ShadowingView() {
                 </Button>
               </Stack>
 
-              {/* Recording */}
               <Stack alignItems="center" spacing={2.5}>
                 <Box sx={{ position: 'relative' }}>
                   {recording && (
@@ -338,7 +448,6 @@ export function ShadowingView() {
             </CardContent>
           </Card>
 
-          {/* Scoring loading */}
           {scoring && (
             <Box textAlign="center" sx={{ py: 2 }}>
               <CircularProgress size={28} />
@@ -346,7 +455,6 @@ export function ShadowingView() {
             </Box>
           )}
 
-          {/* Result */}
           {result && (
             <Card sx={{ borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider' }}>
               <CardContent sx={{ p: 4 }}>
@@ -441,7 +549,7 @@ export function ShadowingView() {
                         </TableCell>
                         <TableCell align="right">
                           <Chip
-                          label={log.overallScore}
+                            label={log.overallScore}
                             size="small"
                             color={log.overallScore >= 70 ? 'success' : log.overallScore >= 40 ? 'warning' : 'error'}
                             sx={{ fontWeight: 600 }}

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -56,6 +57,7 @@ export function SpeakingView() {
   const [scenario, setScenario] = useState(null);
   const [scenarioLoading, setScenarioLoading] = useState(false);
   const [scenarioError, setScenarioError] = useState('');
+  const [scenarioTopic, setScenarioTopic] = useState('');
 
   const fetchHistory = async () => {
     setHistoryLoading(true);
@@ -130,7 +132,9 @@ export function SpeakingView() {
     setScenarioLoading(true);
     setScenarioError('');
     try {
-      const res = await axiosInstance.get('/speaking-scenarios/scenario?level=B1');
+      const params = new URLSearchParams({ level: 'B1' });
+      if (scenarioTopic.trim()) params.append('topic', scenarioTopic.trim());
+      const res = await axiosInstance.get(`/speaking-scenarios/scenario?${params.toString()}`);
       setScenario(res.data.scenario);
       setResult(null);
       setAudioBlob(null);
@@ -402,6 +406,16 @@ export function SpeakingView() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
                 Get a daily speaking situation (ordering food, doctor visit, job interview...) with useful phrases, sample dialogue, and a challenge to try.
               </Typography>
+              <Box sx={{ maxWidth: 540, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
+                <TopicInput
+                  value={scenarioTopic}
+                  onChange={setScenarioTopic}
+                  label="Scenario topic (optional)"
+                  placeholder="Type any situation, or pick a suggestion"
+                  suggestions={['food-ordering', 'shopping', 'travel', 'doctor-visit', 'job-interview', 'small-talk', 'asking-directions', 'phone-call', 'hotel', 'airport', 'meeting', 'renting-apartment']}
+                  size="small"
+                />
+              </Box>
               <Button
                 variant="contained"
                 size="large"

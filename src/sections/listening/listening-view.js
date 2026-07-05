@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -39,6 +40,7 @@ export function ListeningView() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
   const [filterLevel, setFilterLevel] = useState('');
+  const [genTopic, setGenTopic] = useState('');
 
   // Practice state
   const [answers, setAnswers] = useState({});
@@ -71,6 +73,7 @@ export function ListeningView() {
     try {
       const res = await axiosInstance.post('/listening/generate', {
         level: filterLevel || 'B1',
+        topic: genTopic.trim() || undefined,
       });
       fetchExercises();
     } catch (err) {
@@ -276,8 +279,8 @@ export function ListeningView() {
         </Button>
       </Stack>
 
-      <Card sx={{ mb: 3, p: 2 }}>
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center">
+      <Card sx={{ mb: 3, p: 2.5 }}>
+        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center" sx={{ mb: 2 }}>
           <Typography variant="subtitle2">Level:</Typography>
           {LEVELS.map(lvl => (
             <Chip
@@ -290,6 +293,14 @@ export function ListeningView() {
           ))}
           <Button size="small" variant="contained" onClick={fetchExercises}>Apply</Button>
         </Stack>
+        <TopicInput
+          value={genTopic}
+          onChange={setGenTopic}
+          label="Topic for new exercise (optional)"
+          placeholder="Type any topic, or pick a suggestion — used when generating a new exercise"
+          suggestions={['travel', 'food', 'work', 'shopping', 'health', 'education', 'news', 'daily-life', 'technology', 'environment', 'sports', 'music']}
+          size="small"
+        />
       </Card>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}

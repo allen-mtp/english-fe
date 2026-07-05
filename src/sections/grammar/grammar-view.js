@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -325,9 +326,9 @@ export function GrammarView() {
         </Button>
       </Stack>
 
-      <Card sx={{ mb: 3, p: 2 }}>
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center">
-          <Typography variant="subtitle2">Filter:</Typography>
+      <Card sx={{ mb: 3, p: 2.5 }}>
+        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" alignItems="center" sx={{ mb: 2 }}>
+          <Typography variant="subtitle2">Level:</Typography>
           {LEVELS.map(lvl => (
             <Chip
               key={lvl}
@@ -337,19 +338,16 @@ export function GrammarView() {
               onClick={() => { setFilterLevel(filterLevel === lvl ? '' : lvl); }}
             />
           ))}
-          <Divider orientation="vertical" flexItem />
-          {topics.map(t => (
-            <Chip
-              key={t}
-              label={t}
-              size="small"
-              color={filterTopic === t ? 'secondary' : 'default'}
-              onClick={() => { setFilterTopic(filterTopic === t ? '' : t); }}
-            />
-          ))}
-          <Button size="small" onClick={() => { setFilterLevel(''); setFilterTopic(''); }}>Clear</Button>
-          <Button size="small" variant="contained" onClick={fetchLessons}>Apply</Button>
         </Stack>
+        <TopicInput
+          value={filterTopic}
+          onChange={setFilterTopic}
+          label="Topic (filter + generate)"
+          placeholder="Pick a topic below or type any custom topic to generate a lesson"
+          suggestions={[...new Set([...topics, 'tenses', 'conditionals', 'articles', 'modals', 'passive-voice', 'relative-clauses', 'gerunds-infinitives', 'prepositions', 'conjunctions', 'comparisons'])]}
+          size="small"
+          showRandom
+        />
       </Card>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}

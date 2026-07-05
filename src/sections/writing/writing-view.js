@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -29,6 +30,7 @@ export function WritingView() {
   const [view, setView] = useState('home');
   const [level, setLevel] = useState('B1');
   const [type, setType] = useState('email');
+  const [topic, setTopic] = useState('');
   const [prompt, setPrompt] = useState(null);
   const [userText, setUserText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -54,7 +56,9 @@ export function WritingView() {
     setLoading(true);
     setError('');
     try {
-      const res = await axiosInstance.get(`/writing/prompt?level=${level}&type=${type}`);
+      const params = new URLSearchParams({ level, type });
+      if (topic.trim()) params.append('topic', topic.trim());
+      const res = await axiosInstance.get(`/writing/prompt?${params.toString()}`);
       setPrompt(res.data.prompt);
       setUserText('');
       setResult(null);
@@ -298,6 +302,14 @@ export function WritingView() {
               ))}
             </Stack>
           </Box>
+          <TopicInput
+            value={topic}
+            onChange={setTopic}
+            label="Topic (optional)"
+            placeholder="Type any topic you want to write about, or pick a suggestion"
+            suggestions={['technology', 'environment', 'education', 'travel', 'culture', 'sports', 'health', 'business', 'society', 'personal experience', 'movies', 'music']}
+            size="medium"
+          />
           {error && <Alert severity="error">{error}</Alert>}
           <Button
             variant="contained"

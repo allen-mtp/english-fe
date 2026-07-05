@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -25,6 +26,7 @@ export function RoadmapView() {
   const [loading, setLoading] = useState(true);
   const [genLoading, setGenLoading] = useState(false);
   const [genLevel, setGenLevel] = useState('beginner');
+  const [genTopic, setGenTopic] = useState('');
   const [genError, setGenError] = useState('');
   const [selectedDay, setSelectedDay] = useState(0);
   const [completeLoading, setCompleteLoading] = useState(null);
@@ -46,7 +48,7 @@ export function RoadmapView() {
   const generate = async () => {
     setGenLoading(true); setGenError('');
     try {
-      const res = await axiosInstance.post('/roadmap/generate', { level: genLevel, goal: 'communication', dailyMinutes: 30 }, { timeout: 120000 });
+      const res = await axiosInstance.post('/roadmap/generate', { level: genLevel, goal: 'communication', dailyMinutes: 30, topic: genTopic.trim() || undefined }, { timeout: 120000 });
       setRoadmap(res.data.roadmap);
       setSelectedDay(res.data.roadmap.currentDay);
     } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
@@ -110,7 +112,17 @@ export function RoadmapView() {
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 420, mx: 'auto' }}>
               Create a personalized roadmap with daily vocabulary, pronunciation, and conversation practices
             </Typography>
-            {genError && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, maxWidth: 400, mx: 'auto' }}>{genError}</Alert>}
+            {genError && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, maxWidth: 500, mx: 'auto' }}>{genError}</Alert>}
+            <Box sx={{ maxWidth: 520, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
+              <TopicInput
+                value={genTopic}
+                onChange={setGenTopic}
+                label="Focus area / interest (optional)"
+                placeholder="e.g. business English, IELTS prep, travel — AI will tailor the 7-day plan around it"
+                suggestions={['business English', 'travel English', 'academic English', 'daily conversation', 'IELTS prep', 'TOEFL prep', 'job interview', 'medical English', 'IT & technology', 'presentation skills']}
+                size="small"
+              />
+            </Box>
             <Stack direction="row" spacing={1.5} justifyContent="center" alignItems="center">
               <Select value={genLevel} onChange={e => setGenLevel(e.target.value)} size="small" sx={{ borderRadius: 2.5, '& .MuiSelect-select': { fontWeight: 600 } }}>
                 {['beginner', 'intermediate', 'advanced'].map(l => <MenuItem key={l} value={l}><Box component="span" sx={{ textTransform: 'capitalize' }}>{l}</Box></MenuItem>)}
