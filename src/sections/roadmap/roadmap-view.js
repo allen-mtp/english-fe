@@ -10,8 +10,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
 import Alert from '@mui/material/Alert';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -25,13 +23,16 @@ export function RoadmapView() {
   const [roadmap, setRoadmap] = useState(null);
   const [loading, setLoading] = useState(true);
   const [genLoading, setGenLoading] = useState(false);
-  const [genLevel, setGenLevel] = useState('beginner');
+  const [genLevel, setGenLevel] = useState('B1');
   const [genTopic, setGenTopic] = useState('');
   const [genError, setGenError] = useState('');
   const [selectedDay, setSelectedDay] = useState(0);
   const [completeLoading, setCompleteLoading] = useState(null);
   const [completeError, setCompleteError] = useState('');
   const [completeSuccess, setCompleteSuccess] = useState('');
+
+  const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  const LEVEL_TO_BACKEND = { A1: 'beginner', A2: 'beginner', B1: 'intermediate', B2: 'intermediate', C1: 'advanced', C2: 'advanced' };
 
   const fetchRoadmap = async () => {
     setLoading(true);
@@ -48,7 +49,7 @@ export function RoadmapView() {
   const generate = async () => {
     setGenLoading(true); setGenError('');
     try {
-      const res = await axiosInstance.post('/roadmap/generate', { level: genLevel, goal: 'communication', dailyMinutes: 30, topic: genTopic.trim() || undefined }, { timeout: 120000 });
+      const res = await axiosInstance.post('/roadmap/generate', { level: LEVEL_TO_BACKEND[genLevel] || 'intermediate', goal: 'communication', dailyMinutes: 30, topic: genTopic.trim() || undefined }, { timeout: 120000 });
       setRoadmap(res.data.roadmap);
       setSelectedDay(res.data.roadmap.currentDay);
     } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
@@ -80,9 +81,10 @@ export function RoadmapView() {
   const gradientBtn = {
     borderRadius: 3,
     textTransform: 'none',
-    fontWeight: 700,
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+    fontWeight: 800,
+    color: 'white',
+    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+    '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' },
     transition: 'all 0.2s',
   };
 
@@ -114,9 +116,16 @@ export function RoadmapView() {
             </Typography>
             {genError && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, maxWidth: 500, mx: 'auto' }}>{genError}</Alert>}
             <Box sx={{ maxWidth: 520, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, textAlign: 'center' }}>Level:</Typography>
+              <Stack direction="row" spacing={1} justifyContent="center" useFlexGap flexWrap="wrap" sx={{ mb: 2.5 }}>
+                {LEVELS.map(lvl => (
+                  <Chip key={lvl} label={lvl} color={genLevel === lvl ? 'primary' : 'default'} onClick={() => setGenLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 700 }} />
+                ))}
+              </Stack>
               <TopicInput
                 value={genTopic}
                 onChange={setGenTopic}
+                onEnter={generate}
                 label="Focus area / interest (optional)"
                 placeholder="e.g. business English, IELTS prep, travel — AI will tailor the 7-day plan around it"
                 suggestions={['business English', 'travel English', 'academic English', 'daily conversation', 'IELTS prep', 'TOEFL prep', 'job interview', 'medical English', 'IT & technology', 'presentation skills']}
@@ -124,9 +133,6 @@ export function RoadmapView() {
               />
             </Box>
             <Stack direction="row" spacing={1.5} justifyContent="center" alignItems="center">
-              <Select value={genLevel} onChange={e => setGenLevel(e.target.value)} size="small" sx={{ borderRadius: 2.5, '& .MuiSelect-select': { fontWeight: 600 } }}>
-                {['beginner', 'intermediate', 'advanced'].map(l => <MenuItem key={l} value={l}><Box component="span" sx={{ textTransform: 'capitalize' }}>{l}</Box></MenuItem>)}
-              </Select>
               <Button
                 variant="contained"
                 size="large"
@@ -170,7 +176,7 @@ export function RoadmapView() {
             <Typography variant="body2" fontWeight={700} color="primary.main">{progressPercent}%</Typography>
           </Stack>
           <Box sx={{ height: 10, borderRadius: 5, bgcolor: '#f1f5f9', overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, #6366f1, #8b5cf6)', width: `${progressPercent}%`, transition: 'width 0.6s ease' }} />
+            <Box sx={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', width: `${progressPercent}%`, transition: 'width 0.6s ease' }} />
           </Box>
           <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
             <Chip label={`Day ${roadmap.currentDay} of ${roadmap.totalDays}`} size="small" sx={{ height: 22, fontWeight: 600, bgcolor: '#eef2ff', color: '#6366f1', borderRadius: 1.5, fontSize: 11.5 }} />
@@ -199,7 +205,7 @@ export function RoadmapView() {
             }}
           >
             {/* Top accent bar */}
-            <Box sx={{ height: 4, background: isCompleted ? 'linear-gradient(90deg, #10b981, #34d399)' : 'linear-gradient(90deg, #6366f1, #8b5cf6)' }} />
+            <Box sx={{ height: 4, background: isCompleted ? 'linear-gradient(90deg, #10b981, #34d399)' : 'linear-gradient(90deg, #4f46e5, #7c3aed)' }} />
 
             <CardContent sx={{ p: 0 }}>
               <Box sx={{ p: 4 }}>

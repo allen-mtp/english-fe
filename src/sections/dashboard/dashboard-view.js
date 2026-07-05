@@ -26,7 +26,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const quickActions = [
-  { label: 'Vocabulary', desc: 'Build your word bank', icon: BookIcon, href: '/dashboard/vocabulary', color: '#6366f1', gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
+  { label: 'Vocabulary', desc: 'Build your word bank', icon: BookIcon, href: '/dashboard/vocabulary', color: '#6366f1', gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)' },
   { label: 'Speaking', desc: 'Pronunciation practice', icon: MicIcon, href: '/dashboard/speaking', color: '#ec4899', gradient: 'linear-gradient(135deg, #ec4899, #f472b6)' },
   { label: 'Shadowing', desc: 'Mimic native speech', icon: HearingIcon, href: '/dashboard/shadowing', color: '#f59e0b', gradient: 'linear-gradient(135deg, #f59e0b, #f97316)' },
   { label: 'Chat', desc: 'AI conversations', icon: ChatIcon, href: '/dashboard/conversations', color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #34d399)' },
@@ -271,7 +271,7 @@ export function DashboardView() {
                       <Typography variant="caption" sx={{ color: '#a5b4fc', fontWeight: 700 }}>{progressPercent}%</Typography>
                     </Stack>
                     <Box sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.08)', overflow: 'hidden', mb: 2 }}>
-                      <Box sx={{ height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, #6366f1, #8b5cf6)', width: `${progressPercent}%`, transition: 'width 0.5s ease' }} />
+                      <Box sx={{ height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', width: `${progressPercent}%`, transition: 'width 0.5s ease' }} />
                     </Box>
                     <Button
                       variant="contained"
@@ -282,10 +282,11 @@ export function DashboardView() {
                       sx={{
                         borderRadius: 3,
                         textTransform: 'none',
-                        fontWeight: 700,
+                        fontWeight: 800,
+                        color: 'white',
                         py: 1.5,
-                        background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                        '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)' },
+                        background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                        '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)', transform: 'translateY(-1px)' },
                         transition: 'all 0.2s',
                       }}
                     >
@@ -323,11 +324,12 @@ export function DashboardView() {
                   sx={{
                     borderRadius: 3,
                     textTransform: 'none',
-                    fontWeight: 700,
+                    fontWeight: 800,
+                    color: 'white',
                     px: 4,
                     py: 1.5,
-                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)' },
+                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' },
                   }}
                 >
                   Generate Roadmap

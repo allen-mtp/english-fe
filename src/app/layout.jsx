@@ -17,14 +17,14 @@ export const viewport = {
 
 export const metadata = {
   title: {
-    default: 'English Pro - Learn English with AI',
-    template: '%s | English Pro',
+    default: 'English AI - Learn English with AI',
+    template: '%s | English AI',
   },
   description: 'AI-powered English learning: vocabulary, grammar, pronunciation, writing, listening, role-play chat, and personalized roadmap.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    title: 'English Pro',
+    title: 'English AI',
     statusBarStyle: 'black-translucent',
   },
   formatDetection: {
@@ -33,9 +33,9 @@ export const metadata = {
   other: {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-title': 'English Pro',
+    'apple-mobile-web-app-title': 'English AI',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
-    'application-name': 'English Pro',
+    'application-name': 'English AI',
     'msapplication-TileColor': '#6366f1',
   },
 };

@@ -17,7 +17,7 @@ export function Logo({ size = 'medium', withBackground = true, sx }) {
       component="svg"
       viewBox="0 0 512 512"
       sx={{ width: px, height: px, display: 'block', flexShrink: 0, ...sx }}
-      aria-label="English Pro logo"
+      aria-label="English AI logo"
     >
       <defs>
         <linearGradient id="logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">

@@ -7,7 +7,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
@@ -15,7 +14,6 @@ import BookIcon from '@mui/icons-material/MenuBook';
 import MicIcon from '@mui/icons-material/Mic';
 import HearingIcon from '@mui/icons-material/Hearing';
 import BoltIcon from '@mui/icons-material/Bolt';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import TimerIcon from '@mui/icons-material/Timer';
 import StarIcon from '@mui/icons-material/Star';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -58,9 +56,9 @@ export function ProgressView() {
 
   if (loading) {
     return (
-      <Container sx={{ py: 8, textAlign: 'center' }}>
+      <Box sx={{ py: 8, textAlign: 'center' }}>
         <CircularProgress size={36} />
-      </Container>
+      </Box>
     );
   }
 
@@ -92,7 +90,7 @@ export function ProgressView() {
                   width: 72,
                   height: 72,
                   borderRadius: 4,
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -116,7 +114,7 @@ export function ProgressView() {
                   sx={{
                     height: '100%',
                     borderRadius: 4,
-                    background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                    background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
                     width: `${levelPercent}%`,
                     transition: 'width 0.5s ease',
                   }}
@@ -220,43 +218,42 @@ export function ProgressView() {
       {weekly && (
         <Card sx={{ borderRadius: 4, boxShadow: '0 2px 16px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h6" fontWeight={700} sx={{ mb: 3 }}>This Week</Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ mb: 0.5, display: 'block' }}>
-                  Sessions
-                </Typography>
-                <Typography variant="h4" fontWeight={800}>{weekly.totalSessions}</Typography>
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 3 }}>This Week</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ p: 2.5, borderRadius: 3, bgcolor: '#eef2ff', border: '1px solid #c7d2fe' }}>
+                  <Typography variant="caption" color="#4f46e5" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>SESSIONS</Typography>
+                  <Typography variant="h4" fontWeight={900} color="#4f46e5">{weekly.totalSessions}</Typography>
+                </Box>
               </Grid>
-              <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ mb: 0.5, display: 'block' }}>
-                  XP Earned
-                </Typography>
-                <Typography variant="h4" fontWeight={800} color="primary.main">{weekly.totalXP}</Typography>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ p: 2.5, borderRadius: 3, bgcolor: '#fffbeb', border: '1px solid #fde68a' }}>
+                  <Typography variant="caption" color="#d97706" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>XP EARNED</Typography>
+                  <Typography variant="h4" fontWeight={900} color="#d97706">{weekly.totalXP}</Typography>
+                </Box>
               </Grid>
-              <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ mb: 0.5, display: 'block' }}>
-                  Minutes
-                </Typography>
-                <Typography variant="h4" fontWeight={800}>{Math.round(weekly.totalMinutes)}</Typography>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ p: 2.5, borderRadius: 3, bgcolor: '#ecfdf5', border: '1px solid #bbf7d0' }}>
+                  <Typography variant="caption" color="#059669" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>MINUTES</Typography>
+                  <Typography variant="h4" fontWeight={900} color="#059669">{Math.round(weekly.totalMinutes)}</Typography>
+                </Box>
               </Grid>
-              <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500} sx={{ mb: 1, display: 'block' }}>
-                  By Type
-                </Typography>
-                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                  {Object.entries(weekly.byType || {}).map(([type, count]) => (
+            </Grid>
+            {weekly.byType && Object.keys(weekly.byType).length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>By Type</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {Object.entries(weekly.byType).map(([type, count]) => (
                     <Chip
                       key={type}
                       label={`${type}: ${count}`}
                       size="small"
-                      variant="outlined"
-                      sx={{ borderRadius: 2, fontWeight: 500, fontSize: 12 }}
+                      sx={{ borderRadius: 2, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569' }}
                     />
                   ))}
                 </Stack>
-              </Grid>
-            </Grid>
+              </Box>
+            )}
           </CardContent>
         </Card>
       )}

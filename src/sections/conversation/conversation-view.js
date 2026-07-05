@@ -74,9 +74,10 @@ export function ConversationView() {
   const gradientBtn = {
     borderRadius: 3,
     textTransform: 'none',
-    fontWeight: 700,
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+    fontWeight: 800,
+    color: 'white',
+    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+    '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' },
     transition: 'all 0.2s',
   };
 

@@ -158,9 +158,10 @@ export function ShadowingView() {
   const gradientBtn = {
     borderRadius: 2.5,
     textTransform: 'none',
-    fontWeight: 700,
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+    fontWeight: 800,
+    color: 'white',
+    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+    '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' },
     transition: 'all 0.2s',
   };
 
@@ -313,7 +314,7 @@ export function ShadowingView() {
                     sx={{
                       height: '100%',
                       borderRadius: 3,
-                      background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                      background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
                       width: `${progressPercent}%`,
                       transition: 'width 0.3s ease',
                     }}
@@ -435,10 +436,11 @@ export function ShadowingView() {
                     sx={{
                       borderRadius: 3,
                       textTransform: 'none',
-                      fontWeight: 700,
+                      fontWeight: 800,
+                      color: 'white',
                       px: 4,
-                      background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                      '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)' },
+                      background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                      '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' },
                     }}
                   >
                     Get AI Score
@@ -470,7 +472,7 @@ export function ShadowingView() {
                           sx={{
                             height: '100%',
                             borderRadius: 4,
-                            background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+                            background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
                             width: `${result.overallScore}%`,
                             transition: 'width 0.6s ease',
                           }}

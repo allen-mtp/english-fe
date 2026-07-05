@@ -11,6 +11,7 @@ import ShuffleIcon from '@mui/icons-material/Shuffle';
 export function TopicInput({
   value,
   onChange,
+  onEnter,
   suggestions = [],
   label = 'Topic (optional)',
   placeholder = 'Type any topic you want to learn, or pick a suggestion below',
@@ -40,6 +41,7 @@ export function TopicInput({
         onChange={(e) => onChange?.(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && onEnter) onEnter(); }}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

@@ -1,7 +1,7 @@
 export default function manifest() {
   return {
-    name: 'English Pro — Learn English with AI',
-    short_name: 'English Pro',
+    name: 'English AI — Learn English with AI',
+    short_name: 'English AI',
     description: 'AI-powered English learning: vocabulary, grammar, pronunciation, writing, listening, role-play chat, and personalized roadmap.',
     start_url: '/',
     display: 'standalone',

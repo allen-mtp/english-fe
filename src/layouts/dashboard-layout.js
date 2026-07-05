@@ -104,7 +104,7 @@ export function DashboardLayout({ children }) {
           <Logo size={42} />
           <Box>
             <Typography variant="subtitle1" fontWeight={800} sx={{ letterSpacing: '-0.3px', lineHeight: 1.2 }}>
-              English Pro
+              English AI
             </Typography>
             <Typography variant="caption" sx={{ color: alpha('#94a3b8', 0.8), fontWeight: 500 }}>
               AI-powered learning
@@ -284,7 +284,7 @@ export function DashboardLayout({ children }) {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              English Pro
+              English AI
             </Typography>
           </Toolbar>
         </AppBar>

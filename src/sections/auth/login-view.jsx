@@ -103,7 +103,7 @@ export function LoginView() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 6 }}>
             <Logo size={52} />
             <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: '-0.5px' }}>
-              English Pro
+              English AI
             </Typography>
           </Box>
 
@@ -229,13 +229,14 @@ export function LoginView() {
                   mt: 1,
                   py: 1.6,
                   borderRadius: 2,
-                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
                   boxShadow: '0 8px 24px rgba(99, 102, 241, 0.3)',
                   textTransform: 'none',
-                  fontWeight: 700,
+                  fontWeight: 800,
+                  color: 'white',
                   fontSize: 15,
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    background: 'linear-gradient(135deg, #3730a3, #5b21b6)',
                     boxShadow: '0 12px 32px rgba(99, 102, 241, 0.4)',
                     transform: 'translateY(-1px)',
                   },

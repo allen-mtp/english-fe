@@ -15,9 +15,11 @@ import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Alert from '@mui/material/Alert';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -154,59 +156,76 @@ function AddNewTab({ onGenerated }) {
   const gradientBtn = {
     borderRadius: 3,
     textTransform: 'none',
-    fontWeight: 700,
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+    fontWeight: 800,
+    color: 'white',
+    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+    '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' },
     transition: 'all 0.2s',
   };
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={3}>
       {genError && <Alert severity="error" onClose={() => setGenError('')} sx={{ borderRadius: 3 }}>{genError}</Alert>}
       {genSuccess && <Alert severity="success" onClose={() => setGenSuccess('')} sx={{ borderRadius: 3 }}>{genSuccess}</Alert>}
 
-      <TopicInput
-        value={genTopic}
-        onChange={setGenTopic}
-        label="Topic / Context (optional)"
-        placeholder="e.g. business, travel, technology — AI will tailor examples to this topic"
-        suggestions={['business', 'technology', 'travel', 'food', 'sports', 'science', 'music', 'movies', 'health', 'academic', 'daily-life', 'nature']}
-        size="medium"
-      />
-
-      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
-        <CardContent sx={{ p: 4 }}>
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-            <Box sx={{ width: 28, height: 28, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 16 }} /></Box>
-            <Typography variant="h6" fontWeight={700}>Generate Single Word</Typography>
+      <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ background: 'linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%)', p: 3, pb: 2 }}>
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 2.5, bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(99,102,241,0.15)' }}>
+              <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 20 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800}>Generate Vocabulary with AI</Typography>
+              <Typography variant="body2" color="text.secondary">Type a word and press Enter — AI creates full definitions, examples, and IPA</Typography>
+            </Box>
           </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Type any English word and AI will generate full details
-          </Typography>
-          <Stack direction="row" spacing={1.5}>
-            <TextField
-              fullWidth
-              placeholder="e.g. ubiquitous"
-              value={genWord}
-              onChange={(e) => setGenWord(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleGenerateSingle(); }}
-              slotProps={{ input: { sx: { borderRadius: 3 } } }}
-            />
-            <Button variant="contained" disabled={genLoading || !genWord.trim()} onClick={handleGenerateSingle} sx={{ ...gradientBtn, minWidth: 130, px: 3, py: 1.5 }}>
-              {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Generate'}
-            </Button>
+        </Box>
+        <CardContent sx={{ p: 4 }}>
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Word to generate</Typography>
+              <Stack direction="row" spacing={1.5}>
+                <TextField
+                  fullWidth
+                  placeholder="e.g. ubiquitous"
+                  value={genWord}
+                  onChange={(e) => setGenWord(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleGenerateSingle(); }}
+                  slotProps={{ input: { sx: { borderRadius: 3 } } }}
+                  autoFocus
+                />
+                <Button variant="contained" disabled={genLoading || !genWord.trim()} onClick={handleGenerateSingle} sx={{ ...gradientBtn, minWidth: 130, px: 3, py: 1.5 }}>
+                  {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Generate'}
+                </Button>
+              </Stack>
+            </Box>
+
+            <Divider />
+
+            <Box>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Topic / Context (optional)</Typography>
+              <TopicInput
+                value={genTopic}
+                onChange={setGenTopic}
+                onEnter={handleGenerateSingle}
+                label=""
+                placeholder="e.g. business, travel, technology — AI will tailor examples to this topic"
+                suggestions={['business', 'technology', 'travel', 'food', 'sports', 'science', 'music', 'movies', 'health', 'academic', 'daily-life', 'nature']}
+                size="medium"
+              />
+            </Box>
           </Stack>
         </CardContent>
       </Card>
 
-      <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
+      <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: 4 }}>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-            <Box sx={{ width: 28, height: 28, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AutoAwesomeIcon sx={{ color: '#8b5cf6', fontSize: 16 }} /></Box>
-            <Typography variant="h6" fontWeight={700}>Batch Generate</Typography>
+            <Box sx={{ width: 28, height: 28, borderRadius: 2, bgcolor: '#faf5ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AutoAwesomeIcon sx={{ color: '#8b5cf6', fontSize: 16 }} /></Box>
+            <Typography variant="subtitle1" fontWeight={700}>Batch Generate</Typography>
           </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Paste multiple words separated by commas or newlines
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+            Multiple words at once — separated by commas or new lines
           </Typography>
           <TextField
             fullWidth
@@ -215,6 +234,7 @@ function AddNewTab({ onGenerated }) {
             placeholder="hello, world, computer, technology, internet"
             value={genBatch}
             onChange={(e) => setGenBatch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleGenerateBatch(); }}
             slotProps={{ input: { sx: { borderRadius: 3 } } }}
           />
           <Button
@@ -245,6 +265,10 @@ export function VocabularyView() {
   const [reviewIndex, setReviewIndex] = useState(0);
   const [reviewMode, setReviewMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [revealed, setRevealed] = useState(false);
+  const [sessionStats, setSessionStats] = useState({ forgot: 0, hard: 0, good: 0, easy: 0 });
+  const [reviewComplete, setReviewComplete] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -262,19 +286,63 @@ export function VocabularyView() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  useEffect(() => {
+    if (!reviewMode || reviewComplete || tab !== 2) return;
+    const handler = (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!revealed) setRevealed(true);
+      } else if (revealed) {
+        if (e.key === '1') handleReview(0);
+        else if (e.key === '2') handleReview(2);
+        else if (e.key === '3') handleReview(3);
+        else if (e.key === '4') handleReview(5);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [reviewMode, reviewComplete, revealed, reviewIndex]);
+
+  const resetReviewSession = () => {
+    setReviewIndex(0);
+    setRevealed(false);
+    setSessionStats({ forgot: 0, hard: 0, good: 0, easy: 0 });
+    setReviewComplete(false);
+  };
+
+  const exitReview = () => {
+    setReviewMode(false);
+    resetReviewSession();
+    setShowExitDialog(false);
+    setTab(0);
+  };
+
   const handleReview = async (quality) => {
     const item = reviewItems[reviewIndex];
     if (!item) return;
+    const keyMap = { 0: 'forgot', 2: 'hard', 3: 'good', 5: 'easy' };
+    const key = keyMap[quality] || 'good';
+    setSessionStats((prev) => ({ ...prev, [key]: prev[key] + 1 }));
     try {
       await axiosInstance.post('/vocabularies/review', { vocabularyId: item.vocabularyId._id, quality });
       if (reviewIndex + 1 < reviewItems.length) {
         setReviewIndex(reviewIndex + 1);
+        setRevealed(false);
       } else {
-        setReviewMode(false);
-        setReviewIndex(0);
+        setReviewComplete(true);
       }
       fetchData();
     } catch (err) { console.error(err); }
+  };
+
+  const speakWord = (word) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(word);
+      utter.lang = 'en-US';
+      utter.rate = 0.85;
+      window.speechSynthesis.speak(utter);
+    }
   };
 
   const filteredVocab = searchQuery
@@ -284,15 +352,16 @@ export function VocabularyView() {
   const gradientBtn = {
     borderRadius: 3,
     textTransform: 'none',
-    fontWeight: 700,
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+    fontWeight: 800,
+    color: 'white',
+    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+    '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.4)' },
     transition: 'all 0.2s',
   };
 
   return (
     <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={1} sx={{ mb: 2 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
           <Typography variant="h4" fontWeight={800}>Vocabulary</Typography>
           <Typography variant="body2" color="text.secondary">Build your word bank with AI assistance</Typography>
@@ -301,29 +370,51 @@ export function VocabularyView() {
           <Button
             variant="contained"
             startIcon={<EmojiObjectsIcon />}
-            onClick={() => { setTab(2); setReviewMode(true); }}
-            sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 700, fontSize: 14, background: 'linear-gradient(135deg, #f59e0b, #f97316)', '&:hover': { background: 'linear-gradient(135deg, #d97706, #ea580c)' }, px: 3, py: 1.25 }}
+            onClick={() => { setTab(2); resetReviewSession(); setReviewMode(true); }}
+            sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, fontSize: 14, background: 'linear-gradient(135deg, #f59e0b, #f97316)', '&:hover': { background: 'linear-gradient(135deg, #d97706, #ea580c)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(245,158,11,0.3)' }, transition: 'all 0.2s', px: 3, py: 1.25 }}
           >
-            Review {reviewItems.length} <Box component="span" sx={{ ml: 0.5 }}>Words</Box>
+            Review {reviewItems.length} Words
           </Button>
         )}
       </Stack>
 
       {stats && (
-        <Stack direction="row" spacing={1} sx={{ mb: 3 }} flexWrap="wrap" useFlexGap>
-          <Chip label={`${stats.total} words`} color="primary" size="small" sx={{ borderRadius: 2, fontWeight: 600 }} />
-          <Chip label={`${stats.mastered} mastered`} color="success" size="small" variant="outlined" sx={{ borderRadius: 2, fontWeight: 600, borderColor: '#34d399' }} />
-          <Chip label={`${stats.dueToday} due today`} size="small" variant="outlined" color="warning" sx={{ borderRadius: 2, fontWeight: 600 }} />
-        </Stack>
+        <Grid container spacing={1.5} sx={{ mb: 3 }}>
+          <Grid item xs={4} sm={4}>
+            <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', bgcolor: '#eef2ff' }}>
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'center' }}>
+                <Typography variant="h5" fontWeight={900} color="#4f46e5">{stats.total}</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>Total Words</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={4} sm={4}>
+            <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', bgcolor: '#ecfdf5' }}>
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'center' }}>
+                <Typography variant="h5" fontWeight={900} color="#059669">{stats.mastered}</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>Mastered</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={4} sm={4}>
+            <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', bgcolor: '#fffbeb' }}>
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'center' }}>
+                <Typography variant="h5" fontWeight={900} color="#d97706">{stats.dueToday}</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>Due Today</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       )}
 
       <Tabs
         value={tab}
-        onChange={(_, v) => setTab(v)}
+        onChange={(_, v) => { setTab(v); if (v !== 2) { setReviewMode(false); setReviewComplete(false); } }}
         sx={{
           mb: 3,
-          '& .MuiTabs-indicator': { height: 3, borderRadius: 2 },
-          '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: 14.5, minWidth: 100 },
+          '& .MuiTabs-indicator': { height: 3, borderRadius: 2, background: 'linear-gradient(90deg, #4f46e5, #7c3aed)' },
+          '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: 14.5, minWidth: 100, borderRadius: 2.5 },
+          '& .Mui-selected': { color: 'primary.main' },
         }}
       >
         <Tab label="My Words" />
@@ -340,7 +431,7 @@ export function VocabularyView() {
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: 'text.secondary' }} /></InputAdornment>,
-              sx: { borderRadius: 3 },
+              sx: { borderRadius: 3, bgcolor: 'white' },
             }}
             size="small"
             sx={{ maxWidth: 400 }}
@@ -348,41 +439,105 @@ export function VocabularyView() {
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress size={36} /></Box>
           ) : filteredVocab.length === 0 ? (
-            <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
-              <CardContent sx={{ py: 8, textAlign: 'center' }}>
-                <Typography variant="h6" color="text.secondary" fontWeight={600}>No vocabulary yet</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Switch to <Box component="span" fontWeight={700}>Add New</Box> tab to generate words with AI
+            <Card sx={{ borderRadius: 4, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider', bgcolor: '#fafbff' }}>
+              <CardContent sx={{ py: 8, px: 4, textAlign: 'center' }}>
+                <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
+                  <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 30 }} />
+                </Box>
+                <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No vocabulary yet</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  Switch to <Box component="span" fontWeight={700} color="primary.main">Add New</Box> tab to generate words with AI
                 </Typography>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setTab(1)}
+                  sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' }, px: 3 }}
+                >
+                  Add Your First Word
+                </Button>
               </CardContent>
             </Card>
           ) : (
-            <Grid container spacing={1.5}>
-              {filteredVocab.map((v) => (
-                <Grid item xs={6} sm={4} md={3} key={v._id}>
-                  <Card
-                    sx={{
-                      borderRadius: 3,
-                      cursor: 'pointer',
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
-                      transition: 'all 0.2s',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 28px rgba(0,0,0,0.06)',
-                        borderColor: 'primary.light',
-                      },
-                    }}
-                    onClick={() => setSelectedWord(v)}
-                  >
-                    <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
-                      <Typography variant="subtitle1" fontWeight={700} noWrap>{v.word}</Typography>
-                      <Typography variant="caption" color="text.secondary" noWrap>{v.meaningVi}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+            <Grid container spacing={2}>
+              {filteredVocab.map((v) => {
+                const status = v.status || 'NEW';
+                const statusColor = {
+                  NEW: '#94a3b8',
+                  LEARNING: '#f59e0b',
+                  REVIEW: '#6366f1',
+                  MASTERED: '#10b981',
+                }[status] || '#94a3b8';
+                return (
+                  <Grid item xs={6} sm={4} md={3} key={v._id}>
+                    <Card
+                      sx={{
+                        borderRadius: 3,
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                        transition: 'all 0.2s',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 12px 32px rgba(99,102,241,0.08)',
+                          borderColor: 'primary.light',
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0, left: 0, right: 0, height: 3,
+                          background: `linear-gradient(90deg, ${statusColor}, ${statusColor}99)`,
+                        },
+                      }}
+                      onClick={() => setSelectedWord(v)}
+                    >
+                      <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 }, minWidth: 0, overflow: 'hidden' }}>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.25 }}>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight={700}
+                            sx={{
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              flex: 1,
+                            }}
+                          >
+                            {v.word}
+                          </Typography>
+                          {status === 'MASTERED' && (
+                            <CheckCircleIcon sx={{ fontSize: 16, color: '#10b981', flexShrink: 0, ml: 0.5 }} />
+                          )}
+                        </Stack>
+                        {v.ipa && (
+                          <Typography variant="caption" sx={{ color: '#94a3b8', fontStyle: 'italic', display: 'block', mb: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {v.ipa}
+                          </Typography>
+                        )}
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            lineHeight: 1.4,
+                            minHeight: '2.8em',
+                            wordBreak: 'break-word',
+                          }}
+                        >
+                          {v.meaningVi}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
             </Grid>
           )}
           <FlashcardDialog word={selectedWord} open={!!selectedWord} onClose={() => setSelectedWord(null)} />
@@ -394,57 +549,259 @@ export function VocabularyView() {
         <AddNewTab onGenerated={fetchData} />
       )}
 
-      {/* Tab 2: Review */}
-      {tab === 2 && reviewItems.length > 0 && reviewItems[reviewIndex] && (() => {
-        const r = reviewItems[reviewIndex].vocabularyId;
+      {/* Tab 2: Review — completion screen (renders even after reviewItems becomes empty) */}
+      {tab === 2 && reviewComplete && (() => {
+        const totalReviewed = sessionStats.forgot + sessionStats.hard + sessionStats.good + sessionStats.easy;
+        const correctCount = sessionStats.good + sessionStats.easy;
+        const accuracy = totalReviewed > 0 ? Math.round((correctCount / totalReviewed) * 100) : 0;
+        return (
+          <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+            <Box sx={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', p: 5, textAlign: 'center', color: 'white' }}>
+              <Box sx={{ fontSize: 56, mb: 1 }}>🎉</Box>
+              <Typography variant="h4" fontWeight={900}>Review Complete!</Typography>
+              <Typography variant="body1" sx={{ opacity: 0.85, mt: 1 }}>
+                You reviewed {totalReviewed} word{totalReviewed !== 1 ? 's' : ''}
+              </Typography>
+            </Box>
+            <CardContent sx={{ p: 4 }}>
+              <Box sx={{ textAlign: 'center', mb: 3 }}>
+                <Typography variant="h2" fontWeight={900} sx={{ color: accuracy >= 70 ? '#10b981' : accuracy >= 40 ? '#f59e0b' : '#ef4444' }}>
+                  {accuracy}%
+                </Typography>
+                <Typography variant="body2" color="text.secondary">Accuracy</Typography>
+              </Box>
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#fef2f2' }}>
+                    <Typography variant="h4" fontWeight={900} color="#ef4444">{sessionStats.forgot}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Forgot</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#fffbeb' }}>
+                    <Typography variant="h4" fontWeight={900} color="#f59e0b">{sessionStats.hard}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Hard</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#eef2ff' }}>
+                    <Typography variant="h4" fontWeight={900} color="#6366f1">{sessionStats.good}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Good</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#ecfdf5' }}>
+                    <Typography variant="h4" fontWeight={900} color="#10b981">{sessionStats.easy}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Easy</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+              <Stack direction="row" spacing={2} justifyContent="center">
+                <Button variant="contained" onClick={exitReview} sx={{ ...gradientBtn, px: 4, py: 1.5 }}>
+                  Back to Words
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
+      {/* Tab 2: Review — active session */}
+      {tab === 2 && !reviewComplete && reviewMode && reviewItems.length > 0 && (() => {
+        const total = reviewItems.length;
+        const current = reviewIndex + 1;
+        const progress = (current / total) * 100;
+
+        const item = reviewItems[reviewIndex];
+        if (!item) return null;
+        const r = item.vocabularyId;
+        const status = item.status || 'NEW';
+        const statusConfig = {
+          NEW: { color: '#94a3b8', bg: '#f1f5f9' },
+          LEARNING: { color: '#f59e0b', bg: '#fffbeb' },
+          REVIEW: { color: '#6366f1', bg: '#eef2ff' },
+          MASTERED: { color: '#10b981', bg: '#ecfdf5' },
+        };
+        const sc = statusConfig[status] || statusConfig.NEW;
+
+        const qualityButtons = [
+          { key: 0, label: 'Forgot', hint: '<1d', color: '#ef4444', bg: '#fef2f2', variant: 'outlined' },
+          { key: 2, label: 'Hard', hint: '1d', color: '#f59e0b', bg: '#fffbeb', variant: 'outlined' },
+          { key: 3, label: 'Good', hint: '3d', color: '#6366f1', bg: '#eef2ff', variant: 'contained' },
+          { key: 5, label: 'Easy', hint: '7d+', color: '#10b981', bg: '#ecfdf5', variant: 'contained' },
+        ];
+
         return (
           <Stack spacing={3}>
-            <Card sx={{ borderRadius: 3, boxShadow: '0 8px 40px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider' }}>
-              <CardContent sx={{ p: { xs: 3, md: 5.5 } }}>
-                <Box textAlign="center">
-                  <Chip label={`${reviewIndex + 1} / ${reviewItems.length}`} size="small" variant="outlined" sx={{ mb: 3, borderRadius: 2, fontWeight: 600 }} />
-                  <Typography variant="h3" fontWeight={900} sx={{ mb: 1, letterSpacing: '-1px' }}>{r.word}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>{r.ipa}</Typography>
-                  <Box sx={{ mt: 4, bgcolor: '#f8fafc', borderRadius: 3, p: 3, mx: 'auto', maxWidth: 500, border: '1px solid', borderColor: '#e2e8f0' }}>
-                    <Typography variant="subtitle1" fontWeight={700} color="primary.main">{r.meaningVi}</Typography>
-                    <Typography variant="body2" color="text.secondary" fontStyle="italic" sx={{ mt: 0.5 }}>{r.meaningEn}</Typography>
-                    {r.examples?.[0] && (
-                      <Typography variant="body2" sx={{ mt: 2, fontStyle: 'italic', color: 'text.secondary' }}>
-                        &ldquo;{r.examples[0].en}&rdquo;
-                      </Typography>
-                    )}
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 5, mb: 2.5, fontWeight: 500 }}>
-                    How well did you remember?
+            {/* Progress + exit */}
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Box sx={{ flex: 1 }}>
+                <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.75 }}>
+                  <Typography variant="body2" fontWeight={600} color="text.secondary">
+                    {current} / {total}
                   </Typography>
-                  <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap" useFlexGap>
-                    <Button variant="outlined" color="error" onClick={() => handleReview(0)} sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 3 }}>Forgot</Button>
-                    <Button
-                      variant="outlined" color="warning"
-                      onClick={() => handleReview(2)} sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 3 }}
+                  <Typography variant="body2" fontWeight={600} color="primary.main">
+                    {Math.round(progress)}%
+                  </Typography>
+                </Stack>
+                <LinearProgress
+                  variant="determinate"
+                  value={progress}
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    bgcolor: '#f1f5f9',
+                    '& .MuiLinearProgress-bar': { borderRadius: 4, background: 'linear-gradient(90deg, #4f46e5, #7c3aed)' },
+                  }}
+                />
+              </Box>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setShowExitDialog(true)}
+                sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 600, minWidth: 'auto', px: 2, py: 1, borderColor: '#e2e8f0', color: '#64748b' }}
+              >
+                Exit
+              </Button>
+            </Stack>
+
+            {/* Review card */}
+            <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
+              <Box sx={{ background: 'linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%)', p: { xs: 3, md: 5 }, textAlign: 'center', position: 'relative' }}>
+                <Stack direction="row" spacing={1} justifyContent="center" sx={{ mb: 3 }}>
+                  <Chip label={status} size="small" sx={{ borderRadius: 2, fontWeight: 700, bgcolor: sc.bg, color: sc.color, textTransform: 'uppercase', fontSize: 11 }} />
+                </Stack>
+
+                <IconButton
+                  onClick={() => speakWord(r.word)}
+                  sx={{
+                    position: 'absolute', top: 16, right: 16,
+                    bgcolor: 'rgba(99,102,241,0.08)',
+                    '&:hover': { bgcolor: 'rgba(99,102,241,0.15)' },
+                  }}
+                >
+                  <VolumeUpIcon sx={{ color: '#6366f1' }} />
+                </IconButton>
+
+                <Typography variant="h3" fontWeight={900} sx={{ mb: 1, letterSpacing: '-1px' }}>{r.word}</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>{r.ipa}</Typography>
+                <Chip label={r.partOfSpeech || 'noun'} size="small" variant="outlined" sx={{ mt: 2, opacity: 0.6 }} />
+
+                <AnimatePresence mode="wait">
+                  {revealed ? (
+                    <motion.div
+                      key="answer"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      Hard
-                    </Button>
-                    <Button variant="contained" onClick={() => handleReview(3)} sx={{ ...gradientBtn, px: 4, py: 1.5 }}>Good</Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => handleReview(5)}
-                      sx={{
-                        borderRadius: 3, textTransform: 'none', fontWeight: 700, px: 4, py: 1.5,
-                        background: 'linear-gradient(135deg, #10b981, #34d399)',
-                        '&:hover': { background: 'linear-gradient(135deg, #059669, #10b981)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(16,185,129,0.3)' },
-                        transition: 'all 0.2s',
-                      }}
+                      <Box sx={{ mt: 4, bgcolor: 'white', borderRadius: 3, p: 3, mx: 'auto', maxWidth: 500, border: '1px solid', borderColor: '#e2e8f0', textAlign: 'left' }}>
+                        <Typography variant="subtitle1" fontWeight={700} color="primary.main">{r.meaningVi}</Typography>
+                        <Typography variant="body2" color="text.secondary" fontStyle="italic" sx={{ mt: 0.5 }}>{r.meaningEn}</Typography>
+                        {r.examples?.[0] && (
+                          <Box sx={{ mt: 2, pt: 2, borderTop: '1px dashed', borderColor: 'divider' }}>
+                            <Stack direction="row" alignItems="flex-start" spacing={1}>
+                              <IconButton size="small" onClick={() => speakWord(r.examples[0].en)} sx={{ mt: -0.5, p: 0.5 }}>
+                                <VolumeUpIcon fontSize="small" sx={{ color: '#94a3b8' }} />
+                              </IconButton>
+                              <Box>
+                                <Typography variant="body2" fontStyle="italic" color="text.secondary">
+                                  &ldquo;{r.examples[0].en}&rdquo;
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>{r.examples[0].vi}</Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
+                        )}
+                        {r.synonyms?.length > 0 && (
+                          <Stack direction="row" spacing={0.5} sx={{ mt: 2, flexWrap: 'wrap', gap: 0.5 }} useFlexGap>
+                            {r.synonyms.slice(0, 4).map((s) => (
+                              <Chip key={s} label={s} size="small" variant="outlined" sx={{ borderRadius: 1.5, fontSize: 11 }} />
+                            ))}
+                          </Stack>
+                        )}
+                      </Box>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="hidden"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
                     >
-                      Easy
-                    </Button>
-                  </Stack>
-                </Box>
-              </CardContent>
+                      <Box sx={{ mt: 4, mx: 'auto', maxWidth: 400 }}>
+                        <Box sx={{ bgcolor: 'rgba(99,102,241,0.06)', borderRadius: 3, p: 3, border: '1px dashed', borderColor: 'primary.light', cursor: 'pointer' }} onClick={() => setRevealed(true)}>
+                          <Typography variant="body2" color="primary.main" fontWeight={600}>
+                            Click to reveal meaning
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                            or press Space / Enter
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </Box>
+
+              {revealed && (
+                <CardContent sx={{ p: 3, bgcolor: 'white' }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} textAlign="center" sx={{ display: 'block', mb: 2 }}>
+                    How well did you remember? (press 1-4)
+                  </Typography>
+                  <Grid container spacing={1.5}>
+                    {qualityButtons.map((btn) => (
+                      <Grid item xs={6} sm={3} key={btn.key}>
+                        <Button
+                          fullWidth
+                          variant={btn.variant}
+                          onClick={() => handleReview(btn.key)}
+                          sx={{
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            fontWeight: 700,
+                            py: 1.5,
+                            flexDirection: 'column',
+                            gap: 0.25,
+                            ...(btn.variant === 'outlined'
+                              ? { borderColor: btn.color, color: btn.color, '&:hover': { borderColor: btn.color, bgcolor: btn.bg } }
+                              : btn.key === 3
+                                ? { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', color: 'white', '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' } }
+                                : { background: 'linear-gradient(135deg, #10b981, #34d399)', '&:hover': { background: 'linear-gradient(135deg, #059669, #10b981)' } }
+                            ),
+                          }}
+                        >
+                          <Box>{btn.label}</Box>
+                          <Box component="span" sx={{ fontSize: 11, opacity: 0.7, fontWeight: 500 }}>{btn.hint}</Box>
+                        </Button>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </CardContent>
+              )}
             </Card>
           </Stack>
         );
       })()}
+
+      {/* Exit confirmation dialog */}
+      <Dialog open={showExitDialog} onClose={() => setShowExitDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 4 } }}>
+        <DialogContent sx={{ p: 4, textAlign: 'center' }}>
+          <Box sx={{ fontSize: 40, mb: 1 }}>⚠️</Box>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>Exit review session?</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Your progress ({reviewIndex + 1}/{reviewItems.length}) will be saved. You can review the rest later.
+          </Typography>
+          <Stack direction="row" spacing={2} justifyContent="center">
+            <Button variant="outlined" onClick={() => setShowExitDialog(false)} sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 4 }}>
+              Continue
+            </Button>
+            <Button variant="contained" color="error" onClick={exitReview} sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 4 }}>
+              Exit
+            </Button>
+          </Stack>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }
