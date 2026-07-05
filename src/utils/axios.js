@@ -7,14 +7,68 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+const AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/refresh'];
+let isRefreshing = false;
+let refreshPromise = null;
+let isRedirecting = false;
+
+function shouldRedirect() {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname;
+  return !path.startsWith('/login') && !path.startsWith('/register');
+}
+
+function redirectToLogin() {
+  if (typeof window === 'undefined' || isRedirecting) return;
+  isRedirecting = true;
+  window.location.href = '/login?reason=session_expired';
+}
+
+async function doRefresh() {
+  const res = await axiosInstance.post('/auth/refresh');
+  return res.data;
+}
+
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/register')) {
-        window.location.href = '/login';
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error.response?.status;
+    const url = originalRequest?.url || '';
+    const isAuthPath = AUTH_PATHS.some((p) => url.includes(p));
+
+    if (status === 401 && !isAuthPath && !originalRequest._retried) {
+      originalRequest._retried = true;
+
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = doRefresh()
+          .then((data) => {
+            isRefreshing = false;
+            return data;
+          })
+          .catch((err) => {
+            isRefreshing = false;
+            refreshPromise = null;
+            if (shouldRedirect()) redirectToLogin();
+            throw err;
+          });
+      }
+
+      try {
+        await refreshPromise;
+        return axiosInstance(originalRequest);
+      } catch (err) {
+        return Promise.reject(err);
       }
     }
+
+    if (status === 401 && isAuthPath && url.includes('/auth/refresh')) {
+      if (shouldRedirect()) redirectToLogin();
+    } else if (status === 401 && shouldRedirect() && originalRequest?._retried) {
+      redirectToLogin();
+    }
+
     return Promise.reject(error);
   }
 );

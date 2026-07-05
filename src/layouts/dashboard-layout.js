@@ -19,6 +19,7 @@ import Tooltip from '@mui/material/Tooltip';
 import CircularProgress from '@mui/material/CircularProgress';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme, alpha } from '@mui/material/styles';
+import { Logo } from 'src/components/logo/logo';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MicIcon from '@mui/icons-material/Mic';
@@ -27,7 +28,6 @@ import ChatIcon from '@mui/icons-material/Chat';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import MapIcon from '@mui/icons-material/Map';
 import MenuIcon from '@mui/icons-material/Menu';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import SpellcheckIcon from '@mui/icons-material/Spellcheck';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -101,20 +101,7 @@ export function DashboardLayout({ children }) {
     >
       <Box sx={{ px: 3, pt: 3.5, pb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            sx={{
-              width: 42,
-              height: 42,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #818cf8, #6366f1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4)',
-            }}
-          >
-            <AutoAwesomeIcon sx={{ fontSize: 20, color: 'white' }} />
-          </Box>
+          <Logo size={42} />
           <Box>
             <Typography variant="subtitle1" fontWeight={800} sx={{ letterSpacing: '-0.3px', lineHeight: 1.2 }}>
               English Pro
@@ -124,22 +111,6 @@ export function DashboardLayout({ children }) {
             </Typography>
           </Box>
         </Box>
-      </Box>
-
-      <Box sx={{ px: 2.5, pb: 1 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            px: 1,
-            color: alpha('#64748b', 0.8),
-            textTransform: 'uppercase',
-            fontSize: 10.5,
-            fontWeight: 700,
-            letterSpacing: 1.5,
-          }}
-        >
-          Main Menu
-        </Typography>
       </Box>
 
       <List sx={{ px: 1.5, flex: 1 }}>
