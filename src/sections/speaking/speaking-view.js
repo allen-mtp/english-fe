@@ -39,6 +39,9 @@ const sampleTexts = [
   'I have been learning English for three years and I love it.',
 ];
 
+const PRONUNCIATION_TOPICS = ['daily-life', 'travel', 'food', 'work', 'shopping', 'health', 'technology', 'education', 'business', 'small-talk', 'news', 'sports'];
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
 export function SpeakingView() {
   const [tab, setTab] = useState(0);
   const [text, setText] = useState(sampleTexts[0]);
@@ -58,6 +61,14 @@ export function SpeakingView() {
   const [scenarioLoading, setScenarioLoading] = useState(false);
   const [scenarioError, setScenarioError] = useState('');
   const [scenarioTopic, setScenarioTopic] = useState('');
+
+  // Pronunciation generate state
+  const [pronTopic, setPronTopic] = useState('');
+  const [pronLevel, setPronLevel] = useState('B1');
+  const [pronLoading, setPronLoading] = useState(false);
+  const [pronError, setPronError] = useState('');
+  const [generatedSentences, setGeneratedSentences] = useState([]);
+  const [currentTopic, setCurrentTopic] = useState('');
 
   const fetchHistory = async () => {
     setHistoryLoading(true);
@@ -127,6 +138,23 @@ export function SpeakingView() {
     }
   };
 
+  const generatePronunciationSentences = async () => {
+    setPronLoading(true); setPronError('');
+    const topic = pronTopic.trim() || 'daily-life';
+    try {
+      const res = await axiosInstance.post('/pronunciation/generate', { topic, level: pronLevel });
+      setGeneratedSentences(res.data.sentences || []);
+      setCurrentTopic(res.data.topic || topic);
+      if (res.data.sentences?.length > 0) {
+        setText(res.data.sentences[0].text);
+        setResult(null);
+        setAudioBlob(null);
+      }
+    } catch (err) {
+      setPronError(err.response?.data?.error || 'Generation failed');
+    } finally { setPronLoading(false); }
+  };
+
   // Daily scenario functions
   const fetchScenario = async () => {
     setScenarioLoading(true);
@@ -174,6 +202,118 @@ export function SpeakingView() {
 
       {tab === 0 && (
       <Stack spacing={3.5}>
+        {/* Generate sentences by topic */}
+        <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.035)', border: '1px solid', borderColor: 'divider' }}>
+          <CardContent sx={{ p: 4 }}>
+            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.75 }}>
+              <Box sx={{ width: 30, height: 30, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 16 }} />
+              </Box>
+              <Typography variant="h6" fontWeight={700}>Generate practice sentences</Typography>
+            </Stack>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+              AI creates topic-based sentences for you to read aloud and practice pronunciation
+            </Typography>
+
+            {pronError && <Alert severity="error" sx={{ mb: 2, borderRadius: 3 }}>{pronError}</Alert>}
+
+            <Stack spacing={2.5}>
+              <TopicInput
+                value={pronTopic}
+                onChange={setPronTopic}
+                label="Topic"
+                placeholder="Pick a suggestion or type any topic"
+                suggestions={PRONUNCIATION_TOPICS}
+                size="small"
+                showRandom
+              />
+
+              <Box>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                  {LEVELS.map((lvl) => (
+                    <Chip
+                      key={lvl}
+                      label={lvl}
+                      color={pronLevel === lvl ? 'primary' : 'default'}
+                      onClick={() => setPronLevel(lvl)}
+                      clickable
+                    />
+                  ))}
+                </Stack>
+              </Box>
+
+              <Button
+                variant="contained"
+                onClick={generatePronunciationSentences}
+                disabled={pronLoading}
+                startIcon={pronLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />}
+                sx={{
+                  alignSelf: 'flex-start',
+                  px: 3,
+                  py: 1.1,
+                  borderRadius: 2.5,
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  '&:hover': { background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' },
+                  transition: 'all 0.2s',
+                }}
+              >
+                {pronLoading ? 'Generating...' : 'Generate'}
+              </Button>
+            </Stack>
+
+            {generatedSentences.length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                  <Typography variant="subtitle2" fontWeight={700}>Sentences for "{currentTopic}"</Typography>
+                  <Chip label={pronLevel} size="small" color="primary" sx={{ borderRadius: 2, fontWeight: 600 }} />
+                </Stack>
+                <Stack spacing={1.25}>
+                  {generatedSentences.map((s, i) => {
+                    const active = text === s.text;
+                    return (
+                      <Box
+                        key={i}
+                        onClick={() => { setText(s.text); setResult(null); setAudioBlob(null); }}
+                        sx={{
+                          p: 2,
+                          borderRadius: 3,
+                          cursor: 'pointer',
+                          border: '1px solid',
+                          borderColor: active ? 'primary.main' : 'divider',
+                          bgcolor: active ? 'rgba(99,102,241,0.05)' : '#f8fafc',
+                          transition: 'all 0.15s',
+                          '&:hover': { borderColor: 'primary.light', bgcolor: active ? 'rgba(99,102,241,0.08)' : '#f1f5f9' },
+                        }}
+                      >
+                        <Stack direction="row" alignItems="flex-start" spacing={1.5}>
+                          <Box
+                            sx={{
+                              width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                              bgcolor: active ? 'primary.main' : '#cbd5e1',
+                              color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 12, fontWeight: 700,
+                            }}
+                          >
+                            {i + 1}
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography fontWeight={600} fontSize={14.5}>{s.text}</Typography>
+                            <Typography variant="caption" color="text.secondary" fontStyle="italic">{s.translation}</Typography>
+                          </Box>
+                          {active && <CheckCircleIcon sx={{ color: 'primary.main', fontSize: 20, mt: 0.3 }} />}
+                        </Stack>
+                      </Box>
+                    );
+                  })}
+                </Stack>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Text input */}
         <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.035)', border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 4 }}>
@@ -181,11 +321,19 @@ export function SpeakingView() {
             <TextField
               fullWidth
               multiline
-              minRows={2}
-              maxRows={4}
+              minRows={3}
+              maxRows={6}
+              label="Sentence to practice"
               value={text}
               onChange={(e) => { setText(e.target.value); setResult(null); setAudioBlob(null); }}
-              InputProps={{ sx: { borderRadius: 3 } }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 3,
+                  fontSize: 16,
+                  fontWeight: 500,
+                  lineHeight: 1.6,
+                },
+              }}
             />
             <Stack direction="row" spacing={1} sx={{ mt: 2 }} flexWrap="wrap" useFlexGap>
               {sampleTexts.map((t, i) => (
