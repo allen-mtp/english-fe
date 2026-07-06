@@ -12,9 +12,9 @@ export function AuthProvider({ children }) {
   const fetchMe = useCallback(async () => {
     try {
       const res = await axiosInstance.get('/auth/me');
-      setUser(res.data.user);
-      return res.data.user;
-    } catch (err) {
+      setUser(res.data.user ?? null);
+      return res.data.user ?? null;
+    } catch {
       setUser(null);
       return null;
     }

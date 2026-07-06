@@ -43,11 +43,11 @@ export function DashboardView() {
       try {
         const [statsRes, roadmapRes, weeklyRes] = await Promise.all([
           axiosInstance.get('/progress/stats'),
-          axiosInstance.get('/roadmap/my').catch(() => ({ data: null })),
+          axiosInstance.get('/roadmap/my'),
           axiosInstance.get('/progress/weekly').catch(() => ({ data: null })),
         ]);
         setStats(statsRes.data.stats);
-        if (roadmapRes.data) setRoadmap(roadmapRes.data.roadmap);
+        setRoadmap(roadmapRes.data?.roadmap ?? null);
         if (weeklyRes.data) setWeekly(weeklyRes.data.summary);
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
