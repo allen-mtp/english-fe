@@ -37,7 +37,7 @@ export function GrammarView() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
-  const [filterLevel, setFilterLevel] = useState('');
+  const [filterLevel, setFilterLevel] = useState('A1');
   const [filterTopic, setFilterTopic] = useState('');
   const [topics, setTopics] = useState([]);
 
@@ -80,7 +80,7 @@ export function GrammarView() {
     setError('');
     try {
       await axiosInstance.post('/grammar/generate', {
-        level: filterLevel || 'A1',
+        level: filterLevel,
         topic: filterTopic || undefined,
       });
       fetchLessons();
@@ -417,7 +417,7 @@ export function GrammarView() {
                   key={lvl}
                   label={lvl}
                   color={filterLevel === lvl ? 'primary' : 'default'}
-                  onClick={() => { setFilterLevel(filterLevel === lvl ? '' : lvl); }}
+                  onClick={() => setFilterLevel(lvl)}
                   clickable
                   sx={{ borderRadius: 2, fontWeight: 600 }}
                 />

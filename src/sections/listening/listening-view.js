@@ -37,7 +37,7 @@ export function ListeningView() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
-  const [filterLevel, setFilterLevel] = useState('');
+  const [filterLevel, setFilterLevel] = useState('A1');
   const [genTopic, setGenTopic] = useState('');
 
   const [answers, setAnswers] = useState({});
@@ -63,7 +63,7 @@ export function ListeningView() {
     setGenerating(true); setError('');
     try {
       await axiosInstance.post('/listening/generate', {
-        level: filterLevel || 'A1',
+        level: filterLevel,
         topic: genTopic.trim() || undefined,
       });
       fetchExercises();
@@ -276,7 +276,7 @@ export function ListeningView() {
             <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
             <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
               {LEVELS.map(lvl => (
-                <Chip key={lvl} label={lvl} color={filterLevel === lvl ? 'primary' : 'default'} onClick={() => { setFilterLevel(filterLevel === lvl ? '' : lvl); }} clickable sx={{ borderRadius: 2, fontWeight: 600 }} />
+                <Chip key={lvl} label={lvl} color={filterLevel === lvl ? 'primary' : 'default'} onClick={() => setFilterLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 600 }} />
               ))}
               <Button size="small" variant="contained" onClick={fetchExercises} sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 2 }}>Apply</Button>
             </Stack>
