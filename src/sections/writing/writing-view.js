@@ -44,7 +44,7 @@ const gradientBtn = {
 
 export function WritingView() {
   const [view, setView] = useState('home');
-  const [level, setLevel] = useState('B1');
+  const [level, setLevel] = useState('A1');
   const [type, setType] = useState('email');
   const [topic, setTopic] = useState('');
   const [writingPrompt, setWritingPrompt] = useState(null);

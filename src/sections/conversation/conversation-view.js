@@ -20,7 +20,6 @@ import TranslateIcon from '@mui/icons-material/Translate';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ForumIcon from '@mui/icons-material/Forum';
-import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 
 const topics = ['daily-life', 'travel', 'food', 'work', 'health', 'shopping', 'technology', 'education', 'entertainment', 'hobbies'];
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -34,7 +33,7 @@ export function ConversationView() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [genTopic, setGenTopic] = useState('daily-life');
-  const [genLevel, setGenLevel] = useState('B1');
+  const [genLevel, setGenLevel] = useState('A1');
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState('');
   const [expanded, setExpanded] = useState(null);

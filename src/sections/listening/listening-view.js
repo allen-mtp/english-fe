@@ -22,7 +22,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HearingIcon from '@mui/icons-material/Hearing';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -64,7 +63,7 @@ export function ListeningView() {
     setGenerating(true); setError('');
     try {
       await axiosInstance.post('/listening/generate', {
-        level: filterLevel || 'B1',
+        level: filterLevel || 'A1',
         topic: genTopic.trim() || undefined,
       });
       fetchExercises();

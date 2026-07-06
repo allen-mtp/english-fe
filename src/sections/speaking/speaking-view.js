@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import axiosInstance from 'src/utils/axios';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
@@ -64,7 +64,7 @@ export function SpeakingView() {
 
   // Pronunciation generate state
   const [pronTopic, setPronTopic] = useState('');
-  const [pronLevel, setPronLevel] = useState('B1');
+  const [pronLevel, setPronLevel] = useState('A1');
   const [pronLoading, setPronLoading] = useState(false);
   const [pronError, setPronError] = useState('');
   const [generatedSentences, setGeneratedSentences] = useState([]);
@@ -160,7 +160,7 @@ export function SpeakingView() {
     setScenarioLoading(true);
     setScenarioError('');
     try {
-      const params = new URLSearchParams({ level: 'B1' });
+      const params = new URLSearchParams({ level: 'A1' });
       if (scenarioTopic.trim()) params.append('topic', scenarioTopic.trim());
       const res = await axiosInstance.get(`/speaking-scenarios/scenario?${params.toString()}`);
       setScenario(res.data.scenario);

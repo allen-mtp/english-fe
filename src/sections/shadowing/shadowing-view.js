@@ -49,7 +49,7 @@ export function ShadowingView() {
 
   const [showGen, setShowGen] = useState(false);
   const [genTopic, setGenTopic] = useState('');
-  const [genLevel, setGenLevel] = useState('B1');
+  const [genLevel, setGenLevel] = useState('A1');
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState('');
   const [genSuccess, setGenSuccess] = useState('');

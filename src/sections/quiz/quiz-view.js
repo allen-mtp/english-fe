@@ -14,7 +14,6 @@ import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import Divider from '@mui/material/Divider';
 import LinearProgress from '@mui/material/LinearProgress';
 import IconButton from '@mui/material/IconButton';
 import Radio from '@mui/material/Radio';
@@ -68,7 +67,7 @@ export function QuizView() {
   const [submitting, setSubmitting] = useState(false);
   const [results, setResults] = useState(null);
   const [error, setError] = useState('');
-  const [config, setConfig] = useState({ type: 'practice', category: 'mixed', level: 'B1', questionCount: 10, topic: '' });
+  const [config, setConfig] = useState({ type: 'practice', category: 'mixed', level: 'A1', questionCount: 10, topic: '' });
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {

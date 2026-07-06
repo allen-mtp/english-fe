@@ -52,7 +52,7 @@ export function RolePlayView() {
   const [error, setError] = useState('');
   const [analysis, setAnalysis] = useState(null);
   const [customTopic, setCustomTopic] = useState('');
-  const [level, setLevel] = useState('B1');
+  const [level, setLevel] = useState('A1');
   const messagesEndRef = useRef(null);
 
   useEffect(() => { fetchConversations(); }, []);

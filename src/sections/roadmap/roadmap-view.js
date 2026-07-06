@@ -12,71 +12,33 @@ import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 import Chip from '@mui/material/Chip';
 import Alert from '@mui/material/Alert';
+import Tooltip from '@mui/material/Tooltip';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MapIcon from '@mui/icons-material/Map';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import LockIcon from '@mui/icons-material/Lock';
+import StarIcon from '@mui/icons-material/Star';
+import CelebrateIcon from '@mui/icons-material/Celebration';
+
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+const LEVEL_NEXT = { A1: 'A2', A2: 'B1', B1: 'B2', B2: 'C1', C1: 'C2', C2: 'C2' };
 
 export function RoadmapView() {
   const [roadmap, setRoadmap] = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [genLoading, setGenLoading] = useState(false);
-  const [genLevel, setGenLevel] = useState('B1');
+  const [genLevel, setGenLevel] = useState('A1');
   const [genTopic, setGenTopic] = useState('');
   const [genError, setGenError] = useState('');
-  const [selectedDay, setSelectedDay] = useState(0);
   const [completeLoading, setCompleteLoading] = useState(null);
   const [completeError, setCompleteError] = useState('');
   const [completeSuccess, setCompleteSuccess] = useState('');
-
-  const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-  const LEVEL_TO_BACKEND = { A1: 'beginner', A2: 'beginner', B1: 'intermediate', B2: 'intermediate', C1: 'advanced', C2: 'advanced' };
-
-  const fetchRoadmap = async () => {
-    setLoading(true);
-    try {
-      const res = await axiosInstance.get('/roadmap/my');
-      setRoadmap(res.data.roadmap);
-      setSelectedDay(res.data.roadmap.currentDay);
-    } catch (err) { setRoadmap(null); }
-    finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchRoadmap(); }, []);
-
-  const generate = async () => {
-    setGenLoading(true); setGenError('');
-    try {
-      const res = await axiosInstance.post('/roadmap/generate', { level: LEVEL_TO_BACKEND[genLevel] || 'intermediate', goal: 'communication', dailyMinutes: 30, topic: genTopic.trim() || undefined }, { timeout: 120000 });
-      setRoadmap(res.data.roadmap);
-      setSelectedDay(res.data.roadmap.currentDay);
-    } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
-    finally { setGenLoading(false); }
-  };
-
-  const completeDay = async (day) => {
-    setCompleteLoading(day);
-    setCompleteError('');
-    setCompleteSuccess('');
-    try {
-      const res = await axiosInstance.post(`/roadmap/day/${day}/complete`);
-      setRoadmap(res.data.roadmap);
-      setSelectedDay(res.data.roadmap.currentDay);
-      setCompleteSuccess(`Day ${day} completed! +${res.data.xpEarned || 50} XP`);
-      setTimeout(() => setCompleteSuccess(''), 3000);
-    } catch (err) {
-      setCompleteError(err.response?.data?.error || 'Failed to complete day');
-    }
-    finally { setCompleteLoading(null); }
-  };
-
-  const reset = async () => {
-    await axiosInstance.patch('/roadmap/reset');
-    setRoadmap(null);
-    setSelectedDay(0);
-  };
+  const [justCompleted, setJustCompleted] = useState(false);
+  const [showAllDays, setShowAllDays] = useState(false);
 
   const gradientBtn = {
     borderRadius: 3,
@@ -88,6 +50,66 @@ export function RoadmapView() {
     transition: 'all 0.2s',
   };
 
+  const fetchRoadmap = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get('/roadmap/my');
+      setRoadmap(res.data.roadmap);
+      setStats(res.data.stats || null);
+      setGenLevel(res.data.roadmap?.isCompleted ? LEVEL_NEXT[res.data.roadmap.level] || res.data.roadmap.level : res.data.roadmap?.level || 'A1');
+    } catch (err) {
+      setRoadmap(null);
+      setStats(null);
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { fetchRoadmap(); }, []);
+
+  const generate = async () => {
+    setGenLoading(true); setGenError('');
+    try {
+      const res = await axiosInstance.post('/roadmap/generate',
+        { level: genLevel, goal: 'communication', dailyMinutes: 30, topic: genTopic.trim() || undefined },
+        { timeout: 240000 }
+      );
+      setRoadmap(res.data.roadmap);
+      setJustCompleted(false);
+      await fetchRoadmap();
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Generation failed';
+      if (err.response?.data?.roadmap) {
+        setRoadmap(err.response.data.roadmap);
+      }
+      setGenError(msg);
+    } finally { setGenLoading(false); }
+  };
+
+  const completeDay = async (day) => {
+    setCompleteLoading(day);
+    setCompleteError('');
+    setCompleteSuccess('');
+    try {
+      const res = await axiosInstance.post(`/roadmap/day/${day}/complete`);
+      setRoadmap(res.data.roadmap);
+      if (res.data.isJustCompleted) {
+        setJustCompleted(true);
+        setCompleteSuccess(`🎉 Roadmap completed! You unlocked level ${res.data.nextLevel}!`);
+      } else {
+        setCompleteSuccess(`Day ${day} completed! +${res.data.xpEarned || 50} XP`);
+        setTimeout(() => setCompleteSuccess(''), 3000);
+      }
+    } catch (err) {
+      setCompleteError(err.response?.data?.error || 'Failed to complete day');
+    } finally { setCompleteLoading(null); }
+  };
+
+  const reset = async () => {
+    await axiosInstance.patch('/roadmap/reset');
+    setRoadmap(null);
+    setStats(null);
+    setJustCompleted(false);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -96,13 +118,70 @@ export function RoadmapView() {
     );
   }
 
-  /* No roadmap — generation screen */
+  const isCompletedRoadmap = roadmap?.isCompleted === true;
+
+  /* ---------- Completion celebration screen ---------- */
+  if (justCompleted && roadmap) {
+    const nextLvl = LEVEL_NEXT[roadmap.level] || roadmap.level;
+    const isMaxLevel = roadmap.level === 'C2';
+    return (
+      <Box>
+        <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.08)', border: '1px solid', borderColor: 'divider', overflow: 'hidden', mt: 2 }}>
+          <Box sx={{ height: 6, background: 'linear-gradient(90deg, #f59e0b, #10b981, #6366f1)' }} />
+          <CardContent sx={{ p: { xs: 4, md: 6 }, textAlign: 'center' }}>
+            <Box sx={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, #fef3c7, #fde68a)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 3 }}>
+              <CelebrateIcon sx={{ fontSize: 48, color: '#d97706' }} />
+            </Box>
+            <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>Roadmap Completed! 🎉</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 520, mx: 'auto' }}>
+              Amazing work! You finished all 30 days of your <strong>{roadmap.level}</strong> roadmap.
+              {isMaxLevel
+                ? ' You have reached the highest level — keep practicing to master C2!'
+                : ` You've unlocked the next level: ${nextLvl}`}
+            </Typography>
+
+            {!isMaxLevel && (
+              <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 4 }}>
+                <Chip label={roadmap.level} size="large" sx={{ fontWeight: 700, bgcolor: '#e0e7ff', color: '#4338ca', fontSize: 18, px: 2, py: 2.5, borderRadius: 3 }} />
+                <ArrowForwardIcon sx={{ color: 'text.secondary' }} />
+                <Chip label={nextLvl} size="large" icon={<LockIcon />} sx={{ fontWeight: 700, bgcolor: '#fef3c7', color: '#b45309', fontSize: 18, px: 2, py: 2.5, borderRadius: 3 }} />
+              </Stack>
+            )}
+
+            <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap" useFlexGap>
+              {!isMaxLevel && (
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<AutoAwesomeIcon />}
+                  onClick={() => { setJustCompleted(false); setGenLevel(nextLvl); }}
+                  sx={{ ...gradientBtn, px: 4, py: 1.75 }}
+                >
+                  Start {nextLvl} Roadmap
+                </Button>
+              )}
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={() => setJustCompleted(false)}
+                sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 700, py: 1.75, px: 4, color: '#64748b', borderColor: '#cbd5e1' }}
+              >
+                View My Progress
+              </Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  }
+
+  /* ---------- No roadmap — generation screen ---------- */
   if (!roadmap) {
     return (
       <Box>
         <Box sx={{ mb: 1 }}>
           <Typography variant="h4" fontWeight={800}>Learning Roadmap</Typography>
-          <Typography variant="body2" color="text.secondary">AI creates a personalized 7-day learning plan</Typography>
+          <Typography variant="body2" color="text.secondary">AI creates a personalized 30-day learning plan</Typography>
         </Box>
 
         <Card sx={{ borderRadius: 3, boxShadow: '0 4px 28px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', mt: 2 }}>
@@ -110,9 +189,9 @@ export function RoadmapView() {
             <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 3 }}>
               <MapIcon sx={{ fontSize: 32, color: '#6366f1' }} />
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>Start Your Journey</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 420, mx: 'auto' }}>
-              Create a personalized roadmap with daily vocabulary, pronunciation, and conversation practices
+            <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>Start Your 30-Day Journey</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 460, mx: 'auto' }}>
+              Create a personalized 30-day roadmap with daily vocabulary, pronunciation, and conversation practices. Complete all 30 days to unlock the next level!
             </Typography>
             {genError && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, maxWidth: 500, mx: 'auto' }}>{genError}</Alert>}
             <Box sx={{ maxWidth: 520, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
@@ -127,7 +206,7 @@ export function RoadmapView() {
                 onChange={setGenTopic}
                 onEnter={generate}
                 label="Focus area / interest (optional)"
-                placeholder="e.g. business English, IELTS prep, travel — AI will tailor the 7-day plan around it"
+                placeholder="e.g. business English, IELTS prep, travel — AI will tailor the 30-day plan around it"
                 suggestions={['business English', 'travel English', 'academic English', 'daily conversation', 'IELTS prep', 'TOEFL prep', 'job interview', 'medical English', 'IT & technology', 'presentation skills']}
                 size="small"
               />
@@ -141,24 +220,42 @@ export function RoadmapView() {
                 disabled={genLoading}
                 sx={{ ...gradientBtn, px: 4, py: 1.75, fontSize: '0.95rem' }}
               >
-                {genLoading ? 'Generating...' : 'Generate Roadmap'}
+                {genLoading ? 'Generating 30 days...' : 'Generate 30-Day Roadmap'}
               </Button>
             </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+              ⏱ Generation may take 30-60 seconds (30 days of content)
+            </Typography>
           </CardContent>
         </Card>
       </Box>
     );
   }
 
+  /* ---------- Active roadmap view ---------- */
   const progressPercent = Math.round((roadmap.currentDay / roadmap.totalDays) * 100);
-  const currentLessons = roadmap.lessons?.filter(l => l.day === roadmap.currentDay || l.day === roadmap.currentDay + 1 || l.day < roadmap.currentDay) || [];
+  const daysRemaining = roadmap.totalDays - roadmap.currentDay;
+  const isMaxLevel = roadmap.level === 'C2';
+
+  // Visible lessons: completed (last 2), current, next; or show range when expanded
+  const visibleLessons = showAllDays
+    ? roadmap.lessons
+    : roadmap.lessons?.filter(l => {
+        const d = l.day;
+        const cur = roadmap.currentDay;
+        if (isCompletedRoadmap) return d > roadmap.totalDays - 4 || d === roadmap.totalDays;
+        return d === cur || d === cur + 1 || (d >= cur - 1 && d < cur);
+      }) || [];
 
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Box>
           <Typography variant="h4" fontWeight={800}>Learning Roadmap</Typography>
-          <Typography variant="body2" color="text.secondary">7-day personalized plan — {roadmap.level}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            30-day personalized plan · Level {roadmap.level}
+            {roadmap.version > 1 && ` · Roadmap #${roadmap.version}`}
+          </Typography>
         </Box>
         <Button variant="outlined" color="error" size="small" onClick={reset} sx={{ borderRadius: 2.5, textTransform: 'none', borderColor: '#fca5a5', color: '#dc2626', '&:hover': { borderColor: '#f87171', bgcolor: 'rgba(239,68,68,0.04)' } }}>
           Reset
@@ -166,7 +263,34 @@ export function RoadmapView() {
       </Stack>
 
       {completeError && <Alert severity="error" sx={{ mt: 2, mb: 2, borderRadius: 3 }} onClose={() => setCompleteError('')}>{completeError}</Alert>}
-      {completeSuccess && <Alert severity="success" sx={{ mt: 2, mb: 2, borderRadius: 3 }} onClose={() => setCompleteSuccess('')}>{completeSuccess}</Alert>}
+      {completeSuccess && !justCompleted && <Alert severity="success" sx={{ mt: 2, mb: 2, borderRadius: 3 }} onClose={() => setCompleteSuccess('')}>{completeSuccess}</Alert>}
+
+      {/* Reminder banner: completed roadmap */}
+      {isCompletedRoadmap && !justCompleted && (
+        <Alert
+          severity="success"
+          icon={<EmojiEventsIcon />}
+          sx={{ mt: 2, mb: 2, borderRadius: 3, bgcolor: '#ecfdf5', border: '1px solid #a7f3d0' }}
+          action={
+            !isMaxLevel && (
+              <Button color="success" size="small" variant="contained" startIcon={<AutoAwesomeIcon />} onClick={() => { setGenLevel(LEVEL_NEXT[roadmap.level] || roadmap.level); reset().then(() => {}); }} sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}>
+                Start {LEVEL_NEXT[roadmap.level]}
+              </Button>
+            )
+          }
+        >
+          <Typography variant="body2" fontWeight={700}>🎉 You completed this 30-day roadmap! {isMaxLevel ? 'You reached the max level (C2)!' : `Unlock the next level: ${LEVEL_NEXT[roadmap.level]}`}</Typography>
+        </Alert>
+      )}
+
+      {/* Reminder banner: in-progress */}
+      {!isCompletedRoadmap && roadmap.currentDay > 0 && (
+        <Alert severity="info" sx={{ mt: 2, mb: 2, borderRadius: 3, bgcolor: '#eef2ff', border: '1px solid #c7d2fe' }}>
+          <Typography variant="body2" fontWeight={600}>
+            📅 Day {roadmap.currentDay + 1} is ready · {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining to finish this roadmap
+          </Typography>
+        </Alert>
+      )}
 
       {/* Progress Card */}
       <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'divider', mb: 3, mt: 2 }}>
@@ -180,131 +304,146 @@ export function RoadmapView() {
           </Box>
           <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
             <Chip label={`Day ${roadmap.currentDay} of ${roadmap.totalDays}`} size="small" sx={{ height: 22, fontWeight: 600, bgcolor: '#eef2ff', color: '#6366f1', borderRadius: 1.5, fontSize: 11.5 }} />
-            <Typography variant="caption" color="text.secondary" fontWeight={500} textTransform="capitalize">{roadmap.level} · {roadmap.goal || 'communication'}</Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              {roadmap.level} · {roadmap.goal || 'communication'}
+              {stats?.completedRoadmaps > 0 && ` · ${stats.completedRoadmaps} roadmap${stats.completedRoadmaps > 1 ? 's' : ''} completed`}
+            </Typography>
           </Stack>
         </CardContent>
       </Card>
 
       {/* Highlight cards: current, next, completed */}
-      {currentLessons.map((lesson) => {
-        const isCurrent = lesson.day === roadmap.currentDay;
-        const isCompleted = lesson.day < roadmap.currentDay;
-        const isNext = lesson.day === roadmap.currentDay + 1;
+      {visibleLessons.length > 0 && (
+        <>
+          <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: 'text.secondary' }}>
+            {isCompletedRoadmap ? 'Recent Lessons' : 'Continue Learning'}
+          </Typography>
+          {visibleLessons.map((lesson) => {
+            const isCurrent = !isCompletedRoadmap && lesson.day === roadmap.currentDay;
+            const isCompleted = lesson.day <= roadmap.currentDay;
+            const isNext = !isCompletedRoadmap && lesson.day === roadmap.currentDay + 1;
+            const isLocked = !isCompletedRoadmap && lesson.day > roadmap.currentDay + 1;
 
-        return (
-          <Card
-            key={lesson.day}
-            sx={{
-              borderRadius: 3,
-              boxShadow: '0 4px 24px rgba(0,0,0,0.045)',
-              border: '1px solid',
-              borderColor: 'divider',
-              mb: 2.5,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            {/* Top accent bar */}
-            <Box sx={{ height: 4, background: isCompleted ? 'linear-gradient(90deg, #10b981, #34d399)' : 'linear-gradient(90deg, #4f46e5, #7c3aed)' }} />
+            return (
+              <Card
+                key={lesson.day}
+                sx={{
+                  borderRadius: 3,
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.045)',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  mb: 2.5,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  opacity: isLocked ? 0.6 : 1,
+                }}
+              >
+                <Box sx={{ height: 4, background: isCompleted ? 'linear-gradient(90deg, #10b981, #34d399)' : isCompletedRoadmap ? 'linear-gradient(90deg, #f59e0b, #fbbf24)' : 'linear-gradient(90deg, #4f46e5, #7c3aed)' }} />
 
-            <CardContent sx={{ p: 0 }}>
-              <Box sx={{ p: 4 }}>
-                <Stack direction="row" alignItems="flex-start" spacing={1}>
-                  <Chip
-                    size="small"
-                    label={`Day ${lesson.day}`}
-                    sx={{
-                      fontWeight: 700, borderRadius: 2, height: 24,
-                      bgcolor: isCompleted ? '#ecfdf5' : '#eef2ff',
-                      color: isCompleted ? '#059669' : '#6366f1',
-                    }}
-                  />
-                  {isCompleted && <CheckCircleIcon sx={{ color: '#10b981', fontSize: 18 }} />}
-                  {isCurrent && <Chip label="Current" size="small" sx={{ height: 24, fontWeight: 700, borderRadius: 2, bgcolor: '#fef3c7', color: '#d97706' }} />}
-                </Stack>
-
-                <Typography variant="h5" fontWeight={800} sx={{ mt: 1.5, mb: 0.5 }}>{lesson.title}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {lesson.vocabularies?.length || 0} vocab words · Pronunciation practice · Shadowing
-                </Typography>
-                {lesson.pronunciationFocus && (
-                  <Chip label={`Focus: ${lesson.pronunciationFocus}`} size="small" variant="outlined" sx={{ mt: 1.5, borderRadius: 1.5, fontWeight: 500, height: 24 }} />
-                )}
-
-                {/* Action button */}
-                {isCurrent && (
-                  <Button
-                    variant="contained"
-                    size="large"
-                    fullWidth
-                    endIcon={completeLoading === lesson.day ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <PlayCircleIcon />}
-                    onClick={() => completeDay(lesson.day)}
-                    disabled={completeLoading === lesson.day}
-                    sx={{ ...gradientBtn, mt: 3, py: 1.75 }}
-                  >
-                    Complete Day {lesson.day}
-                  </Button>
-                )}
-
-                {isNext && (
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    fullWidth
-                    endIcon={<ArrowForwardIcon />}
-                    onClick={() => completeDay(lesson.day)}
-                    disabled={completeLoading === lesson.day}
-                    sx={{ mt: 3, borderRadius: 3, textTransform: 'none', fontWeight: 700, py: 1.75, color: '#6366f1', borderColor: '#6366f1', '&:hover': { borderColor: '#4f46e5' } }}
-                  >
-                    Complete Day {lesson.day}
-                  </Button>
-                )}
-
-                {isCompleted && lesson.tips && (
-                  <Box sx={{ mt: 3, borderRadius: 3, border: '1px solid #e2e8f0', bgcolor: '#f8fafc', p: 2.5 }}>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-                      <EmojiEventsIcon sx={{ color: '#f59e0b', fontSize: 18 }} />
-                      <Typography variant="body2" fontWeight={700} color="text.secondary">Tips</Typography>
+                <CardContent sx={{ p: 0 }}>
+                  <Box sx={{ p: 4 }}>
+                    <Stack direction="row" alignItems="flex-start" spacing={1}>
+                      <Chip
+                        size="small"
+                        label={`Day ${lesson.day}`}
+                        sx={{
+                          fontWeight: 700, borderRadius: 2, height: 24,
+                          bgcolor: isCompleted ? '#ecfdf5' : '#eef2ff',
+                          color: isCompleted ? '#059669' : '#6366f1',
+                        }}
+                      />
+                      {isCompleted && !isCurrent && <CheckCircleIcon sx={{ color: '#10b981', fontSize: 18 }} />}
+                      {isCurrent && <Chip label="Current" size="small" sx={{ height: 24, fontWeight: 700, borderRadius: 2, bgcolor: '#fef3c7', color: '#d97706' }} />}
+                      {isLocked && <LockIcon sx={{ color: '#94a3b8', fontSize: 16 }} />}
                     </Stack>
-                    <Typography variant="body2" color="text.secondary">{lesson.tips}</Typography>
-                  </Box>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
-        );
-      })}
 
-      {/* All lessons list */}
-      <Typography variant="h6" fontWeight={700} sx={{ mt: 4, mb: 2 }}>All Lessons</Typography>
-      <Stack spacing={1.5}>
-        {roadmap.lessons?.map((lesson) => {
-          const isCompleted = lesson.day < roadmap.currentDay;
-          const isCurrent = lesson.day === roadmap.currentDay;
+                    <Typography variant="h5" fontWeight={800} sx={{ mt: 1.5, mb: 0.5 }}>{lesson.title}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {lesson.vocabularies?.length || 0} vocab words · Pronunciation practice · Shadowing
+                    </Typography>
+                    {lesson.pronunciationFocus && (
+                      <Chip label={`Focus: ${lesson.pronunciationFocus}`} size="small" variant="outlined" sx={{ mt: 1.5, borderRadius: 1.5, fontWeight: 500, height: 24 }} />
+                    )}
+
+                    {isCurrent && (
+                      <Button
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        endIcon={completeLoading === lesson.day ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <PlayCircleIcon />}
+                        onClick={() => completeDay(lesson.day)}
+                        disabled={completeLoading === lesson.day}
+                        sx={{ ...gradientBtn, mt: 3, py: 1.75 }}
+                      >
+                        Complete Day {lesson.day}
+                      </Button>
+                    )}
+
+                    {isNext && (
+                      <Tooltip title="You must complete the current day first">
+                        <span>
+                          <Button
+                            variant="outlined"
+                            size="large"
+                            fullWidth
+                            disabled
+                            startIcon={<LockIcon />}
+                            sx={{ mt: 3, borderRadius: 3, textTransform: 'none', fontWeight: 700, py: 1.75 }}
+                          >
+                            Locked — Complete Day {roadmap.currentDay} First
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    )}
+
+                    {isCompleted && lesson.tips && (
+                      <Box sx={{ mt: 3, borderRadius: 3, border: '1px solid #e2e8f0', bgcolor: '#f8fafc', p: 2.5 }}>
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                          <EmojiEventsIcon sx={{ color: '#f59e0b', fontSize: 18 }} />
+                          <Typography variant="body2" fontWeight={700} color="text.secondary">Tips</Typography>
+                        </Stack>
+                        <Typography variant="body2" color="text.secondary">{lesson.tips}</Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </>
+      )}
+
+      {/* All 30 lessons list */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 4, mb: 2 }}>
+        <Typography variant="h6" fontWeight={700}>All 30 Lessons</Typography>
+        <Button size="small" onClick={() => setShowAllDays(s => !s)} sx={{ textTransform: 'none', fontWeight: 600, color: '#6366f1' }}>
+          {showAllDays ? 'Show recent' : 'Show all 30 days'}
+        </Button>
+      </Stack>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1.5 }}>
+        {(showAllDays ? roadmap.lessons : roadmap.lessons?.slice(0, 12)).map((lesson) => {
+          const isCompleted = lesson.day <= roadmap.currentDay;
+          const isCurrent = !isCompletedRoadmap && lesson.day === roadmap.currentDay;
+          const isLocked = !isCompletedRoadmap && lesson.day > roadmap.currentDay;
 
           return (
             <Card
               key={lesson.day}
               sx={{
-                borderRadius: 3,
+                borderRadius: 2.5,
                 boxShadow: '0 1px 6px rgba(0,0,0,0.03)',
                 border: '1px solid',
                 borderColor: 'divider',
                 transition: 'all 0.2s',
-                opacity: isCompleted ? 0.65 : 1,
+                opacity: isLocked ? 0.55 : 1,
                 '&:hover': { borderColor: 'primary.light' },
               }}
             >
-              <CardContent sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 2 }}>
-                {/* Day number badge */}
+              <CardContent sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Box
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 3,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    width: 36, height: 36, borderRadius: 2,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     bgcolor: isCompleted ? '#ecfdf5' : isCurrent ? '#eef2ff' : '#f8fafc',
                     border: '2px solid',
                     borderColor: isCompleted ? '#10b981' : isCurrent ? '#6366f1' : '#e2e8f0',
@@ -312,26 +451,31 @@ export function RoadmapView() {
                   }}
                 >
                   {isCompleted ? (
-                    <CheckCircleIcon sx={{ color: '#10b981', fontSize: 20 }} />
+                    <CheckCircleIcon sx={{ color: '#10b981', fontSize: 18 }} />
+                  ) : isLocked ? (
+                    <LockIcon sx={{ color: '#94a3b8', fontSize: 14 }} />
                   ) : (
-                    <Typography variant="subtitle1" fontWeight={800} color={isCurrent ? '#6366f1' : '#94a3b8'}>
-                      {lesson.day}
-                    </Typography>
+                    <Typography variant="body2" fontWeight={800} color={isCurrent ? '#6366f1' : '#94a3b8'}>{lesson.day}</Typography>
                   )}
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="subtitle2" fontWeight={700} fontSize={15}>{lesson.title}</Typography>
-                  <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    {lesson.vocabularies?.length || 0} vocab words · Pronunciation · Shadowing
-                  </Typography>
+                  <Typography variant="body2" fontWeight={700} noWrap>{lesson.title}</Typography>
+                  <Typography variant="caption" color="text.secondary">Day {lesson.day}</Typography>
                 </Box>
-                {isCompleted && <Chip label="Done" size="small" variant="outlined" color="success" sx={{ borderRadius: 1.5, height: 24, fontWeight: 600 }} />}
-                {isCurrent && <Chip label="Now" size="small" sx={{ borderRadius: 1.5, height: 24, fontWeight: 700, bgcolor: '#eef2ff', color: '#6366f1' }} />}
+                {isCurrent && <StarIcon sx={{ color: '#f59e0b', fontSize: 18 }} />}
               </CardContent>
             </Card>
           );
         })}
-      </Stack>
+      </Box>
+
+      {!showAllDays && roadmap.lessons?.length > 12 && (
+        <Box sx={{ textAlign: 'center', mt: 2 }}>
+          <Button size="small" onClick={() => setShowAllDays(true)} sx={{ textTransform: 'none', fontWeight: 600, color: '#6366f1' }}>
+            Show all {roadmap.lessons.length} days →
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

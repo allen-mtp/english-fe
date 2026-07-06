@@ -19,9 +19,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import LinearProgress from '@mui/material/LinearProgress';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -83,7 +80,7 @@ export function GrammarView() {
     setError('');
     try {
       await axiosInstance.post('/grammar/generate', {
-        level: filterLevel || 'B1',
+        level: filterLevel || 'A1',
         topic: filterTopic || undefined,
       });
       fetchLessons();
@@ -154,7 +151,6 @@ export function GrammarView() {
             <Stack direction="row" spacing={0.75} sx={{ mt: 0.75 }} useFlexGap flexWrap="wrap">
               <Chip size="small" label={selectedLesson.level} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5' }} />
               <Chip size="small" label={selectedLesson.topic} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569' }} />
-              <Chip size="small" label={selectedLesson.difficulty} variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} />
             </Stack>
           </Box>
         </Stack>
@@ -245,7 +241,7 @@ export function GrammarView() {
                     {qIdx + 1}. {ex.question}
                   </Typography>
                   <FormControl component="fieldset">
-                    <RadioGroup value={answers[qIdx] ?? ''} onChange={(e) => handleAnswer(qIdx, parseInt(e.target.value))}>
+                    <RadioGroup value={answers[qIdx] ?? ''} onChange={(e) => handleAnswer(qIdx, parseInt(e.target.value, 10))}>
                       {ex.options.map((opt, oIdx) => (
                         <FormControlLabel
                           key={oIdx}
@@ -505,7 +501,6 @@ export function GrammarView() {
                   <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap">
                     <Chip size="small" label={lesson.level} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5', height: 22 }} />
                     <Chip size="small" label={lesson.topic} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569', height: 22 }} />
-                    <Chip size="small" label={lesson.difficulty} variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600, height: 22 }} />
                   </Stack>
                   {lesson.attempts > 0 && (
                     <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px dashed', borderColor: 'divider' }}>
