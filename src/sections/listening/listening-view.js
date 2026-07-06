@@ -30,6 +30,34 @@ import PauseIcon from '@mui/icons-material/Pause';
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
+const levelChipSx = {
+  borderRadius: 1.5,
+  fontWeight: 700,
+  bgcolor: '#eef2ff',
+  color: '#4f46e5',
+  height: 22,
+  pointerEvents: 'none',
+  '&:hover': { bgcolor: '#eef2ff', color: '#4f46e5' },
+};
+
+const metaChipSx = {
+  borderRadius: 1.5,
+  fontWeight: 600,
+  bgcolor: '#f1f5f9',
+  color: '#475569',
+  height: 22,
+  pointerEvents: 'none',
+  '&:hover': { bgcolor: '#f1f5f9', color: '#475569' },
+};
+
+const durationChipSx = {
+  borderRadius: 1.5,
+  fontWeight: 600,
+  height: 22,
+  pointerEvents: 'none',
+  '&:hover': { bgcolor: 'transparent', color: 'inherit' },
+};
+
 export function ListeningView() {
   const [view, setView] = useState('list');
   const [exercises, setExercises] = useState([]);
@@ -130,10 +158,10 @@ export function ListeningView() {
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight={800}>{selected.title}</Typography>
             <Stack direction="row" spacing={0.75} sx={{ mt: 0.75 }} useFlexGap flexWrap="wrap">
-              <Chip size="small" label={selected.level} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5' }} />
-              <Chip size="small" label={selected.type} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569' }} />
-              <Chip size="small" label={selected.topic} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569' }} />
-              <Chip size="small" label={`${selected.duration}s`} variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600 }} />
+              <Chip size="small" label={selected.level} sx={levelChipSx} />
+              <Chip size="small" label={selected.type} sx={metaChipSx} />
+              <Chip size="small" label={selected.topic} sx={metaChipSx} />
+              <Chip size="small" label={`${selected.duration}s`} variant="outlined" sx={durationChipSx} />
             </Stack>
           </Box>
         </Stack>
@@ -332,10 +360,10 @@ export function ListeningView() {
                     {ex.completed && <CheckCircleIcon sx={{ color: '#10b981', fontSize: 18, flexShrink: 0, ml: 0.5 }} />}
                   </Stack>
                   <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap">
-                    <Chip size="small" label={ex.level} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5', height: 22 }} />
-                    <Chip size="small" label={ex.type} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569', height: 22 }} />
-                    <Chip size="small" label={ex.topic} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569', height: 22 }} />
-                    <Chip size="small" label={`${ex.duration}s`} variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600, height: 22 }} />
+                    <Chip size="small" label={ex.level} sx={levelChipSx} />
+                    <Chip size="small" label={ex.type} sx={metaChipSx} />
+                    <Chip size="small" label={ex.topic} sx={metaChipSx} />
+                    <Chip size="small" label={`${ex.duration}s`} variant="outlined" sx={durationChipSx} />
                   </Stack>
                   {ex.attempts > 0 && (
                     <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px dashed', borderColor: 'divider' }}>
