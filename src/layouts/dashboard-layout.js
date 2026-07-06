@@ -34,6 +34,7 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import QuizIcon from '@mui/icons-material/Quiz';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from 'src/contexts/auth-context';
+import { StudyTimer } from 'src/components/study-timer/study-timer';
 
 const DRAWER_WIDTH = 280;
 
@@ -302,6 +303,9 @@ export function DashboardLayout({ children }) {
           {children}
         </Box>
       </Box>
+
+      {/* Floating study timer — visible on all dashboard pages */}
+      <StudyTimer />
     </Box>
   );
 }
