@@ -256,7 +256,7 @@ export function LoginView() {
             <Typography variant="body2" sx={{ color: '#64748b' }}>
               Don&apos;t have an account?{' '}
               <Link href="/register" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
-                Create one
+                Sign up
               </Link>
             </Typography>
           </Box>

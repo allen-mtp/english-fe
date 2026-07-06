@@ -1,8 +1,8 @@
 {
-  "name": "@minimal-kit/starter-next-js",
-  "author": "Minimals",
-  "version": "6.1.0",
-  "description": "Next Starter & JavaScript",
+  "name": "English AI",
+  "author": "English AI",
+  "version": "1.0.0",
+  "description": "English AI",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3006",
