@@ -224,7 +224,11 @@ export function DashboardLayout({ children }) {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           sx={{
-            '& .MuiDrawer-paper': { width: DRAWER_WIDTH, border: 'none' },
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              border: 'none',
+              pt: 'var(--safe-area-top)',
+            },
           }}
         >
           {drawerContent}
@@ -267,9 +271,10 @@ export function DashboardLayout({ children }) {
             backdropFilter: 'blur(12px)',
             borderBottom: '1px solid',
             borderColor: alpha('#0f172a', 0.06),
+            pt: { xs: 'var(--safe-area-top)', md: 0 },
           }}
         >
-          <Toolbar sx={{ minHeight: '56px !important', px: { xs: 2, md: 4 } }}>
+          <Toolbar sx={{ minHeight: { xs: 56, md: 56 }, px: { xs: 2, md: 4 } }}>
           {isMobile && (
             <IconButton edge="start" onClick={handleDrawerToggle} sx={{ mr: 1 }}>
               <MenuIcon />

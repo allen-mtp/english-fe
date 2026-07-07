@@ -301,8 +301,8 @@ export function StudyTimer() {
   const positionStyle = pos
     ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' }
     : {
-        bottom: { xs: 12, md: 24 },
-        right: { xs: 12, md: 24 },
+        bottom: { xs: 'calc(12px + var(--safe-area-bottom))', md: 24 },
+        right: { xs: 'calc(12px + var(--safe-area-right))', md: 24 },
         left: 'auto',
         top: 'auto',
       };
