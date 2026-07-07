@@ -18,6 +18,8 @@ export function TopicInput({
   size = 'small',
   fullWidth = true,
   showRandom = true,
+  StartIcon = TopicIcon,
+  randomTitle = 'Pick random suggestion',
   sx,
 }) {
   const [focused, setFocused] = useState(false);
@@ -45,7 +47,7 @@ export function TopicInput({
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <TopicIcon sx={{ color: focused ? '#6366f1' : '#94a3b8', fontSize: 20 }} />
+              <StartIcon sx={{ color: focused ? '#6366f1' : '#94a3b8', fontSize: 20 }} />
             </InputAdornment>
           ),
           endAdornment: showRandom && suggestions.length > 0 ? (
@@ -60,7 +62,7 @@ export function TopicInput({
                   transition: 'color 0.15s',
                   '&:hover': { color: '#6366f1' },
                 }}
-                title="Pick random topic"
+                title={randomTitle}
               >
                 <ShuffleIcon sx={{ fontSize: 20 }} />
               </Box>

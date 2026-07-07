@@ -318,37 +318,50 @@ export function RolePlayView() {
       </Stack>
 
       <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
-        <Box sx={{ background: 'linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%)', p: 3 }}>
-          <Box sx={{ mb: 2.5 }}>
-            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
-            <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-              {LEVELS.map(lvl => (
-                <Chip key={lvl} label={lvl} color={level === lvl ? 'primary' : 'default'} onClick={() => setLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 600 }} />
-              ))}
-            </Stack>
-          </Box>
-          <TopicInput
-            value={customTopic}
-            onChange={setCustomTopic}
-            onEnter={() => { if (customTopic.trim()) { startNewConversation(customTopic.trim()); setCustomTopic(''); } }}
-            label="Custom scenario (optional)"
-            placeholder="Type any scenario you want to practice, or pick a suggestion below"
-            suggestions={SUGGESTED_TOPICS}
-            size="small"
-          />
-          {customTopic.trim() && (
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AutoAwesomeIcon />}
-              onClick={() => { startNewConversation(customTopic.trim()); setCustomTopic(''); }}
-              disabled={creating}
-              sx={{ ...gradientBtn, mt: 1.5, fontSize: 13 }}
-            >
-              Start &ldquo;{customTopic.trim()}&rdquo;
-            </Button>
-          )}
+        <Box sx={{ background: 'linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%)', p: 3, pb: 2 }}>
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Box sx={{ width: 36, height: 36, borderRadius: 2.5, bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(99,102,241,0.15)' }}>
+              <ChatIcon sx={{ color: '#6366f1', fontSize: 20 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800}>Start Role-play</Typography>
+              <Typography variant="body2" color="text.secondary">Choose your level and scenario — AI plays the other role</Typography>
+            </Box>
+          </Stack>
         </Box>
+        <CardContent sx={{ p: 4 }}>
+          <Stack spacing={2.5}>
+            <Box>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level</Typography>
+              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                {LEVELS.map(lvl => (
+                  <Chip key={lvl} label={lvl} color={level === lvl ? 'primary' : 'default'} onClick={() => setLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 600 }} />
+                ))}
+              </Stack>
+            </Box>
+            <TopicInput
+              value={customTopic}
+              onChange={setCustomTopic}
+              onEnter={() => { if (customTopic.trim()) startNewConversation(customTopic.trim()); }}
+              label="Custom scenario (optional)"
+              placeholder="Type any scenario you want to practice, or pick a suggestion below"
+              suggestions={SUGGESTED_TOPICS}
+              size="medium"
+            />
+            {customTopic.trim() && (
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AutoAwesomeIcon />}
+                onClick={() => startNewConversation(customTopic.trim())}
+                disabled={creating}
+                sx={{ ...gradientBtn, fontSize: 13, alignSelf: 'flex-start' }}
+              >
+                Start &ldquo;{customTopic.trim()}&rdquo;
+              </Button>
+            )}
+          </Stack>
+        </CardContent>
       </Card>
 
       <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Recent Conversations</Typography>

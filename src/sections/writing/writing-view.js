@@ -27,7 +27,10 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-const TYPES = ['email', 'essay', 'story', 'description', 'letter', 'report', 'review'];
+const WRITING_TYPE_SUGGESTIONS = [
+  'email', 'essay', 'story', 'description', 'letter', 'report', 'review',
+  'article', 'blog post', 'diary', 'speech', 'summary', 'opinion',
+];
 
 const gradientBtn = {
   borderRadius: 2.5,
@@ -46,7 +49,7 @@ const gradientBtn = {
 export function WritingView() {
   const [view, setView] = useState('home');
   const [level, setLevel] = useState('A1');
-  const [type, setType] = useState('email');
+  const [type, setType] = useState('');
   const [topic, setTopic] = useState('');
   const [writingPrompt, setWritingPrompt] = useState(null);
   const [userText, setUserText] = useState('');
@@ -72,9 +75,11 @@ export function WritingView() {
   const getPrompt = async () => {
     setLoading(true);
     setError('');
+    const typeValue = type.trim();
     const topicValue = topic.trim();
     try {
-      const params = new URLSearchParams({ level, type });
+      const params = new URLSearchParams({ level });
+      if (typeValue) params.append('type', typeValue);
       if (topicValue) params.append('topic', topicValue);
       const res = await axiosInstance.get(`/writing/prompt?${params.toString()}`);
       clearTopicInput(setTopic);
@@ -128,7 +133,7 @@ export function WritingView() {
           <Box sx={{ flex: 1 }}>
             <Typography variant="h4" fontWeight={800}>Writing Practice</Typography>
             <Stack direction="row" spacing={0.75} sx={{ mt: 0.75 }} useFlexGap flexWrap="wrap">
-              <Chip size="small" label={writingPrompt.promptType} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5' }} />
+              <Chip size="small" label={writingPrompt.promptType} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5', textTransform: 'capitalize' }} />
               <Chip size="small" label={writingPrompt.level} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5' }} />
               {writingPrompt.topic && <Chip size="small" label={writingPrompt.topic} sx={{ borderRadius: 1.5, fontWeight: 600, bgcolor: '#f1f5f9', color: '#475569' }} />}
             </Stack>
@@ -365,7 +370,7 @@ export function WritingView() {
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={800}>Generate Writing Prompt</Typography>
-              <Typography variant="body2" color="text.secondary">Choose your level and type — AI crafts a tailored prompt</Typography>
+              <Typography variant="body2" color="text.secondary">Choose your level, writing type, and topic — AI crafts a tailored prompt</Typography>
             </Box>
           </Stack>
         </Box>
@@ -386,21 +391,17 @@ export function WritingView() {
                 ))}
               </Stack>
             </Box>
-            <Box>
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Writing Type</Typography>
-              <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-                {TYPES.map(t => (
-                  <Chip
-                    key={t}
-                    label={t}
-                    color={type === t ? 'primary' : 'default'}
-                    onClick={() => setType(t)}
-                    clickable
-                    sx={{ borderRadius: 2, fontWeight: 600, textTransform: 'capitalize' }}
-                  />
-                ))}
-              </Stack>
-            </Box>
+            <TopicInput
+              value={type}
+              onChange={setType}
+              onEnter={getPrompt}
+              label="Writing Type (optional)"
+              placeholder="Type any writing format you want, or pick a suggestion"
+              suggestions={WRITING_TYPE_SUGGESTIONS}
+              StartIcon={EditNoteIcon}
+              randomTitle="Pick random writing type"
+              size="medium"
+            />
             <TopicInput
               value={topic}
               onChange={setTopic}
