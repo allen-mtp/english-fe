@@ -238,13 +238,15 @@ export function RoadmapView() {
   const progressPercent = Math.round((roadmap.currentDay / roadmap.totalDays) * 100);
   const daysRemaining = roadmap.totalDays - roadmap.currentDay;
   const isMaxLevel = roadmap.level === 'C2';
+  const completedDays = roadmap.currentDay;
+  const currentLearningDay = Math.min(completedDays + 1, roadmap.totalDays);
 
   // Visible lessons: completed (last 2), current, next; or show range when expanded
   const visibleLessons = showAllDays
     ? roadmap.lessons
     : roadmap.lessons?.filter(l => {
         const d = l.day;
-        const cur = roadmap.currentDay;
+        const cur = currentLearningDay;
         if (isCompletedRoadmap) return d > roadmap.totalDays - 4 || d === roadmap.totalDays;
         return d === cur || d === cur + 1 || (d >= cur - 1 && d < cur);
       }) || [];
@@ -286,10 +288,10 @@ export function RoadmapView() {
       )}
 
       {/* Reminder banner: in-progress */}
-      {!isCompletedRoadmap && roadmap.currentDay > 0 && (
+      {!isCompletedRoadmap && roadmap.currentDay >= 0 && (
         <Alert severity="info" sx={{ mt: 2, mb: 2, borderRadius: 3, bgcolor: '#eef2ff', border: '1px solid #c7d2fe' }}>
           <Typography variant="body2" fontWeight={600}>
-            📅 Day {roadmap.currentDay + 1} is ready · {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining to finish this roadmap
+            📅 Day {currentLearningDay} is ready · {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining to finish this roadmap
           </Typography>
         </Alert>
       )}
@@ -305,7 +307,7 @@ export function RoadmapView() {
             <Box sx={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', width: `${progressPercent}%`, transition: 'width 0.6s ease' }} />
           </Box>
           <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
-            <Chip label={`Day ${roadmap.currentDay} of ${roadmap.totalDays}`} size="small" sx={{ height: 22, fontWeight: 600, bgcolor: '#eef2ff', color: '#6366f1', borderRadius: 1.5, fontSize: 11.5 }} />
+            <Chip label={`Day ${currentLearningDay} of ${roadmap.totalDays}`} size="small" sx={{ height: 22, fontWeight: 600, bgcolor: '#eef2ff', color: '#6366f1', borderRadius: 1.5, fontSize: 11.5 }} />
             <Typography variant="caption" color="text.secondary" fontWeight={500}>
               {roadmap.level} · {roadmap.goal || 'communication'}
               {stats?.completedRoadmaps > 0 && ` · ${stats.completedRoadmaps} roadmap${stats.completedRoadmaps > 1 ? 's' : ''} completed`}
@@ -321,10 +323,10 @@ export function RoadmapView() {
             {isCompletedRoadmap ? 'Recent Lessons' : 'Continue Learning'}
           </Typography>
           {visibleLessons.map((lesson) => {
-            const isCurrent = !isCompletedRoadmap && lesson.day === roadmap.currentDay;
-            const isCompleted = lesson.day <= roadmap.currentDay;
-            const isNext = !isCompletedRoadmap && lesson.day === roadmap.currentDay + 1;
-            const isLocked = !isCompletedRoadmap && lesson.day > roadmap.currentDay + 1;
+            const isCurrent = !isCompletedRoadmap && lesson.day === currentLearningDay;
+            const isCompleted = lesson.day <= completedDays;
+            const isNext = !isCompletedRoadmap && lesson.day === currentLearningDay + 1;
+            const isLocked = !isCompletedRoadmap && lesson.day > currentLearningDay + 1;
 
             return (
               <Card
@@ -392,7 +394,7 @@ export function RoadmapView() {
                             startIcon={<LockIcon />}
                             sx={{ mt: 3, borderRadius: 3, textTransform: 'none', fontWeight: 700, py: 1.75 }}
                           >
-                            Locked — Complete Day {roadmap.currentDay} First
+                            Locked — Complete Day {currentLearningDay} First
                           </Button>
                         </span>
                       </Tooltip>
@@ -424,9 +426,9 @@ export function RoadmapView() {
       </Stack>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1.5 }}>
         {(showAllDays ? roadmap.lessons : roadmap.lessons?.slice(0, 12)).map((lesson) => {
-          const isCompleted = lesson.day <= roadmap.currentDay;
-          const isCurrent = !isCompletedRoadmap && lesson.day === roadmap.currentDay;
-          const isLocked = !isCompletedRoadmap && lesson.day > roadmap.currentDay;
+          const isCompleted = lesson.day <= completedDays;
+          const isCurrent = !isCompletedRoadmap && lesson.day === currentLearningDay;
+          const isLocked = !isCompletedRoadmap && lesson.day > currentLearningDay;
 
           return (
             <Card
