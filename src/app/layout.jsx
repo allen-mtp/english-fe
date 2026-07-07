@@ -15,13 +15,34 @@ export const viewport = {
   viewportFit: 'cover',
 };
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3006');
+
 export const metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: 'English AI - Learn English with AI',
+    default: 'English AI - Học tiếng Anh với AI',
     template: '%s | English AI',
   },
-  description: 'AI-powered English learning: vocabulary, grammar, pronunciation, writing, listening, role-play chat, and personalized roadmap.',
+  description:
+    'Học tiếng Anh thông minh với AI: từ vựng, ngữ pháp, nghe, nói, viết, role-play và lộ trình 30 ngày — cá nhân hóa theo trình độ A1-C2.',
   manifest: '/manifest.webmanifest',
+  openGraph: {
+    type: 'website',
+    locale: 'vi_VN',
+    url: '/',
+    siteName: 'English AI',
+    title: 'English AI - Học tiếng Anh với AI',
+    description:
+      'Học tiếng Anh thông minh với AI: từ vựng, ngữ pháp, nghe, nói, viết, role-play và lộ trình 30 ngày.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'English AI - Học tiếng Anh với AI',
+    description:
+      'Học tiếng Anh thông minh với AI: từ vựng, ngữ pháp, nghe, nói, viết, role-play và lộ trình 30 ngày.',
+  },
   appleWebApp: {
     capable: true,
     title: 'English AI',
