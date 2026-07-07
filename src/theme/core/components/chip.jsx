@@ -128,10 +128,16 @@ const MuiChip = {
               color: theme.vars.palette.common.white,
               backgroundColor: theme.vars.palette.text.primary,
               [`& .${chipClasses.avatar}`]: { color: theme.vars.palette.text.primary },
-              '&:hover': { backgroundColor: theme.vars.palette.grey[700] },
+              [`&.${chipClasses.clickable}:hover`]: {
+                color: theme.vars.palette.common.white,
+                backgroundColor: theme.vars.palette.grey[700],
+              },
               [stylesMode.dark]: {
                 color: theme.vars.palette.grey[800],
-                '&:hover': { backgroundColor: theme.vars.palette.grey[100] },
+                [`&.${chipClasses.clickable}:hover`]: {
+                  color: theme.vars.palette.grey[800],
+                  backgroundColor: theme.vars.palette.grey[100],
+                },
               },
             }),
         },

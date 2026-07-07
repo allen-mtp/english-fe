@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axiosInstance from 'src/utils/axios';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
@@ -69,6 +69,7 @@ export function QuizView() {
   const [error, setError] = useState('');
   const [config, setConfig] = useState({ type: 'practice', category: 'mixed', level: 'A1', questionCount: 10, topic: '' });
   const [timeLeft, setTimeLeft] = useState(null);
+  const saveProgressTimerRef = useRef(null);
 
   useEffect(() => {
     fetchQuizzes();
@@ -79,6 +80,48 @@ export function QuizView() {
     const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     return () => clearTimeout(timer);
   }, [timeLeft, results]);
+
+  useEffect(() => () => {
+    if (saveProgressTimerRef.current) clearTimeout(saveProgressTimerRef.current);
+  }, []);
+
+  const mapSavedAnswersToObject = (savedAnswers = []) => {
+    const mapped = {};
+    savedAnswers.forEach((ans, idx) => {
+      if (ans !== null && ans !== undefined && ans !== '') {
+        mapped[idx] = ans;
+      }
+    });
+    return mapped;
+  };
+
+  const getRemainingSeconds = (quiz) => {
+    if (!quiz?.timeLimit) return null;
+    const totalSeconds = quiz.timeLimit * 60;
+    if (!quiz.startedAt) return totalSeconds;
+    const elapsedSeconds = Math.floor((Date.now() - new Date(quiz.startedAt).getTime()) / 1000);
+    return Math.max(0, totalSeconds - elapsedSeconds);
+  };
+
+  const buildAnswersArray = (quiz, answersMap) => quiz.questions.map((q, idx) => {
+    const ans = answersMap[idx];
+    if (ans === undefined || ans === null || ans === '') return -1;
+    if (q.type === 'fill-blank') return String(ans);
+    return parseInt(ans, 10);
+  });
+
+  const queueSaveProgress = (quiz, nextAnswers) => {
+    if (!quiz || quiz.completed) return;
+    if (saveProgressTimerRef.current) clearTimeout(saveProgressTimerRef.current);
+    saveProgressTimerRef.current = setTimeout(async () => {
+      try {
+        const answersArr = buildAnswersArray(quiz, nextAnswers);
+        await axiosInstance.patch(`/quizzes/${quiz._id}/progress`, { answers: answersArr });
+      } catch (err) {
+        console.error('save quiz progress error:', err);
+      }
+    }, 350);
+  };
 
   const fetchQuizzes = async () => {
     try {
@@ -100,9 +143,9 @@ export function QuizView() {
       else payload.topic = payload.topic.trim();
       const res = await axiosInstance.post('/quizzes/generate', payload);
       setActiveQuiz(res.data.quiz);
-      setAnswers({});
+      setAnswers(mapSavedAnswersToObject(res.data.quiz?.userAnswers));
       setResults(null);
-      setTimeLeft(res.data.quiz.timeLimit ? res.data.quiz.timeLimit * 60 : null);
+      setTimeLeft(getRemainingSeconds(res.data.quiz));
       setView('take');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to generate quiz');
@@ -114,17 +157,23 @@ export function QuizView() {
   const openQuiz = async (id) => {
     try {
       const res = await axiosInstance.get(`/quizzes/${id}`);
-      setActiveQuiz(res.data.quiz);
-      setAnswers({});
+      const quiz = res.data.quiz;
+      setActiveQuiz(quiz);
+      setAnswers(mapSavedAnswersToObject(quiz.userAnswers));
       setResults(null);
-      setView('review');
+      setTimeLeft(getRemainingSeconds(quiz));
+      setView(quiz.completed ? 'review' : 'take');
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleAnswer = (qIdx, value) => {
-    setAnswers(prev => ({ ...prev, [qIdx]: value }));
+    setAnswers((prev) => {
+      const next = { ...prev, [qIdx]: value };
+      queueSaveProgress(activeQuiz, next);
+      return next;
+    });
   };
 
   const submit = async () => {
@@ -132,12 +181,7 @@ export function QuizView() {
     setSubmitting(true);
     setError('');
     try {
-      const arr = activeQuiz.questions.map((q, idx) => {
-        const ans = answers[idx];
-        if (ans === undefined) return -1;
-        if (q.type === 'fill-blank') return ans;
-        return parseInt(ans);
-      });
+      const arr = buildAnswersArray(activeQuiz, answers);
       const res = await axiosInstance.post(`/quizzes/${activeQuiz._id}/submit`, { answers: arr });
       setResults(res.data);
       fetchQuizzes();
@@ -163,7 +207,7 @@ export function QuizView() {
       <Box>
         <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 3 }}>
           <IconButton
-            onClick={() => { setView('home'); setActiveQuiz(null); setResults(null); }}
+            onClick={() => { setView('home'); setActiveQuiz(null); setResults(null); fetchQuizzes(); }}
             sx={{ bgcolor: '#f1f5f9', '&:hover': { bgcolor: '#e2e8f0' } }}
           >
             <ArrowBackIcon />
@@ -652,7 +696,14 @@ export function QuizView() {
                       </Stack>
                     </Box>
                   ) : (
-                    <Chip size="small" label="In Progress" sx={{ mt: 0.5, borderRadius: 1.5, fontWeight: 700, bgcolor: '#fffbeb', color: '#d97706', height: 22 }} />
+                    <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap">
+                      <Chip size="small" label="In Progress" sx={{ mt: 0.5, borderRadius: 1.5, fontWeight: 700, bgcolor: '#fffbeb', color: '#d97706', height: 22 }} />
+                      <Chip
+                        size="small"
+                        label={`${q.answeredCount || 0}/${q.totalQuestions}`}
+                        sx={{ mt: 0.5, borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5', height: 22 }}
+                      />
+                    </Stack>
                   )}
                   <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: 'block' }}>
                     {new Date(q.createdAt).toLocaleString()}

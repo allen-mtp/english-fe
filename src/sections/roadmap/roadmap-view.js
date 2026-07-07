@@ -25,6 +25,8 @@ import CelebrateIcon from '@mui/icons-material/Celebration';
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const LEVEL_NEXT = { A1: 'A2', A2: 'B1', B1: 'B2', B2: 'C1', C1: 'C2', C2: 'C2' };
+// Temporary UI copy while backend roadmap generation is set to 7 days.
+const ROADMAP_DAYS = 7;
 
 export function RoadmapView() {
   const [roadmap, setRoadmap] = useState(null);
@@ -134,7 +136,7 @@ export function RoadmapView() {
             </Box>
             <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>Roadmap Completed! 🎉</Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 520, mx: 'auto' }}>
-              Amazing work! You finished all 30 days of your <strong>{roadmap.level}</strong> roadmap.
+              Amazing work! You finished all {roadmap.totalDays} days of your <strong>{roadmap.level}</strong> roadmap.
               {isMaxLevel
                 ? ' You have reached the highest level — keep practicing to master C2!'
                 : ` You've unlocked the next level: ${nextLvl}`}
@@ -181,7 +183,7 @@ export function RoadmapView() {
       <Box>
         <Box sx={{ mb: 1 }}>
           <Typography variant="h4" fontWeight={800}>Learning Roadmap</Typography>
-          <Typography variant="body2" color="text.secondary">AI creates a personalized 30-day learning plan</Typography>
+          <Typography variant="body2" color="text.secondary">AI creates a personalized {ROADMAP_DAYS}-day learning plan</Typography>
         </Box>
 
         <Card sx={{ borderRadius: 3, boxShadow: '0 4px 28px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', mt: 2 }}>
@@ -189,9 +191,9 @@ export function RoadmapView() {
             <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 3 }}>
               <MapIcon sx={{ fontSize: 32, color: '#6366f1' }} />
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>Start Your 30-Day Journey</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>Start Your {ROADMAP_DAYS}-Day Journey</Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 460, mx: 'auto' }}>
-              Create a personalized 30-day roadmap with daily vocabulary, pronunciation, and conversation practices. Complete all 30 days to unlock the next level!
+              Create a personalized {ROADMAP_DAYS}-day roadmap with daily vocabulary, pronunciation, and conversation practices. Complete all {ROADMAP_DAYS} days to unlock the next level!
             </Typography>
             {genError && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, maxWidth: 500, mx: 'auto' }}>{genError}</Alert>}
             <Box sx={{ maxWidth: 520, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
@@ -206,7 +208,7 @@ export function RoadmapView() {
                 onChange={setGenTopic}
                 onEnter={generate}
                 label="Focus area / interest (optional)"
-                placeholder="e.g. business English, IELTS prep, travel — AI will tailor the 30-day plan around it"
+                placeholder={`e.g. business English, IELTS prep, travel — AI will tailor the ${ROADMAP_DAYS}-day plan around it`}
                 suggestions={['business English', 'travel English', 'academic English', 'daily conversation', 'IELTS prep', 'TOEFL prep', 'job interview', 'medical English', 'IT & technology', 'presentation skills']}
                 size="small"
               />
@@ -220,11 +222,11 @@ export function RoadmapView() {
                 disabled={genLoading}
                 sx={{ ...gradientBtn, px: 4, py: 1.75, fontSize: '0.95rem' }}
               >
-                {genLoading ? 'Generating 30 days...' : 'Generate 30-Day Roadmap'}
+                {genLoading ? `Generating ${ROADMAP_DAYS} days...` : `Generate ${ROADMAP_DAYS}-Day Roadmap`}
               </Button>
             </Stack>
             <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-              ⏱ Generation may take 30-60 seconds (30 days of content)
+              ⏱ Generation may take 15-30 seconds ({ROADMAP_DAYS} days of content)
             </Typography>
           </CardContent>
         </Card>
@@ -253,7 +255,7 @@ export function RoadmapView() {
         <Box>
           <Typography variant="h4" fontWeight={800}>Learning Roadmap</Typography>
           <Typography variant="body2" color="text.secondary">
-            30-day personalized plan · Level {roadmap.level}
+            {roadmap.totalDays}-day personalized plan · Level {roadmap.level}
             {roadmap.version > 1 && ` · Roadmap #${roadmap.version}`}
           </Typography>
         </Box>
@@ -279,7 +281,7 @@ export function RoadmapView() {
             )
           }
         >
-          <Typography variant="body2" fontWeight={700}>🎉 You completed this 30-day roadmap! {isMaxLevel ? 'You reached the max level (C2)!' : `Unlock the next level: ${LEVEL_NEXT[roadmap.level]}`}</Typography>
+          <Typography variant="body2" fontWeight={700}>🎉 You completed this {roadmap.totalDays}-day roadmap! {isMaxLevel ? 'You reached the max level (C2)!' : `Unlock the next level: ${LEVEL_NEXT[roadmap.level]}`}</Typography>
         </Alert>
       )}
 
@@ -413,11 +415,11 @@ export function RoadmapView() {
         </>
       )}
 
-      {/* All 30 lessons list */}
+      {/* All lessons list */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 4, mb: 2 }}>
-        <Typography variant="h6" fontWeight={700}>All 30 Lessons</Typography>
+        <Typography variant="h6" fontWeight={700}>All {roadmap.totalDays} Lessons</Typography>
         <Button size="small" onClick={() => setShowAllDays(s => !s)} sx={{ textTransform: 'none', fontWeight: 600, color: '#6366f1' }}>
-          {showAllDays ? 'Show recent' : 'Show all 30 days'}
+          {showAllDays ? 'Show recent' : `Show all ${roadmap.totalDays} days`}
         </Button>
       </Stack>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1.5 }}>
