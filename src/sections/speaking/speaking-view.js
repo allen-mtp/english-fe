@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -61,6 +62,7 @@ export function SpeakingView() {
   const [scenarioLoading, setScenarioLoading] = useState(false);
   const [scenarioError, setScenarioError] = useState('');
   const [scenarioTopic, setScenarioTopic] = useState('');
+  const [scenarioLevel, setScenarioLevel] = useState('A1');
 
   // Pronunciation generate state
   const [pronTopic, setPronTopic] = useState('');
@@ -150,6 +152,7 @@ export function SpeakingView() {
         setResult(null);
         setAudioBlob(null);
       }
+      clearTopicInput(setPronTopic);
     } catch (err) {
       setPronError(err.response?.data?.error || 'Generation failed');
     } finally { setPronLoading(false); }
@@ -160,12 +163,13 @@ export function SpeakingView() {
     setScenarioLoading(true);
     setScenarioError('');
     try {
-      const params = new URLSearchParams({ level: 'A1' });
+      const params = new URLSearchParams({ level: scenarioLevel });
       if (scenarioTopic.trim()) params.append('topic', scenarioTopic.trim());
       const res = await axiosInstance.get(`/speaking-scenarios/scenario?${params.toString()}`);
       setScenario(res.data.scenario);
       setResult(null);
       setAudioBlob(null);
+      clearTopicInput(setScenarioTopic);
     } catch (err) {
       setScenarioError(err.response?.data?.error || 'Failed to load scenario');
     } finally {
@@ -557,6 +561,19 @@ export function SpeakingView() {
                 Get a daily speaking situation (ordering food, doctor visit, job interview...) with useful phrases, sample dialogue, and a challenge to try.
               </Typography>
               <Box sx={{ maxWidth: 540, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
+                  {LEVELS.map((lvl) => (
+                    <Chip
+                      key={lvl}
+                      label={lvl}
+                      color={scenarioLevel === lvl ? 'primary' : 'default'}
+                      onClick={() => setScenarioLevel(lvl)}
+                      clickable
+                      sx={{ borderRadius: 2, fontWeight: 600 }}
+                    />
+                  ))}
+                </Stack>
                 <TopicInput
                   value={scenarioTopic}
                   onChange={setScenarioTopic}

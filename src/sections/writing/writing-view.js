@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -71,10 +72,12 @@ export function WritingView() {
   const getPrompt = async () => {
     setLoading(true);
     setError('');
+    const topicValue = topic.trim();
     try {
       const params = new URLSearchParams({ level, type });
-      if (topic.trim()) params.append('topic', topic.trim());
+      if (topicValue) params.append('topic', topicValue);
       const res = await axiosInstance.get(`/writing/prompt?${params.toString()}`);
+      clearTopicInput(setTopic);
       setWritingPrompt(res.data.prompt);
       setUserText('');
       setResult(null);

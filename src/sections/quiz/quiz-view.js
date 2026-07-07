@@ -142,6 +142,7 @@ export function QuizView() {
       if (!payload.topic?.trim()) delete payload.topic;
       else payload.topic = payload.topic.trim();
       const res = await axiosInstance.post('/quizzes/generate', payload);
+      setConfig((prev) => ({ ...prev, topic: '' }));
       setActiveQuiz(res.data.quiz);
       setAnswers(mapSavedAnswersToObject(res.data.quiz?.userAnswers));
       setResults(null);

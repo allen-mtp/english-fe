@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -72,9 +73,16 @@ export function ShadowingView() {
     const topic = genTopic.trim() || 'daily-life';
     try {
       const res = await axiosInstance.post('/conversations/generate', { topic, level: genLevel });
-      setConversations(prev => [res.data.conversation, ...prev]);
-      setGenSuccess(`Generated "${res.data.conversation.title}" successfully!`);
-      setGenTopic('');
+      const conversation = res.data?.conversation;
+      clearTopicInput(setGenTopic);
+      setConversations((prev) => [conversation, ...prev.filter((c) => c?._id !== conversation?._id)]);
+      if (conversation) {
+        setSelected(conversation);
+        setSentenceIndex(0);
+        setResult(null);
+        setAudioBlob(null);
+      }
+      setGenSuccess(`Generated "${conversation?.title || topic}" successfully!`);
       setTimeout(() => setGenSuccess(''), 3000);
     } catch (err) {
       setGenError(err.response?.data?.error || 'Generation failed');

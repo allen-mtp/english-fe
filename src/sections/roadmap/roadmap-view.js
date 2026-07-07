@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -69,11 +70,13 @@ export function RoadmapView() {
 
   const generate = async () => {
     setGenLoading(true); setGenError('');
+    const topic = genTopic.trim() || undefined;
     try {
       const res = await axiosInstance.post('/roadmap/generate',
-        { level: genLevel, goal: 'communication', dailyMinutes: 30, topic: genTopic.trim() || undefined },
+        { level: genLevel, goal: 'communication', dailyMinutes: 30, topic },
         { timeout: 240000 }
       );
+      clearTopicInput(setGenTopic);
       setRoadmap(res.data.roadmap);
       setJustCompleted(false);
       await fetchRoadmap();

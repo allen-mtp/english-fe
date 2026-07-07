@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { getApiError, normalizeTopic, openGeneratedExercise, clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -75,7 +76,7 @@ export function ListeningView() {
   const [isPlaying, setIsPlaying] = useState(false);
   const utteranceRef = useState(null);
 
-  useEffect(() => { fetchExercises(); }, []);
+  useEffect(() => { fetchExercises(); }, [filterLevel]);
 
   const fetchExercises = async () => {
     setLoading(true);
@@ -89,13 +90,18 @@ export function ListeningView() {
 
   const generateExercise = async () => {
     setGenerating(true); setError('');
+    const topic = normalizeTopic(genTopic);
     try {
-      await axiosInstance.post('/listening/generate', {
+      const res = await axiosInstance.post('/listening/generate', {
         level: filterLevel,
-        topic: genTopic.trim() || undefined,
+        topic: topic || undefined,
       });
-      fetchExercises();
-    } catch (err) { setError(err.response?.data?.error || 'Failed to generate'); }
+      clearTopicInput(setGenTopic);
+      openGeneratedExercise(res.data?.exercise, {
+        setSelected, setAnswers, setResults, setShowTranscript, setView,
+      });
+      await fetchExercises();
+    } catch (err) { setError(getApiError(err, 'Failed to generate')); }
     finally { setGenerating(false); }
   };
 

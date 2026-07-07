@@ -6,8 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
 import Stack from '@mui/material/Stack';
-import { alpha, useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { alpha } from '@mui/material/styles';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import CloseIcon from '@mui/icons-material/Close';
@@ -118,8 +117,6 @@ function playBeep(durationMs, frequency, times = 1) {
 }
 
 export function StudyTimer() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [state, setState] = useState(() => loadState());
   const [collapsed, setCollapsed] = useState(false);
   const [pos, setPos] = useState(() => loadPosition()); // {x, y} or null = default corner
@@ -270,11 +267,9 @@ export function StudyTimer() {
   }, []);
 
   const handleCollapse = useCallback(() => {
-    if (isMobile) {
-      resetPosition();
-    }
+    resetPosition();
     setCollapsed(true);
-  }, [isMobile, resetPosition]);
+  }, [resetPosition]);
 
   // Constrain position to viewport whenever widget size changes (expand/collapse)
   useLayoutEffect(() => {

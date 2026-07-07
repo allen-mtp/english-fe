@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -79,6 +80,7 @@ export function RolePlayView() {
       setMessages(conv.messages || []);
       setView('chat');
       setAnalysis(null);
+      clearTopicInput(setCustomTopic);
     } catch (err) { setError(err.response?.data?.error || 'Failed to start conversation'); }
     finally { setCreating(false); }
   };

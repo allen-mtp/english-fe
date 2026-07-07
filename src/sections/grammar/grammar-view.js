@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { getApiError, normalizeTopic, GRAMMAR_TOPICS, openGeneratedLesson, clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -38,7 +39,7 @@ export function GrammarView() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState('');
   const [filterLevel, setFilterLevel] = useState('A1');
-  const [filterTopic, setFilterTopic] = useState('');
+  const [genTopic, setGenTopic] = useState('');
   const [topics, setTopics] = useState([]);
 
   // Exercise state
@@ -47,16 +48,18 @@ export function GrammarView() {
   const [results, setResults] = useState(null);
 
   useEffect(() => {
-    fetchLessons();
     fetchTopics();
   }, []);
+
+  useEffect(() => {
+    fetchLessons();
+  }, [filterLevel]);
 
   const fetchLessons = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (filterLevel) params.append('level', filterLevel);
-      if (filterTopic) params.append('topic', filterTopic);
       const res = await axiosInstance.get(`/grammar?${params.toString()}`);
       setLessons(res.data.lessons || []);
     } catch (err) {
@@ -78,14 +81,18 @@ export function GrammarView() {
   const generateLesson = async () => {
     setGenerating(true);
     setError('');
+    const topic = normalizeTopic(genTopic);
     try {
-      await axiosInstance.post('/grammar/generate', {
+      const res = await axiosInstance.post('/grammar/generate', {
         level: filterLevel,
-        topic: filterTopic || undefined,
+        topic: topic || undefined,
       });
-      fetchLessons();
+      clearTopicInput(setGenTopic);
+      const lesson = res.data?.lesson;
+      openGeneratedLesson(lesson, { setSelectedLesson, setAnswers, setResults, setView });
+      await fetchLessons();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to generate lesson');
+      setError(getApiError(err, 'Failed to generate lesson'));
     } finally {
       setGenerating(false);
     }
@@ -425,12 +432,12 @@ export function GrammarView() {
             </Stack>
           </Box>
           <TopicInput
-            value={filterTopic}
-            onChange={setFilterTopic}
+            value={genTopic}
+            onChange={setGenTopic}
             onEnter={generateLesson}
-            label="Topic (filter + generate)"
+            label="Topic (optional)"
             placeholder="Pick a topic below or type any custom topic to generate a lesson"
-            suggestions={[...new Set([...topics, 'tenses', 'conditionals', 'articles', 'modals', 'passive-voice', 'relative-clauses', 'gerunds-infinitives', 'prepositions', 'conjunctions', 'comparisons'])]}
+            suggestions={[...new Set([...topics, ...GRAMMAR_TOPICS])]}
             size="small"
             showRandom
           />

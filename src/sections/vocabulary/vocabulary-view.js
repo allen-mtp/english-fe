@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -131,6 +132,7 @@ function AddNewTab({ onGenerated }) {
       await axiosInstance.post('/vocabularies/generate', { word, topic: genTopic.trim() || undefined });
       setGenSuccess(`"${word}" generated!`);
       setGenWord('');
+      clearTopicInput(setGenTopic);
       onGenerated();
     } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
     finally { setGenLoading(false); }
@@ -146,6 +148,7 @@ function AddNewTab({ onGenerated }) {
       await axiosInstance.post('/vocabularies/generate-batch', { words, topic: genTopic.trim() || undefined });
       setGenSuccess(`${words.length} words generated!`);
       setGenBatch('');
+      clearTopicInput(setGenTopic);
       onGenerated();
     } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
     finally { setGenLoading(false); }

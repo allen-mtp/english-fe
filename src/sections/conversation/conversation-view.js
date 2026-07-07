@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axiosInstance from 'src/utils/axios';
+import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -32,7 +33,7 @@ const speakerConfig = [
 export function ConversationView() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [genTopic, setGenTopic] = useState('daily-life');
+  const [genTopic, setGenTopic] = useState('');
   const [genLevel, setGenLevel] = useState('A1');
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState('');
@@ -51,8 +52,10 @@ export function ConversationView() {
 
   const generate = async () => {
     setGenLoading(true); setGenError('');
+    const topic = genTopic.trim() || 'daily-life';
     try {
-      const res = await axiosInstance.post('/conversations/generate', { topic: genTopic, level: genLevel });
+      const res = await axiosInstance.post('/conversations/generate', { topic, level: genLevel });
+      clearTopicInput(setGenTopic);
       setConversations(prev => [res.data.conversation, ...prev]);
     } catch (err) {
       setGenError(err.response?.data?.error || 'Generation failed.');
@@ -135,7 +138,7 @@ export function ConversationView() {
                 </Stack>
               </Box>
 
-              <Button variant="contained" onClick={generate} disabled={genLoading || !genTopic.trim()} startIcon={genLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />} sx={{ ...gradientBtn, alignSelf: 'flex-start', px: 3, py: 1.1 }}>
+              <Button variant="contained" onClick={generate} disabled={genLoading} startIcon={genLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />} sx={{ ...gradientBtn, alignSelf: 'flex-start', px: 3, py: 1.1 }}>
                 {genLoading ? 'Generating...' : 'Generate'}
               </Button>
             </Stack>
