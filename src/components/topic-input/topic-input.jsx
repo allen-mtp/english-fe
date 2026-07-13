@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
@@ -22,7 +23,11 @@ export function TopicInput({
   randomTitle = 'Pick random suggestion',
   sx,
 }) {
+  const { t } = useTranslation();
   const [focused, setFocused] = useState(false);
+
+  const resolvedLabel = label === 'Topic (optional)' ? t('topic.label') : label;
+  const resolvedRandomTitle = randomTitle === 'Pick random suggestion' ? t('topic.random') : randomTitle;
 
   const handlePick = (s) => onChange?.(s);
 
@@ -37,7 +42,7 @@ export function TopicInput({
       <TextField
         fullWidth={fullWidth}
         size={size}
-        label={label}
+        label={resolvedLabel}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
@@ -62,7 +67,7 @@ export function TopicInput({
                   transition: 'color 0.15s',
                   '&:hover': { color: '#6366f1' },
                 }}
-                title={randomTitle}
+                title={resolvedRandomTitle}
               >
                 <ShuffleIcon sx={{ fontSize: 20 }} />
               </Box>

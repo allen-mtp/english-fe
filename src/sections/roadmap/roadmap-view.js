@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -30,6 +31,7 @@ const LEVEL_NEXT = { A1: 'A2', A2: 'B1', B1: 'B2', B2: 'C1', C1: 'C2', C2: 'C2' 
 const ROADMAP_DAYS = 7;
 
 export function RoadmapView() {
+  const { t } = useTranslation();
   const [roadmap, setRoadmap] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,7 @@ export function RoadmapView() {
       setJustCompleted(false);
       await fetchRoadmap();
     } catch (err) {
-      const msg = err.response?.data?.error || 'Generation failed';
+      const msg = err.response?.data?.error || t('roadmap.genFailed');
       if (err.response?.data?.roadmap) {
         setRoadmap(err.response.data.roadmap);
       }
@@ -98,13 +100,13 @@ export function RoadmapView() {
       setRoadmap(res.data.roadmap);
       if (res.data.isJustCompleted) {
         setJustCompleted(true);
-        setCompleteSuccess(`🎉 Roadmap completed! You unlocked level ${res.data.nextLevel}!`);
+        setCompleteSuccess(t('roadmap.completed', { days: ROADMAP_DAYS, message: `You unlocked level ${res.data.nextLevel}!` }));
       } else {
-        setCompleteSuccess(`Day ${day} completed! +${res.data.xpEarned || 50} XP`);
+        setCompleteSuccess(t('roadmap.dayComplete', { day, xp: res.data.xpEarned || 50 }));
         setTimeout(() => setCompleteSuccess(''), 3000);
       }
     } catch (err) {
-      setCompleteError(err.response?.data?.error || 'Failed to complete day');
+      setCompleteError(err.response?.data?.error || t('roadmap.completeFailed'));
     } finally { setCompleteLoading(null); }
   };
 
@@ -137,13 +139,10 @@ export function RoadmapView() {
             <Box sx={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, #fef3c7, #fde68a)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 3 }}>
               <CelebrateIcon sx={{ fontSize: 48, color: '#d97706' }} />
             </Box>
-            <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>Roadmap Completed! 🎉</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 520, mx: 'auto' }}>
-              Amazing work! You finished all {roadmap.totalDays} days of your <strong>{roadmap.level}</strong> roadmap.
-              {isMaxLevel
-                ? ' You have reached the highest level — keep practicing to master C2!'
-                : ` You've unlocked the next level: ${nextLvl}`}
-            </Typography>
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 1 }}>{t('roadmap.completionTitle')}</Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 520, mx: 'auto' }}>
+              {t('roadmap.completionDesc', { days: roadmap.totalDays, level: roadmap.level, nextLevel: nextLvl })}
+        </Typography>
 
             {!isMaxLevel && (
               <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 4 }}>
@@ -162,7 +161,7 @@ export function RoadmapView() {
                   onClick={() => { setJustCompleted(false); setGenLevel(nextLvl); }}
                   sx={{ ...gradientBtn, px: 4, py: 1.75 }}
                 >
-                  Start {nextLvl} Roadmap
+                  {t('roadmap.startNext', { level: nextLvl })}
                 </Button>
               )}
               <Button
@@ -171,7 +170,7 @@ export function RoadmapView() {
                 onClick={() => setJustCompleted(false)}
                 sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 700, py: 1.75, px: 4, color: '#64748b', borderColor: '#cbd5e1' }}
               >
-                View My Progress
+                {t('roadmap.viewProgress')}
               </Button>
             </Stack>
           </CardContent>
@@ -185,8 +184,8 @@ export function RoadmapView() {
     return (
       <Box>
         <Box sx={{ mb: 1 }}>
-          <Typography variant="h4" fontWeight={800}>Learning Roadmap</Typography>
-          <Typography variant="body2" color="text.secondary">AI creates a personalized {ROADMAP_DAYS}-day learning plan</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('roadmap.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('roadmap.subtitle', { days: ROADMAP_DAYS })}</Typography>
         </Box>
 
         <Card sx={{ borderRadius: 3, boxShadow: '0 4px 28px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', mt: 2 }}>
@@ -194,13 +193,13 @@ export function RoadmapView() {
             <Box sx={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 3 }}>
               <MapIcon sx={{ fontSize: 32, color: '#6366f1' }} />
             </Box>
-            <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>Start Your {ROADMAP_DAYS}-Day Journey</Typography>
+            <Typography variant="h5" fontWeight={800} sx={{ mb: 1 }}>{t('roadmap.startJourney')}</Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 460, mx: 'auto' }}>
-              Create a personalized {ROADMAP_DAYS}-day roadmap with daily vocabulary, pronunciation, and conversation practices. Complete all {ROADMAP_DAYS} days to unlock the next level!
+              {t('roadmap.startDesc')}
             </Typography>
             {genError && <Alert severity="error" sx={{ mb: 3, borderRadius: 3, maxWidth: 500, mx: 'auto' }}>{genError}</Alert>}
             <Box sx={{ maxWidth: 520, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
-              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, textAlign: 'center' }}>Level:</Typography>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, textAlign: 'center' }}>{t('roadmap.level')}</Typography>
               <Stack direction="row" spacing={1} justifyContent="center" useFlexGap flexWrap="wrap" sx={{ mb: 2.5 }}>
                 {LEVELS.map(lvl => (
                   <Chip key={lvl} label={lvl} color={genLevel === lvl ? 'primary' : 'default'} onClick={() => setGenLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 700 }} />
@@ -210,8 +209,8 @@ export function RoadmapView() {
                 value={genTopic}
                 onChange={setGenTopic}
                 onEnter={generate}
-                label="Focus area / interest (optional)"
-                placeholder={`e.g. business English, IELTS prep, travel — AI will tailor the ${ROADMAP_DAYS}-day plan around it`}
+                label={t('roadmap.focusArea')}
+                placeholder={t('roadmap.focusPlaceholder')}
                 suggestions={['business English', 'travel English', 'academic English', 'daily conversation', 'IELTS prep', 'TOEFL prep', 'job interview', 'medical English', 'IT & technology', 'presentation skills']}
                 size="small"
               />
@@ -225,11 +224,11 @@ export function RoadmapView() {
                 disabled={genLoading}
                 sx={{ ...gradientBtn, px: 4, py: 1.75, fontSize: '0.95rem' }}
               >
-                {genLoading ? `Generating ${ROADMAP_DAYS} days...` : `Generate ${ROADMAP_DAYS}-Day Roadmap`}
+                {genLoading ? t('roadmap.generating') : t('roadmap.generate')}
               </Button>
             </Stack>
             <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-              ⏱ Generation may take 15-30 seconds ({ROADMAP_DAYS} days of content)
+              {t('roadmap.genNote')}
             </Typography>
           </CardContent>
         </Card>
@@ -258,14 +257,14 @@ export function RoadmapView() {
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Learning Roadmap</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('roadmap.title')}</Typography>
           <Typography variant="body2" color="text.secondary">
-            {roadmap.totalDays}-day personalized plan · Level {roadmap.level}
-            {roadmap.version > 1 && ` · Roadmap #${roadmap.version}`}
+          {t('roadmap.activePlan', { level: roadmap.level })}
+          {roadmap.version > 1 && ` · ${t('roadmap.roadmapNum', { n: roadmap.version })}`}
           </Typography>
         </Box>
         <Button variant="outlined" color="error" size="small" onClick={reset} sx={{ borderRadius: 2.5, textTransform: 'none', borderColor: '#fca5a5', color: '#dc2626', '&:hover': { borderColor: '#f87171', bgcolor: 'rgba(239,68,68,0.04)' } }}>
-          Reset
+          {t('roadmap.reset')}
         </Button>
       </Stack>
 
@@ -281,12 +280,12 @@ export function RoadmapView() {
           action={
             !isMaxLevel && (
               <Button color="success" size="small" variant="contained" startIcon={<AutoAwesomeIcon />} onClick={() => { setGenLevel(LEVEL_NEXT[roadmap.level] || roadmap.level); reset().then(() => {}); }} sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}>
-                Start {LEVEL_NEXT[roadmap.level]}
+                {t('roadmap.startNext', { level: LEVEL_NEXT[roadmap.level] })}
               </Button>
             )
           }
         >
-          <Typography variant="body2" fontWeight={700}>🎉 You completed this {roadmap.totalDays}-day roadmap! {isMaxLevel ? 'You reached the max level (C2)!' : `Unlock the next level: ${LEVEL_NEXT[roadmap.level]}`}</Typography>
+          <Typography variant="body2" fontWeight={700}>{t('roadmap.completed', { days: roadmap.totalDays, message: isMaxLevel ? 'You reached the max level (C2)!' : `Unlock the next level: ${LEVEL_NEXT[roadmap.level]}` })}</Typography>
         </Alert>
       )}
 
@@ -294,7 +293,7 @@ export function RoadmapView() {
       {!isCompletedRoadmap && roadmap.currentDay >= 0 && (
         <Alert severity="info" sx={{ mt: 2, mb: 2, borderRadius: 3, bgcolor: '#eef2ff', border: '1px solid #c7d2fe' }}>
           <Typography variant="body2" fontWeight={600}>
-            📅 Day {currentLearningDay} is ready · {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} remaining to finish this roadmap
+            {t('roadmap.dayReady', { day: currentLearningDay, remaining: daysRemaining })}
           </Typography>
         </Alert>
       )}
@@ -303,14 +302,14 @@ export function RoadmapView() {
       <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'divider', mb: 3, mt: 2 }}>
         <CardContent sx={{ p: 3 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-            <Typography variant="body2" fontWeight={600} color="text.secondary">Your Progress</Typography>
+            <Typography variant="body2" fontWeight={600} color="text.secondary">{t('roadmap.yourProgress')}</Typography>
             <Typography variant="body2" fontWeight={700} color="primary.main">{progressPercent}%</Typography>
           </Stack>
           <Box sx={{ height: 10, borderRadius: 5, bgcolor: '#f1f5f9', overflow: 'hidden' }}>
             <Box sx={{ height: '100%', borderRadius: 5, background: 'linear-gradient(90deg, #4f46e5, #7c3aed)', width: `${progressPercent}%`, transition: 'width 0.6s ease' }} />
           </Box>
           <Stack direction="row" justifyContent="space-between" sx={{ mt: 1.5 }}>
-            <Chip label={`Day ${currentLearningDay} of ${roadmap.totalDays}`} size="small" sx={{ height: 22, fontWeight: 600, bgcolor: '#eef2ff', color: '#6366f1', borderRadius: 1.5, fontSize: 11.5 }} />
+            <Chip label={t('roadmap.dayOf', { current: currentLearningDay, total: roadmap.totalDays })} size="small" sx={{ height: 22, fontWeight: 600, bgcolor: '#eef2ff', color: '#6366f1', borderRadius: 1.5, fontSize: 11.5 }} />
             <Typography variant="caption" color="text.secondary" fontWeight={500}>
               {roadmap.level} · {roadmap.goal || 'communication'}
               {stats?.completedRoadmaps > 0 && ` · ${stats.completedRoadmaps} roadmap${stats.completedRoadmaps > 1 ? 's' : ''} completed`}
@@ -323,7 +322,7 @@ export function RoadmapView() {
       {visibleLessons.length > 0 && (
         <>
           <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: 'text.secondary' }}>
-            {isCompletedRoadmap ? 'Recent Lessons' : 'Continue Learning'}
+              {isCompletedRoadmap ? t('roadmap.showRecent') : 'Continue Learning'}
           </Typography>
           {visibleLessons.map((lesson) => {
             const isCurrent = !isCompletedRoadmap && lesson.day === currentLearningDay;
@@ -352,7 +351,7 @@ export function RoadmapView() {
                     <Stack direction="row" alignItems="flex-start" spacing={1}>
                       <Chip
                         size="small"
-                        label={`Day ${lesson.day}`}
+                        label={t('roadmap.lessonDay', { n: lesson.day })}
                         sx={{
                           fontWeight: 700, borderRadius: 2, height: 24,
                           bgcolor: isCompleted ? '#ecfdf5' : '#eef2ff',
@@ -360,16 +359,16 @@ export function RoadmapView() {
                         }}
                       />
                       {isCompleted && !isCurrent && <CheckCircleIcon sx={{ color: '#10b981', fontSize: 18 }} />}
-                      {isCurrent && <Chip label="Current" size="small" sx={{ height: 24, fontWeight: 700, borderRadius: 2, bgcolor: '#fef3c7', color: '#d97706' }} />}
+                      {isCurrent && <Chip label={t('roadmap.current')} size="small" sx={{ height: 24, fontWeight: 700, borderRadius: 2, bgcolor: '#fef3c7', color: '#d97706' }} />}
                       {isLocked && <LockIcon sx={{ color: '#94a3b8', fontSize: 16 }} />}
                     </Stack>
 
                     <Typography variant="h5" fontWeight={800} sx={{ mt: 1.5, mb: 0.5 }}>{lesson.title}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {lesson.vocabularies?.length || 0} vocab words · Pronunciation practice · Shadowing
-                    </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t('roadmap.lessonItems', { count: lesson.vocabularies?.length || 0 })}
+                </Typography>
                     {lesson.pronunciationFocus && (
-                      <Chip label={`Focus: ${lesson.pronunciationFocus}`} size="small" variant="outlined" sx={{ mt: 1.5, borderRadius: 1.5, fontWeight: 500, height: 24 }} />
+                      <Chip label={t('roadmap.focus', { topic: lesson.pronunciationFocus })} size="small" variant="outlined" sx={{ mt: 1.5, borderRadius: 1.5, fontWeight: 500, height: 24 }} />
                     )}
 
                     {isCurrent && (
@@ -382,12 +381,12 @@ export function RoadmapView() {
                         disabled={completeLoading === lesson.day}
                         sx={{ ...gradientBtn, mt: 3, py: 1.75 }}
                       >
-                        Complete Day {lesson.day}
+                        {t('roadmap.completeDay', { n: lesson.day })}
                       </Button>
                     )}
 
                     {isNext && (
-                      <Tooltip title="You must complete the current day first">
+                      <Tooltip title={t('roadmap.lockedTooltip')}>
                         <span>
                           <Button
                             variant="outlined"
@@ -397,7 +396,7 @@ export function RoadmapView() {
                             startIcon={<LockIcon />}
                             sx={{ mt: 3, borderRadius: 3, textTransform: 'none', fontWeight: 700, py: 1.75 }}
                           >
-                            Locked — Complete Day {currentLearningDay} First
+                            {t('roadmap.locked', { n: currentLearningDay })}
                           </Button>
                         </span>
                       </Tooltip>
@@ -422,9 +421,9 @@ export function RoadmapView() {
 
       {/* All lessons list */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 4, mb: 2 }}>
-        <Typography variant="h6" fontWeight={700}>All {roadmap.totalDays} Lessons</Typography>
+        <Typography variant="h6" fontWeight={700}>{t('roadmap.allLessons', { count: roadmap.totalDays })}</Typography>
         <Button size="small" onClick={() => setShowAllDays(s => !s)} sx={{ textTransform: 'none', fontWeight: 600, color: '#6366f1' }}>
-          {showAllDays ? 'Show recent' : `Show all ${roadmap.totalDays} days`}
+          {showAllDays ? t('roadmap.showRecent') : t('roadmap.showAll', { count: roadmap.totalDays })}
         </Button>
       </Stack>
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1.5 }}>
@@ -467,7 +466,7 @@ export function RoadmapView() {
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="body2" fontWeight={700} noWrap>{lesson.title}</Typography>
-                  <Typography variant="caption" color="text.secondary">Day {lesson.day}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t('roadmap.lessonDay', { n: lesson.day })}</Typography>
                 </Box>
                 {isCurrent && <StarIcon sx={{ color: '#f59e0b', fontSize: 18 }} />}
               </CardContent>
@@ -479,7 +478,7 @@ export function RoadmapView() {
       {!showAllDays && roadmap.lessons?.length > 12 && (
         <Box sx={{ textAlign: 'center', mt: 2 }}>
           <Button size="small" onClick={() => setShowAllDays(true)} sx={{ textTransform: 'none', fontWeight: 600, color: '#6366f1' }}>
-            Show all {roadmap.lessons.length} days →
+          {t('roadmap.showAll', { count: roadmap.lessons.length })} →
           </Button>
         </Box>
       )}

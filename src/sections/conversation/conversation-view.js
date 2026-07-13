@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -31,6 +32,7 @@ const speakerConfig = [
 ];
 
 export function ConversationView() {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [genTopic, setGenTopic] = useState('');
@@ -94,8 +96,8 @@ export function ConversationView() {
   return (
     <Box>
       <Box sx={{ mb: 1 }}>
-        <Typography variant="h4" fontWeight={800}>Conversations</Typography>
-        <Typography variant="body2" color="text.secondary">Practice with AI-generated realistic dialogues</Typography>
+            <Typography variant="h4" fontWeight={800}>{t('conversation.title')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('conversation.subtitle')}</Typography>
       </Box>
 
       <Stack spacing={3.5} sx={{ mt: 2 }}>
@@ -106,25 +108,25 @@ export function ConversationView() {
               <Box sx={{ width: 30, height: 30, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 16 }} />
               </Box>
-              <Typography variant="h6" fontWeight={700}>Generate New Dialogue</Typography>
+                <Typography variant="h6" fontWeight={700}>{t('conversation.generateNew')}</Typography>
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              AI creates natural, level-appropriate conversations
+                {t('conversation.generateDesc')}
             </Typography>
             {genError && <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 3 }}>{genError}</Alert>}
             <Stack spacing={2.5}>
               <TopicInput
                 value={genTopic}
                 onChange={setGenTopic}
-                label="Topic"
-                placeholder="Pick a suggestion or type any topic"
+                  label={t('conversation.topic')}
+                  placeholder={t('conversation.topicPlaceholder')}
                 suggestions={topics}
                 size="small"
                 showRandom
               />
 
               <Box>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('conversation.level')}</Typography>
                 <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                   {LEVELS.map(lvl => (
                     <Chip
@@ -139,7 +141,7 @@ export function ConversationView() {
               </Box>
 
               <Button variant="contained" onClick={generate} disabled={genLoading} startIcon={genLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />} sx={{ ...gradientBtn, alignSelf: 'flex-start', px: 3, py: 1.1 }}>
-                {genLoading ? 'Generating...' : 'Generate'}
+                {genLoading ? t('conversation.generating') : t('conversation.generate')}
               </Button>
             </Stack>
           </CardContent>
@@ -152,8 +154,8 @@ export function ConversationView() {
               <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2 }}>
                 <ForumIcon sx={{ fontSize: 26, color: 'text.disabled' }} />
               </Box>
-              <Typography variant="subtitle1" fontWeight={700} color="text.secondary">No conversations yet</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>Generate your first dialogue above</Typography>
+              <Typography variant="subtitle1" fontWeight={700} color="text.secondary">{t('conversation.noConv')}</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('conversation.noConvDesc')}</Typography>
             </CardContent>
           </Card>
         )}
@@ -218,7 +220,7 @@ export function ConversationView() {
                   {/* Vocabulary highlights */}
                   {conv.vocabularyHighlights?.length > 0 && (
                     <Box sx={{ mt: 3 }}>
-                      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Vocabulary Highlights</Typography>
+                      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('conversation.vocabHighlights')}</Typography>
                       <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
                         {conv.vocabularyHighlights.map((h, i) => (
                           <Chip key={i} label={`${h.word} — ${h.meaning}`} size="small" variant="outlined" sx={{ borderRadius: 2, fontSize: 12.5, fontWeight: 500 }} />
@@ -230,7 +232,7 @@ export function ConversationView() {
                   {/* Grammar notes */}
                   {conv.grammarNotes && (
                     <Box sx={{ mt: 2.5, borderRadius: 3, border: '1px solid #c7d2fe', bgcolor: '#eef2ff', p: 2.5 }}>
-                      <Typography variant="body2" fontWeight={700} color="#4338ca" sx={{ mb: 0.5 }}>Grammar Notes</Typography>
+                      <Typography variant="body2" fontWeight={700} color="#4338ca" sx={{ mb: 0.5 }}>{t('conversation.grammarNotes')}</Typography>
                       <Typography variant="body2" color="text.secondary">{conv.grammarNotes}</Typography>
                     </Box>
                   )}

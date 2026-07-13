@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -117,6 +118,7 @@ function playBeep(durationMs, frequency, times = 1) {
 }
 
 export function StudyTimer() {
+  const { t } = useTranslation();
   const [state, setState] = useState(() => loadState());
   const [collapsed, setCollapsed] = useState(false);
   const [pos, setPos] = useState(() => loadPosition()); // {x, y} or null = default corner
@@ -422,13 +424,13 @@ export function StudyTimer() {
               color: isWarning ? '#f59e0b' : isDone ? '#ef4444' : '#6366f1',
             }}
           />
-          <Typography variant="caption" fontWeight={700} sx={{ color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            Study Timer
-          </Typography>
+    <Typography variant="caption" fontWeight={700} sx={{ color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+      {t('timer.studyTimer')}
+    </Typography>
         </Stack>
         <Stack direction="row" spacing={0.5}>
           {pos && (
-            <Tooltip title="Reset position">
+            <Tooltip title={t('timer.resetPosition')}>
               <IconButton
                 size="small"
                 onClick={resetPosition}
@@ -461,12 +463,12 @@ export function StudyTimer() {
         </Typography>
         <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 500 }}>
           {isDone
-            ? 'Time\u2019s up! Great job.'
+            ? t('timer.timesUp')
             : state.running
               ? isWarning
-                ? '15 min warning — wrap up soon'
-                : 'Stay focused'
-              : 'Press start to begin'}
+                ? t('timer.warning')
+                : t('timer.stayFocused')
+              : t('timer.pressStart')}
         </Typography>
       </Box>
 
@@ -493,7 +495,7 @@ export function StudyTimer() {
       {/* Controls */}
       <Stack direction="row" spacing={1} justifyContent="center">
         {!state.running ? (
-          <Tooltip title={state.remaining === 0 ? 'Start again (60:00)' : 'Start'}>
+          <Tooltip title={state.remaining === 0 ? t('timer.startAgain') : t('timer.start')}>
             <span>
               <IconButton
                 onClick={handleStart}
@@ -512,7 +514,7 @@ export function StudyTimer() {
             </span>
           </Tooltip>
         ) : (
-          <Tooltip title="Pause">
+          <Tooltip title={t('timer.pause')}>
             <IconButton
               onClick={handlePause}
               data-no-drag

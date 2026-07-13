@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -35,6 +36,7 @@ const SHADOWING_TOPICS = ['daily-life', 'travel', 'food', 'work', 'shopping', 'h
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export function ShadowingView() {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState([]);
   const [selected, setSelected] = useState(null);
   const [sentenceIndex, setSentenceIndex] = useState(0);
@@ -85,7 +87,7 @@ export function ShadowingView() {
       setGenSuccess(`Generated "${conversation?.title || topic}" successfully!`);
       setTimeout(() => setGenSuccess(''), 3000);
     } catch (err) {
-      setGenError(err.response?.data?.error || 'Generation failed');
+      setGenError(err.response?.data?.error || t('shadowing.genFailed'));
     } finally { setGenLoading(false); }
   };
 
@@ -123,7 +125,7 @@ export function ShadowingView() {
       mr.start();
       setRecording(true);
     } catch {
-      setError('Microphone access denied.');
+      setError(t('shadowing.micDenied'));
     }
   };
 
@@ -147,7 +149,7 @@ export function ShadowingView() {
       setResult(res.data.log);
       fetchHistory();
     } catch (err) {
-      setError(err.response?.data?.error || 'Scoring failed');
+      setError(err.response?.data?.error || t('shadowing.scoringFailed'));
     } finally { setScoring(false); }
   };
 
@@ -176,9 +178,9 @@ export function ShadowingView() {
   return (
     <Box>
       <Box sx={{ mb: 1 }}>
-        <Typography variant="h4" fontWeight={800}>Shadowing Practice</Typography>
+        <Typography variant="h4" fontWeight={800}>{t('shadowing.title')}</Typography>
         <Typography variant="body2" color="text.secondary">
-          Listen to native speech, then record yourself and get AI feedback
+          {t('shadowing.subtitle')}
         </Typography>
       </Box>
 
@@ -193,10 +195,10 @@ export function ShadowingView() {
                 <Box sx={{ width: 30, height: 30, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 16 }} />
                 </Box>
-                <Typography variant="h6" fontWeight={700}>Generate new conversation</Typography>
+                <Typography variant="h6" fontWeight={700}>{t('shadowing.generateTitle')}</Typography>
               </Stack>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                Create a custom conversation to practice shadowing with any topic you want
+                {t('shadowing.generateDesc')}
               </Typography>
 
               <Collapse in={showGen}>
@@ -207,15 +209,15 @@ export function ShadowingView() {
                   <TopicInput
                     value={genTopic}
                     onChange={setGenTopic}
-                    label="Topic"
-                    placeholder="Pick a suggestion or type any topic"
+                    label={t('shadowing.topicLabel')}
+                    placeholder={t('shadowing.topicPlaceholder')}
                     suggestions={SHADOWING_TOPICS}
                     size="small"
                     showRandom
                   />
 
                   <Box>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('shadowing.levelLabel')}:</Typography>
                     <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                       {LEVELS.map((lvl) => (
                         <Chip
@@ -236,7 +238,7 @@ export function ShadowingView() {
                     startIcon={genLoading ? <CircularProgress size={18} sx={{ color: 'white' }} /> : <AutoAwesomeIcon />}
                     sx={{ ...gradientBtn, alignSelf: 'flex-start', px: 3, py: 1.1 }}
                   >
-                    {genLoading ? 'Generating...' : 'Generate'}
+                    {genLoading ? t('shadowing.generating') : t('shadowing.generateBtn')}
                   </Button>
                 </Stack>
               </Collapse>
@@ -248,7 +250,7 @@ export function ShadowingView() {
                   onClick={() => setShowGen(true)}
                   sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 600, borderColor: '#cbd5e1', color: '#475569', '&:hover': { borderColor: '#6366f1', color: '#6366f1', bgcolor: 'rgba(99,102,241,0.04)' } }}
                 >
-                  Generate new conversation
+                  {t('shadowing.generateNewBtn')}
                 </Button>
               )}
             </CardContent>
@@ -256,11 +258,11 @@ export function ShadowingView() {
 
           {/* Conversations list */}
           <Box>
-            <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>Choose a conversation</Typography>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>{t('shadowing.chooseConversation')}</Typography>
             {conversations.length === 0 ? (
               <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 2px 14px rgba(0,0,0,0.035)' }}>
                 <CardContent sx={{ py: 8, textAlign: 'center' }}>
-                  <Typography variant="body2" color="text.secondary">No conversations yet. Generate one above to start practicing.</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('shadowing.noConversations')}</Typography>
                 </CardContent>
               </Card>
             ) : (
@@ -285,7 +287,7 @@ export function ShadowingView() {
                         <Typography variant="body2" color="text.secondary">{c.topic} · {c.level?.toUpperCase()}</Typography>
                       </Box>
                       <Chip
-                        label={`${c.dialogue?.length || 0} sentences`}
+                        label={t('shadowing.sentenceCount', { count: c.dialogue?.length || 0 })}
                         size="small"
                         variant="outlined"
                         sx={{ borderRadius: 2, fontWeight: 500 }}
@@ -305,7 +307,7 @@ export function ShadowingView() {
               onClick={() => { setSelected(null); setResult(null); setSentenceIndex(0); setAudioBlob(null); }}
               sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 3 }}
             >
-              Back to list
+              {t('shadowing.backToList')}
             </Button>
           </Stack>
 
@@ -313,7 +315,7 @@ export function ShadowingView() {
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>{selected.title}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Listen to each sentence, then record yourself reading it
+                {t('shadowing.listenAndRecord')}
               </Typography>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
@@ -364,7 +366,7 @@ export function ShadowingView() {
                     size="small"
                     variant="outlined"
                   >
-                    Listen
+                    {t('shadowing.listen')}
                   </Button>
                 </Box>
               )}
@@ -377,7 +379,7 @@ export function ShadowingView() {
                   size="small"
                   sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 3 }}
                 >
-                  Previous
+                  {t('shadowing.previous')}
                 </Button>
                 <Chip
                   label={`${sentenceIndex + 1} / ${dialogue.length}`}
@@ -391,7 +393,7 @@ export function ShadowingView() {
                   size="small"
                   sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 3 }}
                 >
-                  Next
+                  {t('shadowing.next')}
                 </Button>
               </Stack>
 
@@ -435,7 +437,7 @@ export function ShadowingView() {
                   </IconButton>
                 </Box>
                 <Typography variant="body2" color={recording ? 'error.main' : 'text.secondary'} fontWeight={500}>
-                  {recording ? 'Recording...' : 'Record your voice'}
+                  {recording ? t('shadowing.recording') : t('shadowing.recordYourVoice')}
                 </Typography>
                 {audioBlob && !recording && !scoring && (
                   <Button
@@ -451,7 +453,7 @@ export function ShadowingView() {
                       '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' },
                     }}
                   >
-                    Get AI Score
+                    {t('shadowing.getAiScore')}
                   </Button>
                 )}
               </Stack>
@@ -461,7 +463,7 @@ export function ShadowingView() {
           {scoring && (
             <Box textAlign="center" sx={{ py: 2 }}>
               <CircularProgress size={28} />
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>Analyzing pronunciation...</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>{t('shadowing.analyzing')}</Typography>
             </Box>
           )}
 
@@ -473,7 +475,7 @@ export function ShadowingView() {
                     <Typography variant="h3" fontWeight={900} color={result.overallScore >= 70 ? '#10b981' : '#f59e0b'}>
                       {result.overallScore}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">/ 100</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('shadowing.maxScore')}</Typography>
                     <Box sx={{ mt: 2, mx: 'auto', maxWidth: 280 }}>
                       <Box sx={{ height: 8, borderRadius: 4, bgcolor: '#f1f5f9', overflow: 'hidden' }}>
                         <Box
@@ -492,17 +494,17 @@ export function ShadowingView() {
                   <Stack direction="row" spacing={4} justifyContent="center">
                     <Box textAlign="center">
                       <Typography variant="h5" fontWeight={800} color="primary.main">{result.accuracyScore}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>Accuracy</Typography>
+                      <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('shadowing.accuracy')}</Typography>
                     </Box>
                     <Box textAlign="center">
                       <Typography variant="h5" fontWeight={800} color="#8b5cf6">{result.fluencyScore}</Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>Fluency</Typography>
+                      <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('shadowing.fluency')}</Typography>
                     </Box>
                   </Stack>
 
                   {result.feedback?.length > 0 && (
                     <Box>
-                      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>AI Feedback</Typography>
+                      <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('shadowing.aiFeedback')}</Typography>
                       <Stack spacing={1}>
                         {result.feedback.map((f, i) => (
                           <Alert key={i} severity="info" sx={{ borderRadius: 3 }}>{f.suggestion || f.issue}</Alert>
@@ -524,25 +526,25 @@ export function ShadowingView() {
           onClick={toggleHistory}
           sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 3 }}
         >
-          {showHistory ? 'Hide' : 'View'} Practice History
+          {showHistory ? t('shadowing.hide') : t('shadowing.view')} {t('shadowing.practiceHistory')}
         </Button>
         {showHistory && (
           <Box sx={{ mt: 2 }}>
             {historyLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress size={28} /></Box>
             ) : history.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>No practice history yet.</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>{t('shadowing.noHistory')}</Typography>
             ) : (
               <TableContainer component={Card} sx={{ borderRadius: 3, boxShadow: '0 1px 6px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'divider' }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>Conversation</TableCell>
-                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }} align="center">Sentence</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>Score</TableCell>
-                      <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>Accuracy</TableCell>
-                      <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>Fluency</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>{t('shadowing.date')}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>{t('shadowing.conversation')}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }} align="center">{t('shadowing.sentence')}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>{t('shadowing.score')}</TableCell>
+                      <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>{t('shadowing.accuracy')}</TableCell>
+                      <TableCell align="right" sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>{t('shadowing.fluency')}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

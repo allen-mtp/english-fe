@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Box from '@mui/material/Box';
@@ -27,8 +28,6 @@ import { useAuth } from 'src/contexts/auth-context';
 import { registerSchema, getFieldError } from './schema';
 import { Logo } from 'src/components/logo/logo';
 
-const STEPS = ['Account', 'Profile', 'Security'];
-
 function passwordStrength(pw) {
   let score = 0;
   if (pw.length >= 6) score += 25;
@@ -40,16 +39,19 @@ function passwordStrength(pw) {
   return Math.min(100, score);
 }
 
-function strengthLabel(score) {
-  if (score < 40) return { label: 'Weak', color: '#ef4444' };
-  if (score < 70) return { label: 'Fair', color: '#f59e0b' };
-  if (score < 90) return { label: 'Good', color: '#10b981' };
-  return { label: 'Strong', color: '#059669' };
+function strengthLabel(t, score) {
+  if (score < 40) return { label: t('auth.passwordStrength.weak'), color: '#ef4444' };
+  if (score < 70) return { label: t('auth.passwordStrength.fair'), color: '#f59e0b' };
+  if (score < 90) return { label: t('auth.passwordStrength.good'), color: '#10b981' };
+  return { label: t('auth.passwordStrength.strong'), color: '#059669' };
 }
 
 export function RegisterView() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { register } = useAuth();
+
+  const STEPS = [t('auth.stepAccount'), t('auth.stepProfile'), t('auth.stepSecurity')];
   const [form, setForm] = useState({ username: '', name: '', password: '', confirmPassword: '' });
   const [touched, setTouched] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +69,7 @@ export function RegisterView() {
   const blurField = (field) => () => setTouched((p) => ({ ...p, [field]: true }));
 
   const pwScore = passwordStrength(form.password);
-  const strength = strengthLabel(pwScore);
+  const strength = strengthLabel(t, pwScore);
   const activeStep = form.confirmPassword ? 2 : form.password ? 1 : 0;
 
   const handleSubmit = async (e) => {
@@ -79,7 +81,7 @@ export function RegisterView() {
       await register(form.username.trim(), form.password, form.name.trim() || undefined);
       router.replace('/dashboard');
     } catch (err) {
-      setServerError(err.response?.data?.error || 'Registration failed. Please try again.');
+      setServerError(err.response?.data?.error || t('auth.registerFailed'));
     } finally {
       setLoading(false);
     }
@@ -125,26 +127,26 @@ export function RegisterView() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 6 }}>
             <Logo size={52} />
             <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: '-0.5px' }}>
-              English AI
+              {t('app.name')}
             </Typography>
           </Box>
 
           <Typography variant="h3" fontWeight={800} sx={{ color: 'white', letterSpacing: '-1.2px', lineHeight: 1.15, mb: 2 }}>
-            Start your fluency journey today
+            {t('auth.heroRegisterTitle')}
           </Typography>
           <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.65)', maxWidth: 440, mb: 6, lineHeight: 1.7 }}>
-            Join thousands of learners improving their English every day with personalized AI coaching.
+            {t('auth.heroRegisterDesc')}
           </Typography>
 
           <Stack spacing={2}>
             {[
-              'Free forever — no credit card required',
-              'Adaptive learning tailored to your level',
-              'Track progress with streaks, XP, and milestones',
-            ].map((t) => (
-              <Box key={t} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              t('auth.freeForever'),
+              t('auth.adaptive'),
+              t('auth.trackProgress'),
+            ].map((text) => (
+              <Box key={text} sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <CheckCircleIcon sx={{ color: '#a5b4fc', fontSize: 22 }} />
-                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)' }}>{t}</Typography>
+                <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)' }}>{text}</Typography>
               </Box>
             ))}
           </Stack>
@@ -166,10 +168,10 @@ export function RegisterView() {
         <Box sx={{ width: '100%', maxWidth: 420, mx: 'auto' }}>
           <Box sx={{ mb: 3 }}>
             <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.8px', color: '#0f172a' }}>
-              Create your account
+              {t('auth.createAccount')}
             </Typography>
             <Typography variant="body1" sx={{ color: '#64748b', mt: 1 }}>
-              It takes less than a minute
+              {t('auth.registerSubtitle')}
             </Typography>
           </Box>
 
@@ -189,14 +191,14 @@ export function RegisterView() {
 
               <TextField
                 fullWidth
-                label="Username"
+                label={t('auth.username')}
                 value={form.username}
                 onChange={setField('username')}
                 onBlur={blurField('username')}
                 autoComplete="username"
                 autoFocus
                 error={touched.username && !!getFieldError(errors, 'username')}
-                helperText={touched.username ? getFieldError(errors, 'username') : '3–30 chars: letters, numbers, underscores'}
+                helperText={touched.username ? getFieldError(errors, 'username') : t('auth.usernameHelp')}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -208,7 +210,7 @@ export function RegisterView() {
 
               <TextField
                 fullWidth
-                label="Display name (optional)"
+                label={t('auth.displayName')}
                 value={form.name}
                 onChange={setField('name')}
                 onBlur={blurField('name')}
@@ -227,14 +229,14 @@ export function RegisterView() {
               <Box>
                 <TextField
                   fullWidth
-                  label="Password"
+                  label={t('auth.password')}
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
                   onChange={setField('password')}
                   onBlur={blurField('password')}
                   autoComplete="new-password"
                   error={touched.password && !!getFieldError(errors, 'password')}
-                  helperText={touched.password ? getFieldError(errors, 'password') : 'At least 6 characters'}
+                  helperText={touched.password ? getFieldError(errors, 'password') : t('auth.passwordHelp')}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -272,7 +274,7 @@ export function RegisterView() {
 
               <TextField
                 fullWidth
-                label="Confirm password"
+                label={t('auth.confirmPassword')}
                 type={showConfirm ? 'text' : 'password'}
                 value={form.confirmPassword}
                 onChange={setField('confirmPassword')}
@@ -320,18 +322,18 @@ export function RegisterView() {
                   transition: 'all 0.2s ease',
                 }}
               >
-                {loading ? 'Creating account…' : 'Create account'}
+                {loading ? t('auth.registering') : t('auth.register')}
               </Button>
             </Stack>
           </form>
 
           <Divider sx={{ my: 3, color: '#cbd5e1' }}>
-            <Typography variant="caption" sx={{ color: '#94a3b8' }}>or</Typography>
+            <Typography variant="caption" sx={{ color: '#94a3b8' }}>{t('auth.or')}</Typography>
           </Divider>
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body2" sx={{ color: '#64748b' }}>
-              Already have an account?{' '}
+              {t('auth.hasAccount')}{' '}
               <Link href="/login" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
                 Log in
               </Link>

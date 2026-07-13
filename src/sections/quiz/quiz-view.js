@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { TopicInput } from 'src/components/topic-input/topic-input';
 import Box from '@mui/material/Box';
@@ -29,16 +30,16 @@ import TimerIcon from '@mui/icons-material/Timer';
 import StarIcon from '@mui/icons-material/Star';
 
 const QUIZ_TYPES = [
-  { value: 'placement', label: 'Placement Test', desc: 'Determine your English level (A1-C2)' },
-  { value: 'practice', label: 'Practice Quiz', desc: 'General practice across topics' },
-  { value: 'achievement', label: 'Achievement Test', desc: 'Test your level mastery' },
+  { value: 'placement', labelKey: 'quiz.type.placement', descKey: 'quiz.type.placementDesc' },
+  { value: 'practice', labelKey: 'quiz.type.practice', descKey: 'quiz.type.practiceDesc' },
+  { value: 'achievement', labelKey: 'quiz.type.achievement', descKey: 'quiz.type.achievementDesc' },
 ];
 
 const CATEGORIES = [
-  { value: 'mixed', label: 'Mixed' },
-  { value: 'vocabulary', label: 'Vocabulary' },
-  { value: 'grammar', label: 'Grammar' },
-  { value: 'reading', label: 'Reading' },
+  { value: 'mixed', labelKey: 'quiz.category.mixed' },
+  { value: 'vocabulary', labelKey: 'quiz.category.vocabulary' },
+  { value: 'grammar', labelKey: 'quiz.category.grammar' },
+  { value: 'reading', labelKey: 'quiz.category.reading' },
 ];
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -58,6 +59,7 @@ const gradientBtn = {
 };
 
 export function QuizView() {
+  const { t } = useTranslation();
   const [view, setView] = useState('home');
   const [quizzes, setQuizzes] = useState([]);
   const [activeQuiz, setActiveQuiz] = useState(null);
@@ -149,7 +151,7 @@ export function QuizView() {
       setTimeLeft(getRemainingSeconds(res.data.quiz));
       setView('take');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to generate quiz');
+      setError(err.response?.data?.error || t('quiz.genFailed'));
     } finally {
       setGenerating(false);
     }
@@ -187,7 +189,7 @@ export function QuizView() {
       setResults(res.data);
       fetchQuizzes();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to submit');
+      setError(err.response?.data?.error || t('quiz.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -237,7 +239,7 @@ export function QuizView() {
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
                   <Typography variant="body2" fontWeight={600} color="text.secondary">
-                    {answeredCount} / {activeQuiz.questions.length} answered
+                    {answeredCount} / {activeQuiz.questions.length} {t('quiz.answered')}
                   </Typography>
                   <Typography variant="body2" fontWeight={700} color="primary.main">
                     {Math.round(progress)}%
@@ -261,7 +263,7 @@ export function QuizView() {
                 <CardContent sx={{ p: 3 }}>
                   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }} useFlexGap flexWrap="wrap">
                     <Chip size="small" label={q.category} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#faf5ff', color: '#7c3aed', height: 22, textTransform: 'capitalize' }} />
-                    {q.difficulty > 1 && <Chip size="small" label={`Difficulty: ${q.difficulty}`} variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600, height: 22 }} />}
+                    {q.difficulty > 1 && <Chip size="small" label={`${t('quiz.difficulty')}: ${q.difficulty}`} variant="outlined" sx={{ borderRadius: 1.5, fontWeight: 600, height: 22 }} />}
                     <Box sx={{ flex: 1 }} />
                     <Typography variant="caption" fontWeight={800} color="text.secondary">Q{qIdx + 1}</Typography>
                   </Stack>
@@ -271,7 +273,7 @@ export function QuizView() {
                   {q.type === 'fill-blank' ? (
                     <TextField
                       fullWidth
-                      placeholder="Type your answer..."
+                      placeholder={t('quiz.typeYourAnswer')}
                       value={answers[qIdx] || ''}
                       onChange={(e) => handleAnswer(qIdx, e.target.value)}
                       slotProps={{ input: { sx: { borderRadius: 3 } } }}
@@ -310,7 +312,7 @@ export function QuizView() {
               disabled={submitting}
               sx={{ ...gradientBtn, py: 1.5, fontSize: 16 }}
             >
-              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : `Submit Quiz (${answeredCount}/${activeQuiz.questions.length})`}
+              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : t('quiz.submitQuiz', { answered: answeredCount, total: activeQuiz.questions.length })}
             </Button>
           </>
         ) : (
@@ -318,9 +320,9 @@ export function QuizView() {
             <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
               <Box sx={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', p: 4, color: 'white', textAlign: 'center' }}>
                 <Stack direction="row" justifyContent="center" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
-                  <Typography variant="h6" fontWeight={800}>Quiz Results</Typography>
+                  <Typography variant="h6" fontWeight={800}>{t('quiz.quizResults')}</Typography>
                   {results.determinedLevel && (
-                    <Chip icon={<StarIcon />} label={`Level: ${results.determinedLevel}`} sx={{ fontWeight: 700, bgcolor: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: 2, '& .MuiChip-icon': { color: 'white' } }} />
+                    <Chip icon={<StarIcon />} label={`${t('quiz.level')}: ${results.determinedLevel}`} sx={{ fontWeight: 700, bgcolor: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: 2, '& .MuiChip-icon': { color: 'white' } }} />
                   )}
                 </Stack>
                 <Typography variant="h2" fontWeight={900} sx={{ lineHeight: 1, mb: 1.5 }}>
@@ -339,12 +341,12 @@ export function QuizView() {
                   />
                 </Box>
                 <Typography variant="body2" sx={{ mt: 1.5, opacity: 0.9 }}>
-                  {results.correctCount} / {results.totalQuestions} correct {results.xpEarned > 0 && `• +${results.xpEarned} XP`}
+                  {t('quiz.correct', { correct: results.correctCount, total: results.totalQuestions })} {results.xpEarned > 0 && `${t('quiz.xpEarned', { xp: results.xpEarned })}`}
                 </Typography>
               </Box>
             </Card>
 
-            <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Review Answers</Typography>
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>{t('quiz.reviewAnswers')}</Typography>
             <Stack spacing={2}>
               {results.results.map((r, idx) => (
                 <Card key={idx} sx={{
@@ -399,8 +401,8 @@ export function QuizView() {
                           </Stack>
                         ) : (
                           <Typography variant="body2" sx={{ mb: 1 }}>
-                            Your answer: <span style={{ color: r.correct ? '#059669' : '#dc2626', fontWeight: 600 }}>{r.userAnswer || '(blank)'}</span>
-                            {' • '}Correct: <span style={{ color: '#059669', fontWeight: 600 }}>{r.correctAnswer}</span>
+                            {t('quiz.yourAnswer')}: <span style={{ color: r.correct ? '#059669' : '#dc2626', fontWeight: 600 }}>{r.userAnswer || `(${t('quiz.blank')})`}</span>
+                            {` ${t('quiz.correctAnswer')}: `}<span style={{ color: '#059669', fontWeight: 600 }}>{r.correctAnswer}</span>
                           </Typography>
                         )}
                         {r.explanation && (
@@ -422,7 +424,7 @@ export function QuizView() {
               onClick={() => { setView('home'); setActiveQuiz(null); setResults(null); }}
               sx={{ mt: 3, borderRadius: 2.5, textTransform: 'none', fontWeight: 600, px: 4, py: 1.25 }}
             >
-              Back to Quizzes
+              {t('quiz.backToQuizzes')}
             </Button>
           </Box>
         )}
@@ -512,8 +514,8 @@ export function QuizView() {
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Quizzes & Tests</Typography>
-          <Typography variant="body2" color="text.secondary">Test your English with AI-generated quizzes</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('quiz.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('quiz.subtitle')}</Typography>
         </Box>
       </Stack>
 
@@ -524,34 +526,34 @@ export function QuizView() {
               <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 20 }} />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800}>Create New Quiz</Typography>
-              <Typography variant="body2" color="text.secondary">Pick a type, set options — AI generates fresh questions</Typography>
+              <Typography variant="h6" fontWeight={800}>{t('quiz.createNew')}</Typography>
+              <Typography variant="body2" color="text.secondary">{t('quiz.createDesc')}</Typography>
             </Box>
           </Stack>
         </Box>
         <CardContent sx={{ p: 4 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>Quiz Type</Typography>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>{t('quiz.quizType')}</Typography>
               <Stack spacing={1.25}>
-                {QUIZ_TYPES.map(t => (
+                {QUIZ_TYPES.map(qt => (
                   <Card
-                    key={t.value}
+                    key={qt.value}
                     sx={{
                       cursor: 'pointer',
                       borderRadius: 3,
                       p: 2,
                       border: '2px solid',
-                      borderColor: config.type === t.value ? 'primary.main' : 'divider',
-                      bgcolor: config.type === t.value ? 'rgba(99,102,241,0.04)' : 'background.paper',
-                      boxShadow: config.type === t.value ? '0 4px 16px rgba(99,102,241,0.12)' : 'none',
+                      borderColor: config.type === qt.value ? 'primary.main' : 'divider',
+                      bgcolor: config.type === qt.value ? 'rgba(99,102,241,0.04)' : 'background.paper',
+                      boxShadow: config.type === qt.value ? '0 4px 16px rgba(99,102,241,0.12)' : 'none',
                       transition: 'all 0.2s',
-                      '&:hover': { borderColor: config.type === t.value ? 'primary.main' : '#cbd5e1' },
+                      '&:hover': { borderColor: config.type === qt.value ? 'primary.main' : '#cbd5e1' },
                     }}
-                    onClick={() => setConfig({ ...config, type: t.value })}
+                    onClick={() => setConfig({ ...config, type: qt.value })}
                   >
-                    <Typography variant="subtitle2" fontWeight={700} color={config.type === t.value ? 'primary.main' : 'text.primary'}>{t.label}</Typography>
-                    <Typography variant="caption" color="text.secondary">{t.desc}</Typography>
+                    <Typography variant="subtitle2" fontWeight={700} color={config.type === qt.value ? 'primary.main' : 'text.primary'}>{t(qt.labelKey)}</Typography>
+                    <Typography variant="caption" color="text.secondary">{t(qt.descKey)}</Typography>
                   </Card>
                 ))}
               </Stack>
@@ -559,12 +561,12 @@ export function QuizView() {
             <Grid item xs={12} md={8}>
               <Grid container spacing={2.5}>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>Category</Typography>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>{t('quiz.category')}</Typography>
                   <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                     {CATEGORIES.map(c => (
                       <Chip
                         key={c.value}
-                        label={c.label}
+                        label={t(c.labelKey)}
                         color={config.category === c.value ? 'primary' : 'default'}
                         onClick={() => setConfig({ ...config, category: c.value })}
                         clickable
@@ -575,7 +577,7 @@ export function QuizView() {
                 </Grid>
                 {config.type !== 'placement' && (
                   <Grid item xs={12}>
-                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>Level</Typography>
+                    <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>{t('quiz.level')}</Typography>
                     <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                       {LEVELS.map(lvl => (
                         <Chip
@@ -591,7 +593,7 @@ export function QuizView() {
                   </Grid>
                 )}
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>Number of Questions</Typography>
+                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5 }}>{t('quiz.numberOfQuestions')}</Typography>
                   <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                     {[5, 10, 15, 20].map(n => (
                       <Chip
@@ -611,8 +613,8 @@ export function QuizView() {
                       value={config.topic || ''}
                       onChange={(v) => setConfig({ ...config, topic: v })}
                       onEnter={generateQuiz}
-                      label="Topic / Theme (optional)"
-                      placeholder="Type any topic, or pick a suggestion — all questions will revolve around it"
+                      label={t('quiz.topicLabel')}
+                      placeholder={t('quiz.topicPlaceholder')}
                       suggestions={['general', 'business', 'technology', 'travel', 'culture', 'science', 'sports', 'movies', 'music', 'history', 'nature', 'food']}
                       size="small"
                     />
@@ -631,12 +633,12 @@ export function QuizView() {
             disabled={generating}
             sx={{ ...gradientBtn, mt: 3, py: 1.5, fontSize: 16 }}
           >
-            {generating ? 'Generating Quiz...' : 'Generate Quiz'}
+            {generating ? t('quiz.generating') : t('quiz.generate')}
           </Button>
         </CardContent>
       </Card>
 
-      <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Recent Quizzes</Typography>
+      <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>{t('quiz.recentQuizzes')}</Typography>
       {loading ? (
         <Stack alignItems="center" sx={{ py: 8 }}><CircularProgress size={36} /></Stack>
       ) : quizzes.length === 0 ? (
@@ -645,8 +647,8 @@ export function QuizView() {
             <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
               <QuizIcon sx={{ color: '#6366f1', fontSize: 30 }} />
             </Box>
-            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No quizzes yet</Typography>
-            <Typography variant="body2" color="text.secondary">Create your first quiz above to get started</Typography>
+            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>{t('quiz.noQuizzes')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('quiz.noQuizzesDesc')}</Typography>
           </CardContent>
         </Card>
       ) : (
@@ -692,13 +694,13 @@ export function QuizView() {
                           {q.score}%
                         </Typography>
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                          {q.correctCount} / {q.totalQuestions} correct
+                          {t('quiz.correctCount', { correct: q.correctCount, total: q.totalQuestions })}
                         </Typography>
                       </Stack>
                     </Box>
                   ) : (
                     <Stack direction="row" spacing={0.75} useFlexGap flexWrap="wrap">
-                      <Chip size="small" label="In Progress" sx={{ mt: 0.5, borderRadius: 1.5, fontWeight: 700, bgcolor: '#fffbeb', color: '#d97706', height: 22 }} />
+                      <Chip size="small" label={t('quiz.inProgress')} sx={{ mt: 0.5, borderRadius: 1.5, fontWeight: 700, bgcolor: '#fffbeb', color: '#d97706', height: 22 }} />
                       <Chip
                         size="small"
                         label={`${q.answeredCount || 0}/${q.totalQuestions}`}

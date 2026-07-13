@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -44,6 +45,7 @@ const PRONUNCIATION_TOPICS = ['daily-life', 'travel', 'food', 'work', 'shopping'
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export function SpeakingView() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState(0);
   const [text, setText] = useState(sampleTexts[0]);
   const [recording, setRecording] = useState(false);
@@ -103,7 +105,7 @@ export function SpeakingView() {
       mr.start();
       setRecording(true);
     } catch (err) {
-      setError('Microphone access denied. Please allow microphone permissions.');
+      setError(t('speaking.micDenied'));
     }
   };
 
@@ -128,7 +130,7 @@ export function SpeakingView() {
       setResult(res.data.log);
       fetchHistory();
     } catch (err) {
-      setError(err.response?.data?.error || 'Scoring failed');
+      setError(err.response?.data?.error || t('speaking.scoringFailed'));
     } finally { setScoring(false); }
   };
 
@@ -154,7 +156,7 @@ export function SpeakingView() {
       }
       clearTopicInput(setPronTopic);
     } catch (err) {
-      setPronError(err.response?.data?.error || 'Generation failed');
+      setPronError(err.response?.data?.error || t('speaking.genFailed'));
     } finally { setPronLoading(false); }
   };
 
@@ -171,7 +173,7 @@ export function SpeakingView() {
       setAudioBlob(null);
       clearTopicInput(setScenarioTopic);
     } catch (err) {
-      setScenarioError(err.response?.data?.error || 'Failed to load scenario');
+      setScenarioError(err.response?.data?.error || t('speaking.scenarioFailed'));
     } finally {
       setScenarioLoading(false);
     }
@@ -192,13 +194,13 @@ export function SpeakingView() {
   return (
     <Box>
       <Box sx={{ mb: 1 }}>
-        <Typography variant="h4" fontWeight={800}>Speaking Practice</Typography>
-        <Typography variant="body2" color="text.secondary">Practice pronunciation and real-life speaking scenarios</Typography>
+        <Typography variant="h4" fontWeight={800}>{t('speaking.title')}</Typography>
+        <Typography variant="body2" color="text.secondary">{t('speaking.subtitle')}</Typography>
       </Box>
 
       <Tabs value={tab} onChange={(e, v) => setTab(v)} sx={{ mt: 2, mb: 3 }}>
-        <Tab icon={<MicIcon />} iconPosition="start" label="Pronunciation" />
-        <Tab icon={<RecordVoiceOverIcon />} iconPosition="start" label="Daily Scenario" />
+        <Tab icon={<MicIcon />} iconPosition="start" label={t('speaking.pronunciation')} />
+        <Tab icon={<RecordVoiceOverIcon />} iconPosition="start" label={t('speaking.dailyScenario')} />
       </Tabs>
 
       {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 3 }}>{error}</Alert>}
@@ -213,10 +215,10 @@ export function SpeakingView() {
               <Box sx={{ width: 30, height: 30, borderRadius: 2, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 16 }} />
               </Box>
-              <Typography variant="h6" fontWeight={700}>Generate practice sentences</Typography>
+              <Typography variant="h6" fontWeight={700}>{t('speaking.generateSentences')}</Typography>
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-              AI creates topic-based sentences for you to read aloud and practice pronunciation
+              {t('speaking.generateDesc')}
             </Typography>
 
             {pronError && <Alert severity="error" sx={{ mb: 2, borderRadius: 3 }}>{pronError}</Alert>}
@@ -225,15 +227,15 @@ export function SpeakingView() {
               <TopicInput
                 value={pronTopic}
                 onChange={setPronTopic}
-                label="Topic"
-                placeholder="Pick a suggestion or type any topic"
+                label={t('speaking.topic')}
+                placeholder={t('speaking.topicPlaceholder')}
                 suggestions={PRONUNCIATION_TOPICS}
                 size="small"
                 showRandom
               />
 
               <Box>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('speaking.level')}:</Typography>
                 <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                   {LEVELS.map((lvl) => (
                     <Chip
@@ -265,14 +267,14 @@ export function SpeakingView() {
                   transition: 'all 0.2s',
                 }}
               >
-                {pronLoading ? 'Generating...' : 'Generate'}
+                {pronLoading ? t('speaking.generating') : t('speaking.generate')}
               </Button>
             </Stack>
 
             {generatedSentences.length > 0 && (
               <Box sx={{ mt: 3 }}>
                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
-                  <Typography variant="subtitle2" fontWeight={700}>Sentences for "{currentTopic}"</Typography>
+                  <Typography variant="subtitle2" fontWeight={700}>{t('speaking.sentencesFor', { topic: currentTopic })}</Typography>
                   <Chip label={pronLevel} size="small" color="primary" sx={{ borderRadius: 2, fontWeight: 600 }} />
                 </Stack>
                 <Stack spacing={1.25}>
@@ -322,13 +324,13 @@ export function SpeakingView() {
         {/* Text input */}
         <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.035)', border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>Text to read aloud</Typography>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>{t('speaking.textToRead')}</Typography>
             <TextField
               fullWidth
               multiline
               minRows={3}
               maxRows={6}
-              label="Sentence to practice"
+              label={t('speaking.sentenceToPractice')}
               value={text}
               onChange={(e) => { setText(e.target.value); setResult(null); setAudioBlob(null); }}
               sx={{
@@ -344,7 +346,7 @@ export function SpeakingView() {
               {sampleTexts.map((t, i) => (
                 <Chip
                   key={i}
-                  label={`Sample ${i + 1}`}
+                  label={t('speaking.sample', { number: i + 1 })}
                   onClick={() => { setText(t); setResult(null); setAudioBlob(null); }}
                   variant="outlined"
                   size="small"
@@ -359,7 +361,7 @@ export function SpeakingView() {
         <Card sx={{ borderRadius: 3, boxShadow: '0 2px 14px rgba(0,0,0,0.035)', border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 4 }}>
             <Stack alignItems="center" spacing={4}>
-              <Typography variant="h6" fontWeight={700} textAlign="center">Record Your Voice</Typography>
+              <Typography variant="h6" fontWeight={700} textAlign="center">{t('speaking.recordYourVoice')}</Typography>
 
               <Box sx={{ position: 'relative' }}>
                 {recording && (
@@ -400,7 +402,7 @@ export function SpeakingView() {
               </Box>
 
               <Typography variant="body2" color={recording ? 'error.main' : 'text.secondary'} fontWeight={500}>
-                {recording ? 'Recording... tap to stop' : 'Tap the microphone to start'}
+                {recording ? t('speaking.recording') : t('speaking.tapMic')}
               </Typography>
 
               {audioBlob && !recording && !scoring && (
@@ -411,7 +413,7 @@ export function SpeakingView() {
                     onClick={playAudio}
                     sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 3 }}
                   >
-                    Preview
+                    {t('speaking.preview')}
                   </Button>
                   <Button
                     variant="contained"
@@ -426,7 +428,7 @@ export function SpeakingView() {
                       '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' },
                     }}
                   >
-                    Get AI Score
+                    {t('speaking.getAiScore')}
                   </Button>
                 </Stack>
               )}
@@ -438,7 +440,7 @@ export function SpeakingView() {
         {scoring && (
           <Box textAlign="center" sx={{ py: 4 }}>
             <CircularProgress size={36} />
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>AI is analyzing your pronunciation...</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>{t('speaking.aiAnalyzing')}</Typography>
           </Box>
         )}
 
@@ -451,7 +453,7 @@ export function SpeakingView() {
                   <Typography variant="h2" fontWeight={900} sx={{ color: scoreColor, lineHeight: 1 }}>
                     {result.overallScore}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">/ 100</Typography>
+                    <Typography variant="body2" color="text.secondary">{t('speaking.maxScore')}</Typography>
                   <Box sx={{ mt: 2, mx: 'auto', maxWidth: 300 }}>
                     <Box sx={{ width: '100%', height: 10, bgcolor: '#f1f5f9', borderRadius: 5, overflow: 'hidden' }}>
                       <Box
@@ -473,7 +475,7 @@ export function SpeakingView() {
                 )}
                 {result.wordScores?.length > 0 && (
                   <Box>
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Per-Word Scores</Typography>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('speaking.perWordScores')}</Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                       {result.wordScores.map((ws, i) => (
                         <Chip
@@ -500,23 +502,23 @@ export function SpeakingView() {
             onClick={toggleHistory}
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 3 }}
           >
-            {showHistory ? 'Hide' : 'View'} Practice History
+            {showHistory ? t('speaking.hide') : t('speaking.view')} {t('speaking.practiceHistory')}
           </Button>
           {showHistory && (
             <Box sx={{ mt: 2 }}>
               {historyLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress size={28} /></Box>
               ) : history.length === 0 ? (
-                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>No practice history yet.</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>{t('speaking.noHistory')}</Typography>
               ) : (
                 <TableContainer component={Card} sx={{ borderRadius: 3, boxShadow: '0 1px 6px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'divider' }}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
-                        <TableCell sx={{ fontWeight: 600 }}>Text</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>Score</TableCell>
-                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>Feedback</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{t('speaking.date')}</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{t('speaking.text')}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>{t('speaking.score')}</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 600 }}>{t('speaking.feedback')}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -556,12 +558,12 @@ export function SpeakingView() {
           {!scenario ? (
             <Card sx={{ p: 5, textAlign: 'center' }}>
               <RecordVoiceOverIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" sx={{ mb: 1 }}>Practice a Real-Life Scenario</Typography>
+              <Typography variant="h6" sx={{ mb: 1 }}>{t('speaking.practiceScenario')}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 500, mx: 'auto' }}>
-                Get a daily speaking situation (ordering food, doctor visit, job interview...) with useful phrases, sample dialogue, and a challenge to try.
+                {t('speaking.practiceScenarioDesc')}
               </Typography>
               <Box sx={{ maxWidth: 540, mx: 'auto', mb: 2.5, textAlign: 'left' }}>
-                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+                <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('speaking.level')}:</Typography>
                 <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap" sx={{ mb: 2 }}>
                   {LEVELS.map((lvl) => (
                     <Chip
@@ -577,8 +579,8 @@ export function SpeakingView() {
                 <TopicInput
                   value={scenarioTopic}
                   onChange={setScenarioTopic}
-                  label="Scenario topic (optional)"
-                  placeholder="Type any situation, or pick a suggestion"
+                  label={t('speaking.scenarioTopicLabel')}
+                  placeholder={t('speaking.scenarioTopicPlaceholder')}
                   suggestions={['food-ordering', 'shopping', 'travel', 'doctor-visit', 'job-interview', 'small-talk', 'asking-directions', 'phone-call', 'hotel', 'airport', 'meeting', 'renting-apartment']}
                   size="small"
                 />
@@ -591,7 +593,7 @@ export function SpeakingView() {
                 disabled={scenarioLoading}
                 sx={{ borderRadius: 3, px: 4 }}
               >
-                {scenarioLoading ? 'Loading...' : 'Get Daily Scenario'}
+                {scenarioLoading ? t('speaking.loading') : t('speaking.getDailyScenario')}
               </Button>
             </Card>
           ) : (
@@ -607,14 +609,14 @@ export function SpeakingView() {
                     </Stack>
                   </Box>
                   <Button variant="outlined" size="small" onClick={fetchScenario} disabled={scenarioLoading}>
-                    New Scenario
+                    {t('speaking.newScenario')}
                   </Button>
                 </Stack>
               </Card>
 
               {scenario.keyVocabulary?.length > 0 && (
                 <Card sx={{ p: 3 }}>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Key Vocabulary</Typography>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>{t('speaking.keyVocabulary')}</Typography>
                   <Grid container spacing={1}>
                     {scenario.keyVocabulary.map((v, i) => (
                       <Grid item xs={12} sm={6} key={i}>
@@ -635,7 +637,7 @@ export function SpeakingView() {
 
               {scenario.usefulPhrases?.length > 0 && (
                 <Card sx={{ p: 3 }}>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Useful Phrases</Typography>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>{t('speaking.usefulPhrases')}</Typography>
                   {scenario.usefulPhrases.map((p, i) => (
                     <Box key={i} sx={{ mb: 1, p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2 }}>
                       <Stack direction="row" alignItems="center" spacing={1}>
@@ -654,7 +656,7 @@ export function SpeakingView() {
 
               {scenario.sampleDialogue?.length > 0 && (
                 <Card sx={{ p: 3 }}>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Sample Dialogue</Typography>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>{t('speaking.sampleDialogue')}</Typography>
                   {scenario.sampleDialogue.map((d, i) => (
                     <Box key={i} sx={{ mb: 1.5 }}>
                       <Stack direction="row" spacing={1} alignItems="flex-start">
@@ -678,7 +680,7 @@ export function SpeakingView() {
 
               {scenario.tips?.length > 0 && (
                 <Card sx={{ p: 3, bgcolor: '#fef3c7' }}>
-                  <Typography variant="subtitle2" color="warning.main" sx={{ mb: 1 }}>Speaking Tips:</Typography>
+                  <Typography variant="subtitle2" color="warning.main" sx={{ mb: 1 }}>{t('speaking.speakingTips')}:</Typography>
                   {scenario.tips.map((t, i) => (
                     <Typography key={i} variant="body2" sx={{ mb: 0.5 }}>• {t}</Typography>
                   ))}
@@ -687,17 +689,17 @@ export function SpeakingView() {
 
               {scenario.challenge && (
                 <Card sx={{ p: 3, bgcolor: '#ede9fe', border: '1px dashed #8b5cf6' }}>
-                  <Typography variant="subtitle2" sx={{ color: '#6d28d9' }}>Challenge:</Typography>
+                  <Typography variant="subtitle2" sx={{ color: '#6d28d9' }}>{t('speaking.challenge')}:</Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>{scenario.challenge}</Typography>
                 </Card>
               )}
 
-              <Divider sx={{ my: 1 }}>Practice Speaking</Divider>
+              <Divider sx={{ my: 1 }}>{t('speaking.practiceSpeaking')}</Divider>
 
               <Card sx={{ p: 3 }}>
                 <CardContent>
                   <Stack alignItems="center" spacing={3}>
-                    <Typography variant="subtitle1" fontWeight={600}>Record yourself practicing this scenario</Typography>
+                    <Typography variant="subtitle1" fontWeight={600}>{t('speaking.recordYourself')}</Typography>
                     <Box sx={{ position: 'relative' }}>
                       {recording && (
                         <Box sx={{
@@ -722,13 +724,13 @@ export function SpeakingView() {
                       </IconButton>
                     </Box>
                     <Typography variant="body2" color={recording ? 'error.main' : 'text.secondary'}>
-                      {recording ? 'Recording... tap to stop' : 'Tap to start recording'}
+                      {recording ? t('speaking.recording') : t('speaking.tapToStart')}
                     </Typography>
                     {audioBlob && !recording && (
                       <Stack direction="row" spacing={1.5}>
-                        <Button variant="outlined" startIcon={<PlayArrowIcon />} onClick={playAudio}>Preview</Button>
+                        <Button variant="outlined" startIcon={<PlayArrowIcon />} onClick={playAudio}>{t('speaking.preview')}</Button>
                         <Button variant="contained" startIcon={<CheckCircleIcon />} onClick={submitForScoring} disabled={scoring}>
-                          {scoring ? 'Scoring...' : 'Get AI Feedback'}
+                          {scoring ? t('speaking.scoring') : t('speaking.getAiFeedback')}
                         </Button>
                       </Stack>
                     )}
@@ -739,7 +741,7 @@ export function SpeakingView() {
               {scoring && (
                 <Box textAlign="center" sx={{ py: 3 }}>
                   <CircularProgress size={36} />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>AI is analyzing your speech...</Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>{t('speaking.aiAnalyzingSpeech')}</Typography>
                 </Box>
               )}
 
@@ -747,7 +749,7 @@ export function SpeakingView() {
                 <Card sx={{ p: 3 }}>
                   <Box textAlign="center" sx={{ mb: 2 }}>
                     <Typography variant="h3" fontWeight={900} sx={{ color: scoreColor }}>{result.overallScore}</Typography>
-                    <Typography variant="body2" color="text.secondary">/ 100</Typography>
+                  <Typography variant="body2" color="text.secondary">{t('speaking.maxScore')}</Typography>
                   </Box>
                   {result.feedback && (
                     <Box sx={{ bgcolor: '#f8fafc', borderRadius: 3, p: 2, textAlign: 'center', mb: 2 }}>

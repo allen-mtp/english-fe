@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -42,6 +43,7 @@ const SUGGESTED_TOPICS = [
 ];
 
 export function RolePlayView() {
+  const { t } = useTranslation();
   const [view, setView] = useState('list');
   const [conversations, setConversations] = useState([]);
   const [activeConv, setActiveConv] = useState(null);
@@ -81,7 +83,7 @@ export function RolePlayView() {
       setView('chat');
       setAnalysis(null);
       clearTopicInput(setCustomTopic);
-    } catch (err) { setError(err.response?.data?.error || 'Failed to start conversation'); }
+    } catch (err) { setError(err.response?.data?.error || t('roleplay.startFailed')); }
     finally { setCreating(false); }
   };
 
@@ -107,7 +109,7 @@ export function RolePlayView() {
       const res = await axiosInstance.post(`/roleplay/${activeConv._id}/message`, { message: messageText });
       setMessages(prev => [...prev, res.data.message]);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send message');
+      setError(err.response?.data?.error || t('roleplay.sendFailed'));
       setMessages(prev => prev.filter(m => m !== userMsg));
     } finally { setSending(false); }
   };
@@ -119,7 +121,7 @@ export function RolePlayView() {
       const res = await axiosInstance.post(`/roleplay/${activeConv._id}/end`);
       setAnalysis(res.data.analysis);
       fetchConversations();
-    } catch (err) { setError(err.response?.data?.error || 'Failed to end conversation'); }
+    } catch (err) { setError(err.response?.data?.error || t('roleplay.endFailed')); }
     finally { setSending(false); }
   };
 
@@ -152,7 +154,7 @@ export function RolePlayView() {
           </Box>
           {!analysis && (
             <Button variant="outlined" color="error" onClick={endConversation} disabled={sending || messages.length < 3} sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 2.5 }}>
-              End & Get Feedback
+            {t('roleplay.endFeedback')}
             </Button>
           )}
         </Stack>
@@ -163,7 +165,7 @@ export function RolePlayView() {
               <Stack direction="row" alignItems="center" spacing={1.5}>
                 <StarIcon sx={{ fontSize: 28 }} />
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="overline" sx={{ opacity: 0.85, lineHeight: 1 }}>Conversation Feedback</Typography>
+                  <Typography variant="overline" sx={{ opacity: 0.85, lineHeight: 1 }}>{t('roleplay.feedback')}</Typography>
                   <Typography variant="h5" fontWeight={800}>{analysis.summary?.slice(0, 60)}{analysis.summary?.length > 60 ? '...' : ''}</Typography>
                 </Box>
                 <Box sx={{ textAlign: 'center', bgcolor: 'rgba(255,255,255,0.15)', px: 2.5, py: 1, borderRadius: 3 }}>
@@ -175,12 +177,12 @@ export function RolePlayView() {
             <CardContent sx={{ p: 3 }}>
               <Typography variant="body2" paragraph sx={{ lineHeight: 1.7 }}>{analysis.summary}</Typography>
               <Grid container spacing={3}>
-                {analysis.strengths?.length > 0 && (
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1.5, color: '#059669' }}>
-                      <CheckCircleIcon sx={{ fontSize: 18, mr: 0.5, verticalAlign: 'middle' }} />
-                      Strengths
-                    </Typography>
+              {analysis.strengths?.length > 0 && (
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1.5, color: '#059669' }}>
+                    <CheckCircleIcon sx={{ fontSize: 18, mr: 0.5, verticalAlign: 'middle' }} />
+                    {t('roleplay.strengths')}
+                  </Typography>
                     <Stack spacing={1}>
                       {analysis.strengths.map((s, i) => (
                         <Box key={i} sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
@@ -190,12 +192,12 @@ export function RolePlayView() {
                     </Stack>
                   </Grid>
                 )}
-                {analysis.improvements?.length > 0 && (
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1.5, color: '#d97706' }}>
-                      <LightbulbIcon sx={{ fontSize: 18, mr: 0.5, verticalAlign: 'middle' }} />
-                      To Improve
-                    </Typography>
+              {analysis.improvements?.length > 0 && (
+                <Grid item xs={12} md={6}>
+                  <Typography variant="subtitle2" fontWeight={800} sx={{ mb: 1.5, color: '#d97706' }}>
+                    <LightbulbIcon sx={{ fontSize: 18, mr: 0.5, verticalAlign: 'middle' }} />
+                    {t('roleplay.toImprove')}
+                  </Typography>
                     <Stack spacing={1}>
                       {analysis.improvements.map((s, i) => (
                         <Box key={i} sx={{ p: 1.5, bgcolor: '#fffbeb', borderRadius: 2, border: '1px solid #fde68a' }}>
@@ -238,9 +240,9 @@ export function RolePlayView() {
                   </Paper>
                   {msg.grammarIssues && msg.grammarIssues.length > 0 && (
                     <Box sx={{ mt: 1, p: 1.5, bgcolor: '#fffbeb', borderRadius: 2, border: '1px solid #fde68a' }}>
-                      <Typography variant="caption" fontWeight={800} sx={{ color: '#92400e', display: 'block', mb: 0.5 }}>
-                        💡 Grammar Tips
-                      </Typography>
+                  <Typography variant="caption" fontWeight={800} sx={{ color: '#92400e', display: 'block', mb: 0.5 }}>
+                    {t('roleplay.grammarTips')}
+                  </Typography>
                       {msg.grammarIssues.map((g, i) => (
                         <Box key={i} sx={{ mt: 0.5 }}>
                           <Box component="span" sx={{ fontSize: 13, color: '#dc2626', textDecoration: 'line-through' }}>{g.error}</Box>
@@ -276,7 +278,7 @@ export function RolePlayView() {
               fullWidth
               multiline
               maxRows={3}
-              placeholder="Type your message in English..."
+              placeholder={t('roleplay.typePlaceholder')}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -303,8 +305,8 @@ export function RolePlayView() {
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Role-play Conversation</Typography>
-          <Typography variant="body2" color="text.secondary">Practice real-life English conversations with AI</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('roleplay.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('roleplay.subtitle')}</Typography>
         </Box>
         <Button
           variant="contained"
@@ -313,7 +315,7 @@ export function RolePlayView() {
           disabled={creating}
           sx={{ ...gradientBtn, fontSize: 14, px: 3, py: 1.25 }}
         >
-          {creating ? 'Creating...' : 'Random Scenario'}
+          {creating ? t('roleplay.creating') : t('roleplay.randomScenario')}
         </Button>
       </Stack>
 
@@ -324,15 +326,15 @@ export function RolePlayView() {
               <ChatIcon sx={{ color: '#6366f1', fontSize: 20 }} />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800}>Start Role-play</Typography>
-              <Typography variant="body2" color="text.secondary">Choose your level and scenario — AI plays the other role</Typography>
+              <Typography variant="h6" fontWeight={800}>{t('roleplay.startRoleplay')}</Typography>
+              <Typography variant="body2" color="text.secondary">{t('roleplay.startDesc')}</Typography>
             </Box>
           </Stack>
         </Box>
         <CardContent sx={{ p: 4 }}>
           <Stack spacing={2.5}>
             <Box>
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level</Typography>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('roleplay.level')}</Typography>
               <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                 {LEVELS.map(lvl => (
                   <Chip key={lvl} label={lvl} color={level === lvl ? 'primary' : 'default'} onClick={() => setLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 600 }} />
@@ -343,8 +345,8 @@ export function RolePlayView() {
               value={customTopic}
               onChange={setCustomTopic}
               onEnter={() => { if (customTopic.trim()) startNewConversation(customTopic.trim()); }}
-              label="Custom scenario (optional)"
-              placeholder="Type any scenario you want to practice, or pick a suggestion below"
+              label={t('roleplay.customScenario')}
+              placeholder={t('roleplay.scenarioPlaceholder')}
               suggestions={SUGGESTED_TOPICS}
               size="medium"
             />
@@ -364,7 +366,7 @@ export function RolePlayView() {
         </CardContent>
       </Card>
 
-      <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Recent Conversations</Typography>
+      <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>{t('roleplay.recent')}</Typography>
 
       {loading ? (
         <Stack alignItems="center" sx={{ py: 8 }}><CircularProgress size={36} /></Stack>
@@ -374,12 +376,12 @@ export function RolePlayView() {
             <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
               <ChatIcon sx={{ color: '#6366f1', fontSize: 30 }} />
             </Box>
-            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No conversations yet</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Pick a scenario above and start practicing your English
-            </Typography>
+            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>{t('roleplay.noConv')}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            {t('roleplay.noConvDesc')}
+          </Typography>
             <Button variant="contained" startIcon={<AutoAwesomeIcon />} onClick={() => startNewConversation()} disabled={creating} sx={{ ...gradientBtn, px: 3 }}>
-              {creating ? 'Creating...' : 'Start Your First Conversation'}
+              {creating ? t('roleplay.creating') : t('roleplay.startFirst')}
             </Button>
           </CardContent>
         </Card>

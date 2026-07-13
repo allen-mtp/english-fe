@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Box from '@mui/material/Box';
@@ -24,15 +25,16 @@ import { useAuth } from 'src/contexts/auth-context';
 import { loginSchema, getFieldError } from './schema';
 import { Logo } from 'src/components/logo/logo';
 
-const FEATURES = [
-  { icon: MenuBookIcon, title: 'Vocabulary & Grammar', desc: 'Spaced repetition + AI-generated lessons' },
-  { icon: RecordVoiceOverIcon, title: 'Pronunciation Coach', desc: 'Record & get instant AI feedback' },
-  { icon: SchoolIcon, title: 'Personalized Roadmap', desc: '7-day adaptive learning plan' },
-];
-
 export function LoginView() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuth();
+
+  const FEATURES = [
+    { icon: MenuBookIcon, title: t('auth.feature1'), desc: t('auth.feature1Desc') },
+    { icon: RecordVoiceOverIcon, title: t('auth.feature2'), desc: t('auth.feature2Desc') },
+    { icon: SchoolIcon, title: t('auth.feature3'), desc: t('auth.feature3Desc') },
+  ];
   const [form, setForm] = useState({ username: '', password: '' });
   const [touched, setTouched] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -57,7 +59,7 @@ export function LoginView() {
       await login(form.username.trim(), form.password);
       router.replace('/dashboard');
     } catch (err) {
-      setServerError(err.response?.data?.error || 'Login failed. Check your credentials.');
+      setServerError(err.response?.data?.error || t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -103,15 +105,15 @@ export function LoginView() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 6 }}>
             <Logo size={52} />
             <Typography variant="h5" fontWeight={800} sx={{ color: 'white', letterSpacing: '-0.5px' }}>
-              English AI
+              {t('app.name')}
             </Typography>
           </Box>
 
           <Typography variant="h3" fontWeight={800} sx={{ color: 'white', letterSpacing: '-1.2px', lineHeight: 1.15, mb: 2 }}>
-            Master English<br />with your personal AI coach
+            {t('auth.heroTitle')}<br />{t('auth.heroSubtitle')}
           </Typography>
           <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.65)', maxWidth: 440, mb: 6, lineHeight: 1.7 }}>
-            Vocabulary, grammar, pronunciation, writing, listening, role-play chat, and a personalized roadmap — all powered by AI, tailored to your level.
+            {t('auth.heroDesc')}
           </Typography>
 
           <Stack spacing={2.5}>
@@ -161,10 +163,10 @@ export function LoginView() {
         <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto' }}>
           <Box sx={{ mb: 4 }}>
             <Typography variant="h4" fontWeight={800} sx={{ letterSpacing: '-0.8px', color: '#0f172a' }}>
-              Welcome back
+              {t('auth.welcomeBack')}
             </Typography>
             <Typography variant="body1" sx={{ color: '#64748b', mt: 1 }}>
-              Log in to continue your learning streak
+              {t('auth.loginSubtitle')}
             </Typography>
           </Box>
 
@@ -176,7 +178,7 @@ export function LoginView() {
 
               <TextField
                 fullWidth
-                label="Username"
+                label={t('auth.username')}
                 value={form.username}
                 onChange={setField('username')}
                 onBlur={blurField('username')}
@@ -195,7 +197,7 @@ export function LoginView() {
 
               <TextField
                 fullWidth
-                label="Password"
+                label={t('auth.password')}
                 type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={setField('password')}
@@ -243,18 +245,18 @@ export function LoginView() {
                   transition: 'all 0.2s ease',
                 }}
               >
-                {loading ? 'Logging in…' : 'Log in'}
+                {loading ? t('auth.loggingIn') : t('auth.login')}
               </Button>
             </Stack>
           </form>
 
           <Divider sx={{ my: 3, color: '#cbd5e1' }}>
-            <Typography variant="caption" sx={{ color: '#94a3b8' }}>or</Typography>
+            <Typography variant="caption" sx={{ color: '#94a3b8' }}>{t('auth.or')}</Typography>
           </Divider>
 
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="body2" sx={{ color: '#64748b' }}>
-              Don&apos;t have an account?{' '}
+              {t('auth.noAccount')}{' '}
               <Link href="/register" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
                 Sign up
               </Link>

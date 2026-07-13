@@ -33,24 +33,26 @@ import SpellcheckIcon from '@mui/icons-material/Spellcheck';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import QuizIcon from '@mui/icons-material/Quiz';
 import LogoutIcon from '@mui/icons-material/Logout';
+import TranslateIcon from '@mui/icons-material/Translate';
 import { useAuth } from 'src/contexts/auth-context';
 import { StudyTimer } from 'src/components/study-timer/study-timer';
+import { useTranslation } from 'react-i18next';
 
 const DRAWER_WIDTH = 280;
 
 const navItems = [
-  { label: 'Dashboard', icon: DashboardIcon, href: '/dashboard' },
-  { label: 'Vocabulary', icon: MenuBookIcon, href: '/dashboard/vocabulary' },
-  { label: 'Grammar', icon: SpellcheckIcon, href: '/dashboard/grammar' },
-  { label: 'Speaking', icon: MicIcon, href: '/dashboard/speaking' },
-  { label: 'Shadowing', icon: HearingIcon, href: '/dashboard/shadowing' },
-  { label: 'Listening', icon: HearingIcon, href: '/dashboard/listening' },
-  { label: 'Role-play Chat', icon: RecordVoiceOverIcon, href: '/dashboard/roleplay' },
-  { label: 'Conversations', icon: ChatIcon, href: '/dashboard/conversations' },
-  { label: 'Writing', icon: EditNoteIcon, href: '/dashboard/writing' },
-  { label: 'Quizzes', icon: QuizIcon, href: '/dashboard/quizzes' },
-  { label: 'Roadmap', icon: MapIcon, href: '/dashboard/roadmap' },
-  { label: 'Progress', icon: BarChartIcon, href: '/dashboard/progress' },
+  { label: 'nav.dashboard', icon: DashboardIcon, href: '/dashboard' },
+  { label: 'nav.vocabulary', icon: MenuBookIcon, href: '/dashboard/vocabulary' },
+  { label: 'nav.grammar', icon: SpellcheckIcon, href: '/dashboard/grammar' },
+  { label: 'nav.speaking', icon: MicIcon, href: '/dashboard/speaking' },
+  { label: 'nav.shadowing', icon: HearingIcon, href: '/dashboard/shadowing' },
+  { label: 'nav.listening', icon: HearingIcon, href: '/dashboard/listening' },
+  { label: 'nav.roleplay', icon: RecordVoiceOverIcon, href: '/dashboard/roleplay' },
+  { label: 'nav.conversations', icon: ChatIcon, href: '/dashboard/conversations' },
+  { label: 'nav.writing', icon: EditNoteIcon, href: '/dashboard/writing' },
+  { label: 'nav.quizzes', icon: QuizIcon, href: '/dashboard/quizzes' },
+  { label: 'nav.roadmap', icon: MapIcon, href: '/dashboard/roadmap' },
+  { label: 'nav.progress', icon: BarChartIcon, href: '/dashboard/progress' },
 ];
 
 export function DashboardLayout({ children }) {
@@ -60,6 +62,7 @@ export function DashboardLayout({ children }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, loading, logout } = useAuth();
+  const { t, i18n } = useTranslation();
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
@@ -105,10 +108,10 @@ export function DashboardLayout({ children }) {
           <Logo size={42} />
           <Box>
             <Typography variant="subtitle1" fontWeight={800} sx={{ letterSpacing: '-0.3px', lineHeight: 1.2 }}>
-              English AI
+              {t('app.name')}
             </Typography>
             <Typography variant="caption" sx={{ color: alpha('#94a3b8', 0.8), fontWeight: 500 }}>
-              AI-powered learning
+              {t('app.subtitle')}
             </Typography>
           </Box>
         </Box>
@@ -139,7 +142,7 @@ export function DashboardLayout({ children }) {
                 <item.icon sx={{ fontSize: 21 }} />
               </ListItemIcon>
               <ListItemText
-                primary={item.label}
+                primary={t(item.label)}
                 primaryTypographyProps={{
                   fontSize: 14,
                   fontWeight: active ? 600 : 400,
@@ -161,6 +164,36 @@ export function DashboardLayout({ children }) {
           );
         })}
       </List>
+
+      <Box sx={{ px: 2, pb: 1 }}>
+        <Stack direction="row" justifyContent="center">
+          <ToggleButtonGroup
+            value={i18n.language?.startsWith('vi') ? 'vi' : 'en'}
+            exclusive
+            size="small"
+            onChange={(_, val) => { if (val) i18n.changeLanguage(val); }}
+            sx={{
+              '& .MuiToggleButton-root': {
+                color: alpha('#94a3b8', 0.7),
+                borderColor: alpha('#475569', 0.3),
+                px: 1.5,
+                py: 0.5,
+                fontWeight: 600,
+                fontSize: 12,
+                textTransform: 'none',
+                '&.Mui-selected': {
+                  color: '#fff',
+                  bgcolor: alpha('#6366f1', 0.3),
+                  borderColor: alpha('#818cf8', 0.5),
+                },
+              },
+            }}
+          >
+            <ToggleButton value="en">EN</ToggleButton>
+            <ToggleButton value="vi">VI</ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
+      </Box>
 
       <Box sx={{ p: 2 }}>
         <Box
@@ -188,7 +221,7 @@ export function DashboardLayout({ children }) {
                 {displayName}
               </Typography>
               <Typography variant="caption" sx={{ color: alpha('#94a3b8', 0.8), textTransform: 'capitalize' }}>
-                {user.level} · {user.xp || 0} XP
+                {t('user.levelXp', { level: user.level, xp: user.xp || 0 })}
               </Typography>
             </Box>
           </Stack>
@@ -208,7 +241,7 @@ export function DashboardLayout({ children }) {
               },
             }}
           >
-            Log out
+            {t('nav.logout')}
           </Button>
         </Box>
       </Box>

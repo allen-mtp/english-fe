@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -31,6 +32,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { m as motion, AnimatePresence } from 'framer-motion';
 
 function FlashcardDialog({ word, open, onClose }) {
+  const { t } = useTranslation();
   const [flipped, setFlipped] = useState(false);
   useEffect(() => { setFlipped(false); }, [open]);
 
@@ -89,7 +91,7 @@ function FlashcardDialog({ word, open, onClose }) {
                   <Box sx={{ mt: 4 }}>
                     <Chip label={vocab.partOfSpeech || 'noun'} size="small" variant="outlined" sx={{ opacity: 0.5 }} />
                   </Box>
-                  <Typography variant="caption" sx={{ display: 'block', mt: 3, opacity: 0.35 }}>Tap to reveal meaning</Typography>
+                  <Typography variant="caption" sx={{ display: 'block', mt: 3, opacity: 0.35 }}>{t('vocabulary.tapToReveal')}</Typography>
                 </Box>
               ) : (
                 <Box>
@@ -117,6 +119,7 @@ function FlashcardDialog({ word, open, onClose }) {
 }
 
 function AddNewTab({ onGenerated }) {
+  const { t } = useTranslation();
   const [genWord, setGenWord] = useState('');
   const [genBatch, setGenBatch] = useState('');
   const [genTopic, setGenTopic] = useState('');
@@ -130,11 +133,11 @@ function AddNewTab({ onGenerated }) {
     setGenLoading(true); setGenError(''); setGenSuccess('');
     try {
       await axiosInstance.post('/vocabularies/generate', { word, topic: genTopic.trim() || undefined });
-      setGenSuccess(`"${word}" generated!`);
+      setGenSuccess(t('vocabulary.generated', { word }));
       setGenWord('');
       clearTopicInput(setGenTopic);
       onGenerated();
-    } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
+    } catch (err) { setGenError(err.response?.data?.error || t('vocabulary.genFailed')); }
     finally { setGenLoading(false); }
   };
 
@@ -146,11 +149,11 @@ function AddNewTab({ onGenerated }) {
     setGenLoading(true); setGenError(''); setGenSuccess('');
     try {
       await axiosInstance.post('/vocabularies/generate-batch', { words, topic: genTopic.trim() || undefined });
-      setGenSuccess(`${words.length} words generated!`);
+      setGenSuccess(t('vocabulary.batchGenerated', { count: words.length }));
       setGenBatch('');
       clearTopicInput(setGenTopic);
       onGenerated();
-    } catch (err) { setGenError(err.response?.data?.error || 'Generation failed'); }
+    } catch (err) { setGenError(err.response?.data?.error || t('vocabulary.genFailed')); }
     finally { setGenLoading(false); }
   };
 
@@ -176,8 +179,8 @@ function AddNewTab({ onGenerated }) {
               <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 20 }} />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800}>Generate Vocabulary with AI</Typography>
-              <Typography variant="body2" color="text.secondary">Type a word and press Enter — AI creates full definitions, examples, and IPA</Typography>
+              <Typography variant="h6" fontWeight={800}>{t('vocabulary.generateTitle')}</Typography>
+              <Typography variant="body2" color="text.secondary">{t('vocabulary.genDesc')}</Typography>
             </Box>
           </Stack>
         </Box>
@@ -188,7 +191,7 @@ function AddNewTab({ onGenerated }) {
               <Stack direction="row" spacing={1.5}>
                 <TextField
                   fullWidth
-                  placeholder="e.g. ubiquitous"
+                  placeholder={t('vocabulary.wordPlaceholder')}
                   value={genWord}
                   onChange={(e) => setGenWord(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleGenerateSingle(); }}
@@ -196,7 +199,7 @@ function AddNewTab({ onGenerated }) {
                   autoFocus
                 />
                 <Button variant="contained" disabled={genLoading || !genWord.trim()} onClick={handleGenerateSingle} sx={{ ...gradientBtn, minWidth: 130, px: 3, py: 1.5 }}>
-                  {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Generate'}
+                  {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : t('vocabulary.generate')}
                 </Button>
               </Stack>
             </Box>
@@ -204,13 +207,13 @@ function AddNewTab({ onGenerated }) {
             <Divider />
 
             <Box>
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Topic / Context (optional)</Typography>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('vocabulary.topicLabel')}</Typography>
               <TopicInput
                 value={genTopic}
                 onChange={setGenTopic}
                 onEnter={handleGenerateSingle}
                 label=""
-                placeholder="e.g. business, travel, technology — AI will tailor examples to this topic"
+                placeholder={t('vocabulary.topicPlaceholder')}
                 suggestions={['business', 'technology', 'travel', 'food', 'sports', 'science', 'music', 'movies', 'health', 'academic', 'daily-life', 'nature']}
                 size="medium"
               />
@@ -223,16 +226,16 @@ function AddNewTab({ onGenerated }) {
         <CardContent sx={{ p: 4 }}>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
             <Box sx={{ width: 28, height: 28, borderRadius: 2, bgcolor: '#faf5ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><AutoAwesomeIcon sx={{ color: '#8b5cf6', fontSize: 16 }} /></Box>
-            <Typography variant="subtitle1" fontWeight={700}>Batch Generate</Typography>
+            <Typography variant="subtitle1" fontWeight={700}>{t('vocabulary.batchTitle')}</Typography>
           </Stack>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-            Multiple words at once — separated by commas or new lines
+            {t('vocabulary.batchDesc')}
           </Typography>
           <TextField
             fullWidth
             multiline
             minRows={4}
-            placeholder="hello, world, computer, technology, internet"
+            placeholder={t('vocabulary.batchPlaceholder')}
             value={genBatch}
             onChange={(e) => setGenBatch(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleGenerateBatch(); }}
@@ -248,7 +251,7 @@ function AddNewTab({ onGenerated }) {
               '&:hover': { background: 'linear-gradient(135deg, #7c3aed, #9333ea)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(139,92,246,0.3)' },
             }}
           >
-            {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Generate All'}
+            {genLoading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : t('vocabulary.generateAll')}
           </Button>
         </CardContent>
       </Card>
@@ -257,6 +260,7 @@ function AddNewTab({ onGenerated }) {
 }
 
 export function VocabularyView() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState(0);
   const [vocabularies, setVocabularies] = useState([]);
   const [reviewItems, setReviewItems] = useState([]);
@@ -364,8 +368,8 @@ export function VocabularyView() {
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Vocabulary</Typography>
-          <Typography variant="body2" color="text.secondary">Build your word bank with AI assistance</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('vocabulary.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('vocabulary.subtitle')}</Typography>
         </Box>
         {reviewItems.length > 0 && (
           <Button
@@ -374,7 +378,7 @@ export function VocabularyView() {
             onClick={() => { setTab(2); resetReviewSession(); setReviewMode(true); }}
             sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, fontSize: 14, background: 'linear-gradient(135deg, #f59e0b, #f97316)', '&:hover': { background: 'linear-gradient(135deg, #d97706, #ea580c)', transform: 'translateY(-1px)', boxShadow: '0 8px 24px rgba(245,158,11,0.3)' }, transition: 'all 0.2s', px: 3, py: 1.25 }}
           >
-            Review {reviewItems.length} Words
+            Review {reviewItems.length} {t('vocabulary.review', { count: reviewItems.length })}
           </Button>
         )}
       </Stack>
@@ -385,7 +389,7 @@ export function VocabularyView() {
             <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', bgcolor: '#eef2ff' }}>
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'center' }}>
                 <Typography variant="h5" fontWeight={900} color="#4f46e5">{stats.total}</Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>Total Words</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.totalWords')}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -393,7 +397,7 @@ export function VocabularyView() {
             <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', bgcolor: '#ecfdf5' }}>
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'center' }}>
                 <Typography variant="h5" fontWeight={900} color="#059669">{stats.mastered}</Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>Mastered</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.mastered')}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -401,7 +405,7 @@ export function VocabularyView() {
             <Card sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', bgcolor: '#fffbeb' }}>
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 }, textAlign: 'center' }}>
                 <Typography variant="h5" fontWeight={900} color="#d97706">{stats.dueToday}</Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={600}>Due Today</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.dueToday')}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -418,16 +422,16 @@ export function VocabularyView() {
           '& .Mui-selected': { color: 'primary.main' },
         }}
       >
-        <Tab label="My Words" />
-        <Tab label="Add New" icon={<AddIcon sx={{ fontSize: 18 }} />} iconPosition="start" />
-        {reviewItems.length > 0 && <Tab label={`Review (${reviewItems.length})`} />}
+        <Tab label={t('vocabulary.myWords')} />
+        <Tab label={t('vocabulary.addNew')} icon={<AddIcon sx={{ fontSize: 18 }} />} iconPosition="start" />
+        {reviewItems.length > 0 && <Tab label={t('vocabulary.reviewTab', { count: reviewItems.length })} />}
       </Tabs>
 
       {/* Tab 0: My Words */}
       {tab === 0 && (
         <Stack spacing={3}>
           <TextField
-            placeholder="Search words..."
+            placeholder={t('vocabulary.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -445,9 +449,9 @@ export function VocabularyView() {
                 <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
                   <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 30 }} />
                 </Box>
-                <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No vocabulary yet</Typography>
+                <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>{t('vocabulary.noWords')}</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Switch to <Box component="span" fontWeight={700} color="primary.main">Add New</Box> tab to generate words with AI
+                  {t('vocabulary.noWordsDesc')}
                 </Typography>
                 <Button
                   variant="contained"
@@ -455,7 +459,7 @@ export function VocabularyView() {
                   onClick={() => setTab(1)}
                   sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' }, px: 3 }}
                 >
-                  Add Your First Word
+                  Add {t('vocabulary.addFirstWord')}
                 </Button>
               </CardContent>
             </Card>
@@ -559,9 +563,9 @@ export function VocabularyView() {
           <Card sx={{ borderRadius: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
             <Box sx={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', p: 5, textAlign: 'center', color: 'white' }}>
               <Box sx={{ fontSize: 56, mb: 1 }}>🎉</Box>
-              <Typography variant="h4" fontWeight={900}>Review Complete!</Typography>
+              <Typography variant="h4" fontWeight={900}>{t('vocabulary.reviewComplete')}</Typography>
               <Typography variant="body1" sx={{ opacity: 0.85, mt: 1 }}>
-                You reviewed {totalReviewed} word{totalReviewed !== 1 ? 's' : ''}
+                {t('vocabulary.reviewed', { count: totalReviewed })}
               </Typography>
             </Box>
             <CardContent sx={{ p: 4 }}>
@@ -569,37 +573,37 @@ export function VocabularyView() {
                 <Typography variant="h2" fontWeight={900} sx={{ color: accuracy >= 70 ? '#10b981' : accuracy >= 40 ? '#f59e0b' : '#ef4444' }}>
                   {accuracy}%
                 </Typography>
-                <Typography variant="body2" color="text.secondary">Accuracy</Typography>
+                <Typography variant="body2" color="text.secondary">{t('vocabulary.accuracy')}</Typography>
               </Box>
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid item xs={6} sm={3}>
                   <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#fef2f2' }}>
                     <Typography variant="h4" fontWeight={900} color="#ef4444">{sessionStats.forgot}</Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Forgot</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.forgot')}</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#fffbeb' }}>
                     <Typography variant="h4" fontWeight={900} color="#f59e0b">{sessionStats.hard}</Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Hard</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.hard')}</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#eef2ff' }}>
                     <Typography variant="h4" fontWeight={900} color="#6366f1">{sessionStats.good}</Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Good</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.good')}</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Box sx={{ textAlign: 'center', p: 2, borderRadius: 3, bgcolor: '#ecfdf5' }}>
                     <Typography variant="h4" fontWeight={900} color="#10b981">{sessionStats.easy}</Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Easy</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>{t('vocabulary.easy')}</Typography>
                   </Box>
                 </Grid>
               </Grid>
               <Stack direction="row" spacing={2} justifyContent="center">
                 <Button variant="contained" onClick={exitReview} sx={{ ...gradientBtn, px: 4, py: 1.5 }}>
-                  Back to Words
+                  {t('vocabulary.backToWords')}
                 </Button>
               </Stack>
             </CardContent>
@@ -626,10 +630,10 @@ export function VocabularyView() {
         const sc = statusConfig[status] || statusConfig.NEW;
 
         const qualityButtons = [
-          { key: 0, label: 'Forgot', hint: '<1d', color: '#ef4444', bg: '#fef2f2', variant: 'outlined' },
-          { key: 2, label: 'Hard', hint: '1d', color: '#f59e0b', bg: '#fffbeb', variant: 'outlined' },
-          { key: 3, label: 'Good', hint: '3d', color: '#6366f1', bg: '#eef2ff', variant: 'contained' },
-          { key: 5, label: 'Easy', hint: '7d+', color: '#10b981', bg: '#ecfdf5', variant: 'contained' },
+          { key: 0, label: t('vocabulary.forgot'), hint: t('vocabulary.hint.forgot'), color: '#ef4444', bg: '#fef2f2', variant: 'outlined' },
+          { key: 2, label: t('vocabulary.hard'), hint: t('vocabulary.hint.hard'), color: '#f59e0b', bg: '#fffbeb', variant: 'outlined' },
+          { key: 3, label: t('vocabulary.good'), hint: t('vocabulary.hint.good'), color: '#6366f1', bg: '#eef2ff', variant: 'contained' },
+          { key: 5, label: t('vocabulary.easy'), hint: t('vocabulary.hint.easy'), color: '#10b981', bg: '#ecfdf5', variant: 'contained' },
         ];
 
         return (
@@ -662,7 +666,7 @@ export function VocabularyView() {
                 onClick={() => setShowExitDialog(true)}
                 sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 600, minWidth: 'auto', px: 2, py: 1, borderColor: '#e2e8f0', color: '#64748b' }}
               >
-                Exit
+                {t('vocabulary.exit')}
               </Button>
             </Stack>
 
@@ -733,10 +737,10 @@ export function VocabularyView() {
                       <Box sx={{ mt: 4, mx: 'auto', maxWidth: 400 }}>
                         <Box sx={{ bgcolor: 'rgba(99,102,241,0.06)', borderRadius: 3, p: 3, border: '1px dashed', borderColor: 'primary.light', cursor: 'pointer' }} onClick={() => setRevealed(true)}>
                           <Typography variant="body2" color="primary.main" fontWeight={600}>
-                            Click to reveal meaning
+                            {t('vocabulary.clickToReveal')}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                            or press Space / Enter
+                            {t('vocabulary.orPressKey')}
                           </Typography>
                         </Box>
                       </Box>
@@ -748,7 +752,7 @@ export function VocabularyView() {
               {revealed && (
                 <CardContent sx={{ p: 3, bgcolor: 'white' }}>
                   <Typography variant="caption" color="text.secondary" fontWeight={600} textAlign="center" sx={{ display: 'block', mb: 2 }}>
-                    How well did you remember? (press 1-4)
+                    {t('vocabulary.howWell')}
                   </Typography>
                   <Grid container spacing={1.5}>
                     {qualityButtons.map((btn) => (
@@ -789,16 +793,16 @@ export function VocabularyView() {
       <Dialog open={showExitDialog} onClose={() => setShowExitDialog(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 4 } }}>
         <DialogContent sx={{ p: 4, textAlign: 'center' }}>
           <Box sx={{ fontSize: 40, mb: 1 }}>⚠️</Box>
-          <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>Exit review session?</Typography>
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 1 }}>{t('vocabulary.exitDialog')}</Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Your progress ({reviewIndex + 1}/{reviewItems.length}) will be saved. You can review the rest later.
+            {t('vocabulary.exitDialogDesc', { current: reviewIndex + 1, total: reviewItems.length })}
           </Typography>
           <Stack direction="row" spacing={2} justifyContent="center">
             <Button variant="outlined" onClick={() => setShowExitDialog(false)} sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 4 }}>
-              Continue
+              {t('vocabulary.continue')}
             </Button>
             <Button variant="contained" color="error" onClick={exitReview} sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 4 }}>
-              Exit
+              {t('vocabulary.exit')}
             </Button>
           </Stack>
         </DialogContent>

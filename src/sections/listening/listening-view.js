@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { getApiError, normalizeTopic, openGeneratedExercise, clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -60,6 +61,7 @@ const durationChipSx = {
 };
 
 export function ListeningView() {
+  const { t } = useTranslation();
   const [view, setView] = useState('list');
   const [exercises, setExercises] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -101,7 +103,7 @@ export function ListeningView() {
         setSelected, setAnswers, setResults, setShowTranscript, setView,
       });
       await fetchExercises();
-    } catch (err) { setError(getApiError(err, 'Failed to generate')); }
+    } catch (err) { setError(getApiError(err, t('listening.genFailed'))); }
     finally { setGenerating(false); }
   };
 
@@ -142,7 +144,7 @@ export function ListeningView() {
       const arr = selected.questions.map((_, idx) => answers[idx] ?? -1);
       const res = await axiosInstance.post(`/listening/${selected._id}/submit`, { answers: arr });
       setResults(res.data);
-    } catch (err) { setError(err.response?.data?.error || 'Failed to submit'); }
+    } catch (err) { setError(err.response?.data?.error || t('listening.submitFailed')); }
     finally { setSubmitting(false); }
   };
 
@@ -177,7 +179,7 @@ export function ListeningView() {
             <Box sx={{ width: 56, height: 56, borderRadius: '50%', bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, boxShadow: '0 4px 12px rgba(99,102,241,0.15)' }}>
               <HearingIcon sx={{ color: '#6366f1', fontSize: 28 }} />
             </Box>
-            <Typography variant="h6" fontWeight={800} sx={{ mb: 2.5 }}>Listen to the Audio</Typography>
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 2.5 }}>{t('listening.listenToAudio')}</Typography>
             <Stack direction="row" spacing={1.5} justifyContent="center" alignItems="center">
               <Button
                 variant="contained"
@@ -186,10 +188,10 @@ export function ListeningView() {
                 onClick={isPlaying ? pauseAudio : playAudio}
                 sx={{ ...gradientBtn, borderRadius: 5, px: 4, py: 1.25 }}
               >
-                {isPlaying ? 'Stop' : 'Play Audio'}
+                {isPlaying ? t('listening.stop') : t('listening.playAudio')}
               </Button>
               <Button variant="outlined" onClick={() => setShowTranscript(!showTranscript)} sx={{ borderRadius: 5, textTransform: 'none', fontWeight: 600, px: 3, py: 1.25, borderColor: '#cbd5e1', color: '#475569' }}>
-                {showTranscript ? 'Hide' : 'Show'} Transcript
+                {showTranscript ? t('listening.hideTranscript') : t('listening.showTranscript')} {t('listening.transcript')}
               </Button>
             </Stack>
           </Box>
@@ -198,10 +200,10 @@ export function ListeningView() {
         {showTranscript && (
           <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
             <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>Transcript</Typography>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1 }}>{t('listening.transcript')}</Typography>
               <Typography variant="body2" paragraph sx={{ lineHeight: 1.7 }}>{selected.transcript}</Typography>
               <Divider sx={{ my: 1.5 }} />
-              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, color: 'primary.main' }}>Bản dịch</Typography>
+              <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, color: 'primary.main' }}>{t('listening.translation')}</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>{selected.translation}</Typography>
             </CardContent>
           </Card>
@@ -209,7 +211,7 @@ export function ListeningView() {
 
         {!results ? (
           <>
-            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Questions ({selected.questions.length})</Typography>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>{t('listening.questions', { count: selected.questions.length })}</Typography>
             {selected.questions.map((q, qIdx) => (
               <Card key={qIdx} sx={{ mb: 2, borderRadius: 3, boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent sx={{ p: 2.5 }}>
@@ -226,25 +228,25 @@ export function ListeningView() {
             ))}
             {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 3 }}>{error}</Alert>}
             <Button variant="contained" fullWidth size="large" onClick={submit} disabled={!allAnswered || submitting} sx={{ ...gradientBtn, py: 1.5, fontSize: 16 }}>
-              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Submit Answers'}
+              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : t('listening.submitAnswers')}
             </Button>
           </>
         ) : (
           <Box>
             <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
               <Box sx={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', p: 4, color: 'white', textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ opacity: 0.85, mb: 0.5 }}>Your Score</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.85, mb: 0.5 }}>{t('listening.yourScore')}</Typography>
                 <Typography variant="h2" fontWeight={900} sx={{ lineHeight: 1 }}>{results.score}%</Typography>
                 <Box sx={{ mt: 2, mx: 'auto', maxWidth: 300 }}>
                   <LinearProgress variant="determinate" value={results.score} sx={{ height: 10, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.2)', '& .MuiLinearProgress-bar': { borderRadius: 5, bgcolor: 'white' } }} />
                 </Box>
                 <Typography variant="body2" sx={{ mt: 1.5, opacity: 0.9 }}>
-                  {results.correctCount} / {results.totalQuestions} correct {results.xpEarned > 0 && `• +${results.xpEarned} XP`}
+                  {t('listening.correct', { correct: results.correctCount, total: results.totalQuestions })} {results.xpEarned > 0 && `${t('listening.xpEarned', { xp: results.xpEarned })}`}
                 </Typography>
               </Box>
             </Card>
 
-            <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Review Answers</Typography>
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>{t('listening.reviewAnswers')}</Typography>
             {results.results.map((r, idx) => (
               <Card key={idx} sx={{ mb: 2, borderRadius: 3, boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid', borderColor: r.correct ? '#bbf7d0' : '#fecaca', borderLeft: '4px solid', borderLeftColor: r.correct ? '#10b981' : '#ef4444' }}>
                 <CardContent sx={{ p: 3 }}>
@@ -278,7 +280,7 @@ export function ListeningView() {
               </Card>
             ))}
             <Button variant="outlined" onClick={() => { setView('list'); setSelected(null); setResults(null); }} sx={{ mt: 2, borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 4, py: 1.25 }}>
-              Back to Exercises
+              {t('listening.backToExercises')}
             </Button>
           </Box>
         )}
@@ -290,8 +292,8 @@ export function ListeningView() {
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Listening</Typography>
-          <Typography variant="body2" color="text.secondary">Listen to AI-generated audio and answer questions</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('listening.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('listening.subtitle')}</Typography>
         </Box>
         <Button
           variant="contained"
@@ -300,27 +302,27 @@ export function ListeningView() {
           disabled={generating}
           sx={{ ...gradientBtn, fontSize: 14, px: 3, py: 1.25 }}
         >
-          {generating ? 'Generating...' : 'New Exercise'}
+          {generating ? t('listening.generating') : t('listening.newExercise')}
         </Button>
       </Stack>
 
       <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: 3 }}>
           <Box sx={{ mb: 2.5 }}>
-            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('listening.level')}:</Typography>
             <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
               {LEVELS.map(lvl => (
                 <Chip key={lvl} label={lvl} color={filterLevel === lvl ? 'primary' : 'default'} onClick={() => setFilterLevel(lvl)} clickable sx={{ borderRadius: 2, fontWeight: 600 }} />
               ))}
-              <Button size="small" variant="contained" onClick={fetchExercises} sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 2 }}>Apply</Button>
+              <Button size="small" variant="contained" onClick={fetchExercises} sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, px: 2 }}>{t('listening.apply')}</Button>
             </Stack>
           </Box>
           <TopicInput
             value={genTopic}
             onChange={setGenTopic}
             onEnter={generateExercise}
-            label="Topic for new exercise (optional)"
-            placeholder="Type any topic, or pick a suggestion — used when generating a new exercise"
+            label={t('listening.topicLabel')}
+            placeholder={t('listening.topicPlaceholder')}
             suggestions={['travel', 'food', 'work', 'shopping', 'health', 'education', 'news', 'daily-life', 'technology', 'environment', 'sports', 'music']}
             size="small"
           />
@@ -337,12 +339,12 @@ export function ListeningView() {
             <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
               <HearingIcon sx={{ color: '#6366f1', fontSize: 30 }} />
             </Box>
-            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No listening exercises yet</Typography>
+            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>{t('listening.noExercises')}</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Pick a level, choose a topic, and let AI generate your first exercise
+              {t('listening.noExercisesDesc')}
             </Typography>
             <Button variant="contained" startIcon={<AutoAwesomeIcon />} onClick={generateExercise} disabled={generating} sx={{ ...gradientBtn, px: 3 }}>
-              {generating ? 'Generating...' : 'Generate Your First Exercise'}
+              {generating ? t('listening.generating') : t('listening.generateFirst')}
             </Button>
           </CardContent>
         </Card>
@@ -375,10 +377,10 @@ export function ListeningView() {
                     <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px dashed', borderColor: 'divider' }}>
                       <Stack direction="row" spacing={2}>
                         <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                          Attempts: <Box component="span" fontWeight={700} color="text.primary">{ex.attempts}</Box>
+                          {t('listening.attempts')}: <Box component="span" fontWeight={700} color="text.primary">{ex.attempts}</Box>
                         </Typography>
                         <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                          Best: <Box component="span" fontWeight={700} color={ex.score >= 70 ? '#10b981' : '#f59e0b'}>{ex.score}%</Box>
+                          {t('listening.best')}: <Box component="span" fontWeight={700} color={ex.score >= 70 ? '#10b981' : '#f59e0b'}>{ex.score}%</Box>
                         </Typography>
                       </Stack>
                     </Box>

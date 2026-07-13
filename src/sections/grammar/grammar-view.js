@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { getApiError, normalizeTopic, GRAMMAR_TOPICS, openGeneratedLesson, clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -32,6 +33,7 @@ import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
 export function GrammarView() {
+  const { t } = useTranslation();
   const [view, setView] = useState('list');
   const [lessons, setLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -92,7 +94,7 @@ export function GrammarView() {
       openGeneratedLesson(lesson, { setSelectedLesson, setAnswers, setResults, setView });
       await fetchLessons();
     } catch (err) {
-      setError(getApiError(err, 'Failed to generate lesson'));
+      setError(getApiError(err, t('grammar.genFailed')));
     } finally {
       setGenerating(false);
     }
@@ -125,7 +127,7 @@ export function GrammarView() {
       });
       setResults(res.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to submit');
+      setError(err.response?.data?.error || t('grammar.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -170,19 +172,19 @@ export function GrammarView() {
                   <Box sx={{ width: 36, height: 36, borderRadius: 2.5, bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(99,102,241,0.15)' }}>
                     <SpellcheckIcon sx={{ color: '#6366f1', fontSize: 20 }} />
                   </Box>
-                  <Typography variant="h6" fontWeight={800}>Lesson Explanation</Typography>
+                  <Typography variant="h6" fontWeight={800}>{t('grammar.lessonExplanation')}</Typography>
                 </Stack>
               </Box>
               <CardContent sx={{ p: 4 }}>
                 <Typography variant="body1" paragraph sx={{ lineHeight: 1.7 }}>{selectedLesson.explanation}</Typography>
                 <Divider sx={{ my: 2.5 }} />
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, color: 'primary.main' }}>Giải thích bằng tiếng Việt:</Typography>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1, color: 'primary.main' }}>{t('grammar.vietExplain')}</Typography>
                 <Typography variant="body2" paragraph sx={{ lineHeight: 1.7 }}>{selectedLesson.explanationVi}</Typography>
 
                 {selectedLesson.examples?.length > 0 && (
                   <>
                     <Divider sx={{ my: 2.5 }} />
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Examples</Typography>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('grammar.examples')}</Typography>
                     <Stack spacing={1.25}>
                       {selectedLesson.examples.map((ex, i) => (
                         <Box key={i} sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 3, border: '1px solid', borderColor: '#e2e8f0' }}>
@@ -202,7 +204,7 @@ export function GrammarView() {
                 {selectedLesson.rules?.length > 0 && (
                   <>
                     <Divider sx={{ my: 2.5 }} />
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Key Rules</Typography>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('grammar.keyRules')}</Typography>
                     <Stack spacing={1}>
                       {selectedLesson.rules.map((r, i) => (
                         <Stack direction="row" spacing={1.5} alignItems="flex-start" key={i}>
@@ -219,7 +221,7 @@ export function GrammarView() {
                 {selectedLesson.commonMistakes?.length > 0 && (
                   <>
                     <Divider sx={{ my: 2.5 }} />
-                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: '#dc2626' }}>⚠️ Common Mistakes</Typography>
+                    <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: '#dc2626' }}>{t('grammar.commonMistakes')}</Typography>
                     <Stack spacing={1.25}>
                       {selectedLesson.commonMistakes.map((m, i) => (
                         <Box key={i} sx={{ p: 2, bgcolor: '#fef2f2', borderRadius: 3, border: '1px solid', borderColor: '#fecaca' }}>
@@ -238,7 +240,7 @@ export function GrammarView() {
             </Card>
 
             <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-              Practice Exercises ({selectedLesson.exercises.length})
+              {t('grammar.practiceExercises', { count: selectedLesson.exercises.length })}
             </Typography>
 
             {selectedLesson.exercises.map((ex, qIdx) => (
@@ -279,7 +281,7 @@ export function GrammarView() {
                 transition: 'all 0.2s',
               }}
             >
-              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Submit Answers'}
+              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : t('grammar.submitAnswers')}
             </Button>
           </>
         )}
@@ -288,7 +290,7 @@ export function GrammarView() {
           <>
           <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
             <Box sx={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', p: 4, color: 'white', textAlign: 'center' }}>
-              <Typography variant="body2" sx={{ opacity: 0.85, mb: 0.5 }}>Your Score</Typography>
+              <Typography variant="body2" sx={{ opacity: 0.85, mb: 0.5 }}>{t('grammar.yourScore')}</Typography>
               <Typography variant="h2" fontWeight={900} sx={{ lineHeight: 1 }}>
                 {results.score}%
               </Typography>
@@ -305,16 +307,16 @@ export function GrammarView() {
                 />
               </Box>
               <Typography variant="body2" sx={{ mt: 1.5, opacity: 0.9 }}>
-                {results.correctCount} / {results.totalQuestions} correct
-                {results.xpEarned > 0 && ` • +${results.xpEarned} XP`}
+                {t('grammar.correct', { correct: results.correctCount, total: results.totalQuestions })}
+                {results.xpEarned > 0 && ` ${t('grammar.xpEarned', { xp: results.xpEarned })}`}
               </Typography>
               <Typography variant="body2" sx={{ mt: 0.5, opacity: 0.85, fontStyle: 'italic' }}>
-                {results.completed ? '🎉 Lesson completed!' : 'Keep practicing!'}
+                {results.completed ? t('grammar.lessonCompleted') : t('grammar.keepPracticing')}
               </Typography>
             </Box>
           </Card>
 
-          <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>Review Answers</Typography>
+          <Typography variant="h6" fontWeight={800} sx={{ mb: 2 }}>{t('grammar.reviewAnswers')}</Typography>
           <Stack spacing={2}>
             {results.results.map((r, idx) => (
               <Card key={idx} sx={{
@@ -383,7 +385,7 @@ export function GrammarView() {
             onClick={() => { setView('list'); setSelectedLesson(null); setResults(null); }}
             sx={{ mt: 3, borderRadius: 3, textTransform: 'none', fontWeight: 600, px: 4, py: 1.25 }}
           >
-            Back to Lessons
+            {t('grammar.backToLessons')}
           </Button>
           </>
         )}
@@ -395,8 +397,8 @@ export function GrammarView() {
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Grammar</Typography>
-          <Typography variant="body2" color="text.secondary">Learn grammar with AI-generated lessons and exercises</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('grammar.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('grammar.subtitle')}</Typography>
         </Box>
         <Button
           variant="contained"
@@ -410,14 +412,14 @@ export function GrammarView() {
             transition: 'all 0.2s', px: 3, py: 1.25,
           }}
         >
-          {generating ? 'Generating...' : 'Generate Lesson'}
+          {generating ? t('grammar.generating') : t('grammar.generateLesson')}
         </Button>
       </Stack>
 
       <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
         <CardContent sx={{ p: 3 }}>
           <Box sx={{ mb: 2.5 }}>
-            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level:</Typography>
+            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('grammar.level')}:</Typography>
             <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
               {LEVELS.map(lvl => (
                 <Chip
@@ -435,8 +437,8 @@ export function GrammarView() {
             value={genTopic}
             onChange={setGenTopic}
             onEnter={generateLesson}
-            label="Topic (optional)"
-            placeholder="Pick a topic below or type any custom topic to generate a lesson"
+            label={t('grammar.topicLabel')}
+            placeholder={t('grammar.topicPlaceholder')}
             suggestions={[...new Set([...topics, ...GRAMMAR_TOPICS])]}
             size="small"
             showRandom
@@ -454,9 +456,9 @@ export function GrammarView() {
             <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
               <MenuBookIcon sx={{ color: '#6366f1', fontSize: 30 }} />
             </Box>
-            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No grammar lessons yet</Typography>
+            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>{t('grammar.noLessons')}</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Pick a level, choose a topic, and let AI generate your first lesson
+              {t('grammar.noLessonsDesc')}
             </Typography>
             <Button
               variant="contained"
@@ -465,7 +467,7 @@ export function GrammarView() {
               disabled={generating}
               sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, #4f46e5, #7c3aed)', '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' }, px: 3 }}
             >
-              {generating ? 'Generating...' : 'Generate Your First Lesson'}
+              {generating ? t('grammar.generating') : t('grammar.generateFirst')}
             </Button>
           </CardContent>
         </Card>

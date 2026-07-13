@@ -5,6 +5,7 @@ import { schemeConfig } from 'src/theme/scheme-config';
 import { ThemeProvider } from 'src/theme/theme-provider';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
 import { AuthProvider } from 'src/contexts/auth-context';
+import { I18nProvider } from 'src/components/i18n-provider';
 
 export const viewport = {
   width: 'device-width',
@@ -71,9 +72,11 @@ export default async function RootLayout({ children }) {
         />
         <ThemeProvider>
           <MotionLazy>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            <I18nProvider>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+            </I18nProvider>
           </MotionLazy>
         </ThemeProvider>
       </body>

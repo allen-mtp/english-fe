@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import { clearTopicInput } from 'src/utils/api-helpers';
 import { TopicInput } from 'src/components/topic-input/topic-input';
@@ -47,6 +48,7 @@ const gradientBtn = {
 };
 
 export function WritingView() {
+  const { t } = useTranslation();
   const [view, setView] = useState('home');
   const [level, setLevel] = useState('A1');
   const [type, setType] = useState('');
@@ -88,7 +90,7 @@ export function WritingView() {
       setResult(null);
       setView('write');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to get prompt');
+      setError(err.response?.data?.error || t('writing.promptFailed'));
     } finally {
       setLoading(false);
     }
@@ -96,7 +98,7 @@ export function WritingView() {
 
   const submit = async () => {
     if (!userText.trim() || userText.trim().split(/\s+/).length < 20) {
-      setError('Please write at least 20 words');
+      setError(t('writing.pleaseWrite'));
       return;
     }
     setSubmitting(true);
@@ -112,7 +114,7 @@ export function WritingView() {
       setResult(res.data.submission);
       fetchHistory();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to submit');
+      setError(err.response?.data?.error || t('writing.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +133,7 @@ export function WritingView() {
             <ArrowBackIcon />
           </IconButton>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" fontWeight={800}>Writing Practice</Typography>
+            <Typography variant="h4" fontWeight={800}>{t('writing.title')}</Typography>
             <Stack direction="row" spacing={0.75} sx={{ mt: 0.75 }} useFlexGap flexWrap="wrap">
               <Chip size="small" label={writingPrompt.promptType} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5', textTransform: 'capitalize' }} />
               <Chip size="small" label={writingPrompt.level} sx={{ borderRadius: 1.5, fontWeight: 700, bgcolor: '#eef2ff', color: '#4f46e5' }} />
@@ -146,7 +148,7 @@ export function WritingView() {
               <Box sx={{ width: 36, height: 36, borderRadius: 2.5, bgcolor: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(99,102,241,0.15)' }}>
                 <EditNoteIcon sx={{ color: '#6366f1', fontSize: 20 }} />
               </Box>
-              <Typography variant="h6" fontWeight={800}>Your Prompt</Typography>
+              <Typography variant="h6" fontWeight={800}>{t('writing.yourPrompt')}</Typography>
             </Stack>
           </Box>
           <CardContent sx={{ p: 4 }}>
@@ -154,7 +156,7 @@ export function WritingView() {
             {writingPrompt.tips?.length > 0 && (
               <>
                 <Divider sx={{ my: 2.5 }} />
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: 'primary.main' }}>Tips</Typography>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5, color: 'primary.main' }}>{t('writing.tips')}</Typography>
                 <Stack spacing={1}>
                   {writingPrompt.tips.map((t, i) => (
                     <Stack direction="row" spacing={1.5} alignItems="flex-start" key={i}>
@@ -168,7 +170,7 @@ export function WritingView() {
               </>
             )}
             <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block', fontWeight: 600 }}>
-              Suggested length: {writingPrompt.minWords || 100} - {writingPrompt.maxWords || 300} words
+              {t('writing.suggestedLength')}: {writingPrompt.minWords || 100} - {writingPrompt.maxWords || 300} {t('writing.words')}
             </Typography>
           </CardContent>
         </Card>
@@ -182,14 +184,14 @@ export function WritingView() {
                   multiline
                   minRows={10}
                   maxRows={20}
-                  placeholder="Write your text in English here..."
+                  placeholder={t('writing.writePlaceholder')}
                   value={userText}
                   onChange={(e) => setUserText(e.target.value)}
                   slotProps={{ input: { sx: { borderRadius: 3 } } }}
                 />
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 1.5 }}>
-                  <Typography variant="caption" fontWeight={600} color={wordCount < 20 ? 'error.main' : 'text.secondary'}>
-                    {wordCount} words {wordCount < 20 && `(need ${20 - wordCount} more)`}
+                <Typography variant="caption" fontWeight={600} color={wordCount < 20 ? 'error.main' : 'text.secondary'}>
+                  {wordCount} {t('writing.words')} {wordCount < 20 && `(${t('writing.needMore')} ${20 - wordCount} ${t('writing.more')})`}
                   </Typography>
                   {error && <Alert severity="error" sx={{ flex: 1, ml: 2, borderRadius: 3, py: 0 }}>{error}</Alert>}
                 </Stack>
@@ -204,7 +206,7 @@ export function WritingView() {
               disabled={submitting || wordCount < 20}
               sx={{ ...gradientBtn, py: 1.5, fontSize: 16 }}
             >
-              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Submit for AI Feedback'}
+              {submitting ? <CircularProgress size={24} sx={{ color: 'white' }} /> : t('writing.submitForFeedback')}
             </Button>
           </>
         ) : (
@@ -212,7 +214,7 @@ export function WritingView() {
             <Card sx={{ mb: 3, borderRadius: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.06)', border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
               <Box sx={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', p: 4, color: 'white' }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                  <Typography variant="h6" fontWeight={800}>Your Score</Typography>
+                  <Typography variant="h6" fontWeight={800}>{t('writing.yourScore')}</Typography>
                   {result.feedback.bandScore && (
                     <Chip label={`Band ${result.feedback.bandScore}`} sx={{ fontWeight: 700, bgcolor: 'rgba(255,255,255,0.2)', color: 'white', borderRadius: 2 }} />
                   )}
@@ -236,10 +238,10 @@ export function WritingView() {
               <CardContent sx={{ p: 3 }}>
                 <Grid container spacing={2}>
                   {[
-                    { label: 'Grammar', score: result.feedback.grammarScore },
-                    { label: 'Vocabulary', score: result.feedback.vocabularyScore },
-                    { label: 'Coherence', score: result.feedback.coherenceScore },
-                    { label: 'Task Achievement', score: result.feedback.taskAchievement },
+                    { label: t('writing.grammar'), score: result.feedback.grammarScore },
+                    { label: t('writing.vocabulary'), score: result.feedback.vocabularyScore },
+                    { label: t('writing.coherence'), score: result.feedback.coherenceScore },
+                    { label: t('writing.taskAchievement'), score: result.feedback.taskAchievement },
                   ].map(item => (
                     <Grid item xs={6} sm={3} key={item.label}>
                       <Box sx={{ textAlign: 'center', p: 1.5, borderRadius: 3, bgcolor: '#f8fafc' }}>
@@ -255,7 +257,7 @@ export function WritingView() {
             {result.feedback.corrections?.length > 0 && (
               <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>Corrections</Typography>
+                  <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1.5 }}>{t('writing.corrections')}</Typography>
                   <Stack spacing={1.25}>
                     {result.feedback.corrections.map((c, i) => (
                       <Box key={i} sx={{ p: 2, bgcolor: '#fffbeb', borderRadius: 3, border: '1px solid', borderColor: '#fde68a' }}>
@@ -279,7 +281,7 @@ export function WritingView() {
                     <Box sx={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', px: 3, py: 2 }}>
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <CheckCircleIcon sx={{ color: '#059669', fontSize: 20 }} />
-                        <Typography variant="subtitle1" fontWeight={800} color="#059669">Strengths</Typography>
+                        <Typography variant="subtitle1" fontWeight={800} color="#059669">{t('writing.strengths')}</Typography>
                       </Stack>
                     </Box>
                     <CardContent sx={{ p: 3 }}>
@@ -299,7 +301,7 @@ export function WritingView() {
                     <Box sx={{ background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', px: 3, py: 2 }}>
                       <Stack direction="row" alignItems="center" spacing={1}>
                         <TrendingUpIcon sx={{ color: '#d97706', fontSize: 20 }} />
-                        <Typography variant="subtitle1" fontWeight={800} color="#d97706">To Improve</Typography>
+                        <Typography variant="subtitle1" fontWeight={800} color="#d97706">{t('writing.toImprove')}</Typography>
                       </Stack>
                     </Box>
                     <CardContent sx={{ p: 3 }}>
@@ -320,7 +322,7 @@ export function WritingView() {
                 <Box sx={{ background: 'linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%)', px: 3, py: 2 }}>
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <LightbulbIcon sx={{ color: '#6366f1', fontSize: 20 }} />
-                    <Typography variant="subtitle1" fontWeight={800} color="#4f46e5">AI Suggestion</Typography>
+                    <Typography variant="subtitle1" fontWeight={800} color="#4f46e5">{t('writing.aiSuggestion')}</Typography>
                   </Stack>
                 </Box>
                 <CardContent sx={{ p: 3 }}>
@@ -335,7 +337,7 @@ export function WritingView() {
                 onClick={() => { setView('home'); setWritingPrompt(null); setResult(null); }}
                 sx={{ borderRadius: 2.5, textTransform: 'none', fontWeight: 600, px: 4, py: 1.25 }}
               >
-                Back to Writing
+                {t('writing.backToWriting')}
               </Button>
               <Button
                 variant="contained"
@@ -344,7 +346,7 @@ export function WritingView() {
                 disabled={loading}
                 sx={{ ...gradientBtn, px: 4, py: 1.25 }}
               >
-                New Prompt
+                {t('writing.newPrompt')}
               </Button>
             </Stack>
           </Box>
@@ -357,8 +359,8 @@ export function WritingView() {
     <Box>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2} sx={{ mb: 3 }}>
         <Box>
-          <Typography variant="h4" fontWeight={800}>Writing Practice</Typography>
-          <Typography variant="body2" color="text.secondary">Get AI feedback on your English writing</Typography>
+          <Typography variant="h4" fontWeight={800}>{t('writing.title')}</Typography>
+          <Typography variant="body2" color="text.secondary">{t('writing.subtitle')}</Typography>
         </Box>
       </Stack>
 
@@ -369,15 +371,15 @@ export function WritingView() {
               <AutoAwesomeIcon sx={{ color: '#6366f1', fontSize: 20 }} />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800}>Generate Writing Prompt</Typography>
-              <Typography variant="body2" color="text.secondary">Choose your level, writing type, and topic — AI crafts a tailored prompt</Typography>
+              <Typography variant="h6" fontWeight={800}>{t('writing.generatePrompt')}</Typography>
+              <Typography variant="body2" color="text.secondary">{t('writing.generateDesc')}</Typography>
             </Box>
           </Stack>
         </Box>
         <CardContent sx={{ p: 4 }}>
           <Stack spacing={2.5}>
             <Box>
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>Level</Typography>
+              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>{t('writing.level')}</Typography>
               <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                 {LEVELS.map(lvl => (
                   <Chip
@@ -395,19 +397,19 @@ export function WritingView() {
               value={type}
               onChange={setType}
               onEnter={getPrompt}
-              label="Writing Type (optional)"
-              placeholder="Type any writing format you want, or pick a suggestion"
+              label={t('writing.writingType')}
+              placeholder={t('writing.writingTypePlaceholder')}
               suggestions={WRITING_TYPE_SUGGESTIONS}
               StartIcon={EditNoteIcon}
-              randomTitle="Pick random writing type"
+              randomTitle={t('writing.pickRandom')}
               size="medium"
             />
             <TopicInput
               value={topic}
               onChange={setTopic}
               onEnter={getPrompt}
-              label="Topic (optional)"
-              placeholder="Type any topic you want to write about, or pick a suggestion"
+              label={t('writing.topicLabel')}
+              placeholder={t('writing.topicPlaceholder')}
               suggestions={['technology', 'environment', 'education', 'travel', 'culture', 'sports', 'health', 'business', 'society', 'personal experience', 'movies', 'music']}
               size="medium"
             />
@@ -420,7 +422,7 @@ export function WritingView() {
               disabled={loading}
               sx={{ ...gradientBtn, py: 1.5, fontSize: 16 }}
             >
-              {loading ? 'Getting Prompt...' : 'Get Writing Prompt'}
+              {loading ? t('writing.gettingPrompt') : t('writing.getPrompt')}
             </Button>
           </Stack>
         </CardContent>
@@ -428,7 +430,7 @@ export function WritingView() {
 
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
         <HistoryIcon sx={{ color: '#6366f1', fontSize: 22 }} />
-        <Typography variant="h6" fontWeight={800}>Recent Submissions</Typography>
+        <Typography variant="h6" fontWeight={800}>{t('writing.recentSubmissions')}</Typography>
       </Stack>
 
       {history.length === 0 ? (
@@ -437,8 +439,8 @@ export function WritingView() {
             <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2.5 }}>
               <EditNoteIcon sx={{ color: '#6366f1', fontSize: 30 }} />
             </Box>
-            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>No submissions yet</Typography>
-            <Typography variant="body2" color="text.secondary">Generate a prompt above and submit your first writing</Typography>
+            <Typography variant="h6" color="text.primary" fontWeight={700} sx={{ mb: 0.5 }}>{t('writing.noSubmissions')}</Typography>
+            <Typography variant="body2" color="text.secondary">{t('writing.noSubmissionsDesc')}</Typography>
           </CardContent>
         </Card>
       ) : (

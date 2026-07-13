@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import axiosInstance from 'src/utils/axios';
 import Box from '@mui/material/Box';
@@ -24,16 +25,16 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-const quickActions = [
-  { label: 'Vocabulary', desc: 'Build your word bank', icon: BookIcon, href: '/dashboard/vocabulary', color: '#6366f1', gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)' },
-  { label: 'Speaking', desc: 'Pronunciation practice', icon: MicIcon, href: '/dashboard/speaking', color: '#ec4899', gradient: 'linear-gradient(135deg, #ec4899, #f472b6)' },
-  { label: 'Shadowing', desc: 'Mimic native speech', icon: HearingIcon, href: '/dashboard/shadowing', color: '#f59e0b', gradient: 'linear-gradient(135deg, #f59e0b, #f97316)' },
-  { label: 'Chat', desc: 'AI conversations', icon: ChatIcon, href: '/dashboard/conversations', color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #34d399)' },
-];
-
 export function DashboardView() {
+  const { t } = useTranslation();
   const router = useRouter();
-  const [stats, setStats] = useState(null);
+
+  const quickActions = [
+    { label: t('dashboard.quickActions.vocabulary'), desc: t('dashboard.quickActions.vocabularyDesc'), icon: BookIcon, href: '/dashboard/vocabulary', color: '#6366f1', gradient: 'linear-gradient(135deg, #4f46e5, #7c3aed)' },
+    { label: t('dashboard.quickActions.speaking'), desc: t('dashboard.quickActions.speakingDesc'), icon: MicIcon, href: '/dashboard/speaking', color: '#ec4899', gradient: 'linear-gradient(135deg, #ec4899, #f472b6)' },
+    { label: t('dashboard.quickActions.shadowing'), desc: t('dashboard.quickActions.shadowingDesc'), icon: HearingIcon, href: '/dashboard/shadowing', color: '#f59e0b', gradient: 'linear-gradient(135deg, #f59e0b, #f97316)' },
+    { label: t('dashboard.quickActions.chat'), desc: t('dashboard.quickActions.chatDesc'), icon: ChatIcon, href: '/dashboard/conversations', color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #34d399)' },
+  ];
   const [roadmap, setRoadmap] = useState(null);
   const [weekly, setWeekly] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,10 +73,10 @@ export function DashboardView() {
   const levelPercent = stats?.totalXp ? Math.min(100, ((stats.totalXp % 500) / 500) * 100) : 0;
 
   const statCards = [
-    { label: 'Day Streak', value: stats?.streak || 0, icon: BoltIcon, color: '#f59e0b', bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', iconBg: '#fef3c7' },
-    { label: 'Total XP', value: stats?.totalXp || 0, icon: StarIcon, color: '#6366f1', bg: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)', iconBg: '#e0e7ff' },
-    { label: 'Words', value: stats?.totalVocab || 0, icon: BookIcon, color: '#ec4899', bg: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)', iconBg: '#fce7f3' },
-    { label: 'Minutes', value: Math.round(stats?.totalMinutes || 0), icon: TimerIcon, color: '#10b981', bg: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', iconBg: '#d1fae5' },
+    { label: t('dashboard.dayStreak'), value: stats?.streak || 0, icon: BoltIcon, color: '#f59e0b', bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)', iconBg: '#fef3c7' },
+    { label: t('dashboard.totalXp'), value: stats?.totalXp || 0, icon: StarIcon, color: '#6366f1', bg: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)', iconBg: '#e0e7ff' },
+    { label: t('dashboard.words'), value: stats?.totalVocab || 0, icon: BookIcon, color: '#ec4899', bg: 'linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%)', iconBg: '#fce7f3' },
+    { label: t('dashboard.minutes'), value: Math.round(stats?.totalMinutes || 0), icon: TimerIcon, color: '#10b981', bg: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', iconBg: '#d1fae5' },
   ];
 
   return (
@@ -104,14 +105,14 @@ export function DashboardView() {
                   <AutoAwesomeIcon sx={{ fontSize: 16, color: 'white' }} />
                 </Box>
                 <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.7)', letterSpacing: 2, fontWeight: 600, fontSize: 11 }}>
-                  Welcome back — Level {level}
+                  {t('dashboard.welcome', { level })}
                 </Typography>
               </Stack>
               <Typography variant="h3" fontWeight={800} sx={{ mb: 1, letterSpacing: '-0.5px' }}>
-                Let&apos;s learn English today
+                {t('dashboard.tagline')}
               </Typography>
               <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.75)', maxWidth: 500 }}>
-                Track your progress, practice speaking, and master new words with Gemini AI.
+                {t('dashboard.subtitle')}
               </Typography>
             </Box>
             {roadmap && (
@@ -138,7 +139,7 @@ export function DashboardView() {
                   transition: 'all 0.2s',
                 }}
               >
-                Continue Learning
+                {t('dashboard.continueLearning')}
               </Button>
             )}
           </Stack>
@@ -192,7 +193,7 @@ export function DashboardView() {
         <Grid item xs={12} md={6}>
           <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider', height: '100%' }}>
             <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
-              <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2.5 }}>Practice Skills</Typography>
+              <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2.5 }}>{t('dashboard.practiceSkills')}</Typography>
               <Stack spacing={1.5}>
                 {quickActions.map((action) => (
                   <Box
@@ -257,16 +258,16 @@ export function DashboardView() {
                 <Stack justifyContent="space-between" sx={{ height: '100%' }} spacing={2}>
                   <Box>
                     <Stack direction="row" spacing={1} sx={{ mb: 1.5 }}>
-                      <Chip label={`Day ${roadmap.currentDay} of ${roadmap.totalDays}`} size="small" sx={{ bgcolor: 'rgba(99,102,241,0.2)', color: '#a5b4fc', fontWeight: 600, borderRadius: 2, fontSize: 12 }} />
+                      <Chip label={t('dashboard.roadmapDay', { current: roadmap.currentDay, total: roadmap.totalDays })} size="small" sx={{ bgcolor: 'rgba(99,102,241,0.2)', color: '#a5b4fc', fontWeight: 600, borderRadius: 2, fontSize: 12 }} />
                     </Stack>
-                    <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>{todayLesson?.title || 'Start learning'}</Typography>
+                    <Typography variant="h6" fontWeight={700} sx={{ mb: 0.5 }}>{todayLesson?.title || t('dashboard.roadmapStart')}</Typography>
                     <Typography variant="body2" sx={{ color: '#94a3b8' }}>
-                      {todayLesson?.vocabularies?.length || 0} words · Pronunciation · Shadowing
+                      {t('dashboard.roadmapItems', { count: todayLesson?.vocabularies?.length || 0 })}
                     </Typography>
                   </Box>
                   <Box>
                     <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-                      <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>Progress</Typography>
+                      <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>{t('dashboard.progress')}</Typography>
                       <Typography variant="caption" sx={{ color: '#a5b4fc', fontWeight: 700 }}>{progressPercent}%</Typography>
                     </Stack>
                     <Box sx={{ height: 6, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.08)', overflow: 'hidden', mb: 2 }}>
@@ -289,7 +290,7 @@ export function DashboardView() {
                         transition: 'all 0.2s',
                       }}
                     >
-                      Start Lesson
+                      {t('dashboard.startLesson')}
                     </Button>
                   </Box>
                 </Stack>
@@ -311,9 +312,9 @@ export function DashboardView() {
                 <Box sx={{ width: 64, height: 64, borderRadius: 4, bgcolor: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2 }}>
                   <TrendingUpIcon sx={{ fontSize: 30, color: '#6366f1', opacity: 0.5 }} />
                 </Box>
-                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>No roadmap yet</Typography>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>{t('dashboard.noRoadmap')}</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Generate a personalized 7-day learning plan
+                  {t('dashboard.noRoadmapDesc')}
                 </Typography>
                 <Button
                   variant="contained"
@@ -331,7 +332,7 @@ export function DashboardView() {
                     '&:hover': { background: 'linear-gradient(135deg, #3730a3, #5b21b6)' },
                   }}
                 >
-                  Generate Roadmap
+                  {t('dashboard.generateRoadmap')}
                 </Button>
               </CardContent>
             </Card>
@@ -344,24 +345,24 @@ export function DashboardView() {
         <Card sx={{ borderRadius: 3, boxShadow: '0 2px 12px rgba(0,0,0,0.03)', border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2.5 }}>
-              <Typography variant="subtitle1" fontWeight={700}>This Week</Typography>
-              <Button size="small" endIcon={<ArrowForwardIcon />} onClick={() => router.push('/dashboard/progress')} sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}>Full Report</Button>
+              <Typography variant="subtitle1" fontWeight={700}>{t('dashboard.thisWeek')}</Typography>
+              <Button size="small" endIcon={<ArrowForwardIcon />} onClick={() => router.push('/dashboard/progress')} sx={{ textTransform: 'none', fontWeight: 600, borderRadius: 2 }}>{t('dashboard.fullReport')}</Button>
             </Stack>
             <Grid container spacing={2}>
               <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>Sessions</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('dashboard.sessions')}</Typography>
                 <Typography variant="h5" fontWeight={700}>{weekly.totalSessions}</Typography>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>XP Earned</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('dashboard.xpEarned')}</Typography>
                 <Typography variant="h5" fontWeight={700} color="primary.main">{weekly.totalXP}</Typography>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>Minutes</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('dashboard.minutes')}</Typography>
                 <Typography variant="h5" fontWeight={700}>{Math.round(weekly.totalMinutes)}</Typography>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>Activities</Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('dashboard.activities')}</Typography>
                 <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
                   {Object.entries(weekly.byType || {}).map(([type, count]) => (
                     <Chip key={type} label={`${type}: ${count}`} size="small" variant="outlined" sx={{ borderRadius: 2, fontWeight: 500, fontSize: 11 }} />

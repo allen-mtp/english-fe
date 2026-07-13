@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import axiosInstance from 'src/utils/axios';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -22,17 +23,18 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 const statCards = [
-  { key: 'totalXp', label: 'Total XP', Icon: StarIcon, color: '#f59e0b', gradient: 'linear-gradient(135deg, #fffbeb, #fef3c7)' },
-  { key: 'streak', label: 'Current Streak', Icon: WhatshotIcon, valueFn: (s) => `${s?.streak || 0} days`, color: '#ef4444', gradient: 'linear-gradient(135deg, #fef2f2, #fee2e2)' },
-  { key: 'streakMax', label: 'Best Streak', Icon: BoltIcon, valueFn: (s) => `${s?.streakMax || 0} days`, color: '#10b981', gradient: 'linear-gradient(135deg, #ecfdf5, #d1fae5)' },
-  { key: 'totalMinutes', label: 'Total Minutes', Icon: TimerIcon, valueFn: (s) => Math.round(s?.totalMinutes || 0), color: '#6366f1', gradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)' },
-  { key: 'totalVocab', label: 'Words Learned', Icon: BookIcon, color: '#ec4899', gradient: 'linear-gradient(135deg, #fdf2f8, #fce7f3)' },
-  { key: 'masteredVocab', label: 'Mastered', Icon: CheckCircleIcon, color: '#10b981', gradient: 'linear-gradient(135deg, #ecfdf5, #d1fae5)' },
-  { key: 'pronunciationPractices', label: 'Pronunciation', Icon: MicIcon, color: '#6366f1', gradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)' },
-  { key: 'shadowingPractices', label: 'Shadowing', Icon: HearingIcon, color: '#8b5cf6', gradient: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' },
+  { key: 'totalXp', labelKey: 'progress.totalXp', Icon: StarIcon, color: '#f59e0b', gradient: 'linear-gradient(135deg, #fffbeb, #fef3c7)' },
+  { key: 'streak', labelKey: 'progress.currentStreak', Icon: WhatshotIcon, valueFn: (s) => `${s?.streak || 0} days`, color: '#ef4444', gradient: 'linear-gradient(135deg, #fef2f2, #fee2e2)' },
+  { key: 'streakMax', labelKey: 'progress.bestStreak', Icon: BoltIcon, valueFn: (s) => `${s?.streakMax || 0} days`, color: '#10b981', gradient: 'linear-gradient(135deg, #ecfdf5, #d1fae5)' },
+  { key: 'totalMinutes', labelKey: 'progress.totalMinutes', Icon: TimerIcon, valueFn: (s) => Math.round(s?.totalMinutes || 0), color: '#6366f1', gradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)' },
+  { key: 'totalVocab', labelKey: 'progress.wordsLearned', Icon: BookIcon, color: '#ec4899', gradient: 'linear-gradient(135deg, #fdf2f8, #fce7f3)' },
+  { key: 'masteredVocab', labelKey: 'progress.mastered', Icon: CheckCircleIcon, color: '#10b981', gradient: 'linear-gradient(135deg, #ecfdf5, #d1fae5)' },
+  { key: 'pronunciationPractices', labelKey: 'progress.pronunciation', Icon: MicIcon, color: '#6366f1', gradient: 'linear-gradient(135deg, #eef2ff, #e0e7ff)' },
+  { key: 'shadowingPractices', labelKey: 'progress.shadowing', Icon: HearingIcon, color: '#8b5cf6', gradient: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' },
 ];
 
 export function ProgressView() {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [calendar, setCalendar] = useState([]);
   const [weekly, setWeekly] = useState(null);
@@ -67,10 +69,10 @@ export function ProgressView() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>Your Progress</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-        Track your learning journey across all practice areas
-      </Typography>
+    <Typography variant="h4" fontWeight={800} sx={{ mb: 0.5 }}>{t('progress.title')}</Typography>
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+      {t('progress.subtitle')}
+    </Typography>
 
       {/* Level card */}
       <Card
@@ -100,13 +102,13 @@ export function ProgressView() {
                 <TrendingUpIcon sx={{ color: 'white', fontSize: 36 }} />
               </Box>
               <Box>
-                <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 600 }}>Level {level}</Typography>
-                <Typography variant="h4" fontWeight={900}>{stats?.totalXp || 0} XP</Typography>
+            <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 1, fontWeight: 600 }}>{t('progress.level', { n: level })}</Typography>
+            <Typography variant="h4" fontWeight={900}>{t('progress.xp', { xp: stats?.totalXp || 0 })}</Typography>
               </Box>
             </Stack>
             <Box sx={{ flex: 1, maxWidth: 300, width: '100%' }}>
               <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography variant="caption" fontWeight={600} color="text.secondary">Next Level</Typography>
+                <Typography variant="caption" fontWeight={600} color="text.secondary">{t('progress.nextLevel')}</Typography>
                 <Typography variant="caption" fontWeight={700} color="primary.main">{levelPercent.toFixed(0)}%</Typography>
               </Stack>
               <Box sx={{ height: 8, borderRadius: 4, bgcolor: '#f1f5f9', overflow: 'hidden' }}>
@@ -120,9 +122,9 @@ export function ProgressView() {
                   }}
                 />
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                {(500 - (stats?.totalXp || 0) % 500).toFixed(0)} XP to Level {level + 1}
-              </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              {t('progress.xpToLevel', { xp: (500 - (stats?.totalXp || 0) % 500).toFixed(0), level: level + 1 })}
+            </Typography>
             </Box>
           </Stack>
         </CardContent>
@@ -130,8 +132,8 @@ export function ProgressView() {
 
       {/* Stat cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        {statCards.map(({ key, label, Icon, color, gradient, valueFn }) => (
-          <Grid item xs={6} sm={4} md={3} key={label}>
+    {statCards.map(({ key, labelKey, Icon, color, gradient, valueFn }) => (
+      <Grid item xs={6} sm={4} md={3} key={key}>
             <Card
               sx={{
                 borderRadius: 4,
@@ -162,7 +164,7 @@ export function ProgressView() {
                     <Typography variant="h5" fontWeight={800} sx={{ lineHeight: 1.2 }}>
                       {valueFn ? valueFn(stats) : (stats?.[key] ?? 0)}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={500}>{label}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={500}>{t(labelKey)}</Typography>
                   </Box>
                 </Stack>
               </CardContent>
@@ -176,7 +178,7 @@ export function ProgressView() {
         <CardContent sx={{ p: 4 }}>
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
             <CalendarMonthIcon sx={{ color: 'primary.main', fontSize: 22 }} />
-            <Typography variant="h6" fontWeight={700}>Activity Calendar</Typography>
+            <Typography variant="h6" fontWeight={700}>{t('progress.activityCalendar')}</Typography>
           </Stack>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mx: 'auto', maxWidth: '100%' }}>
             {calendar.map((day, i) => {
@@ -199,17 +201,17 @@ export function ProgressView() {
                     transition: 'transform 0.15s',
                     '&:hover': { transform: 'scale(1.3)' },
                   }}
-                  title={`${day.date}: ${day.count} sessions, ${day.xp} XP`}
+                  title={t('progress.activityTooltip', { date: day.date, sessions: day.count, xp: day.xp })}
                 />
               );
             })}
           </Box>
           <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2.5 }} justifyContent="flex-end">
-            <Typography variant="caption" color="text.secondary" fontWeight={500}>Less</Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('progress.less')}</Typography>
             {['#f1f5f9', '#c7d2fe', '#a5b4fc', '#818cf8', '#6366f1'].map(c => (
               <Box key={c} sx={{ width: 12, height: 12, borderRadius: 0.5, bgcolor: c }} />
             ))}
-            <Typography variant="caption" color="text.secondary" fontWeight={500}>More</Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>{t('progress.more')}</Typography>
           </Stack>
         </CardContent>
       </Card>
@@ -218,30 +220,30 @@ export function ProgressView() {
       {weekly && (
         <Card sx={{ borderRadius: 4, boxShadow: '0 2px 16px rgba(0,0,0,0.04)', border: '1px solid', borderColor: 'divider' }}>
           <CardContent sx={{ p: 4 }}>
-            <Typography variant="h6" fontWeight={800} sx={{ mb: 3 }}>This Week</Typography>
+            <Typography variant="h6" fontWeight={800} sx={{ mb: 3 }}>{t('progress.thisWeek')}</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
                 <Box sx={{ p: 2.5, borderRadius: 3, bgcolor: '#eef2ff', border: '1px solid #c7d2fe' }}>
-                  <Typography variant="caption" color="#4f46e5" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>SESSIONS</Typography>
+                  <Typography variant="caption" color="#4f46e5" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>{t('progress.sessions')}</Typography>
                   <Typography variant="h4" fontWeight={900} color="#4f46e5">{weekly.totalSessions}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Box sx={{ p: 2.5, borderRadius: 3, bgcolor: '#fffbeb', border: '1px solid #fde68a' }}>
-                  <Typography variant="caption" color="#d97706" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>XP EARNED</Typography>
+                  <Typography variant="caption" color="#d97706" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>{t('progress.xpEarned')}</Typography>
                   <Typography variant="h4" fontWeight={900} color="#d97706">{weekly.totalXP}</Typography>
                 </Box>
               </Grid>
               <Grid item xs={12} sm={4}>
                 <Box sx={{ p: 2.5, borderRadius: 3, bgcolor: '#ecfdf5', border: '1px solid #bbf7d0' }}>
-                  <Typography variant="caption" color="#059669" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>MINUTES</Typography>
+                  <Typography variant="caption" color="#059669" fontWeight={700} sx={{ display: 'block', mb: 0.5 }}>{t('progress.minutes')}</Typography>
                   <Typography variant="h4" fontWeight={900} color="#059669">{Math.round(weekly.totalMinutes)}</Typography>
                 </Box>
               </Grid>
             </Grid>
             {weekly.byType && Object.keys(weekly.byType).length > 0 && (
               <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>By Type</Typography>
+                <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>{t('progress.byType')}</Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {Object.entries(weekly.byType).map(([type, count]) => (
                     <Chip
