@@ -14,6 +14,8 @@ import IconButton from '@mui/material/IconButton';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
@@ -25,7 +27,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useAuth } from 'src/contexts/auth-context';
-import { registerSchema, getFieldError } from './schema';
+import { getRegisterSchema, getFieldError } from './schema';
 import { Logo } from 'src/components/logo/logo';
 
 function passwordStrength(pw) {
@@ -47,7 +49,7 @@ function strengthLabel(t, score) {
 }
 
 export function RegisterView() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { register } = useAuth();
 
@@ -59,7 +61,7 @@ export function RegisterView() {
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const parsed = registerSchema.safeParse(form);
+  const parsed = getRegisterSchema().safeParse(form);
   const errors = parsed.success ? {} : parsed.error.format();
 
   const setField = (field) => (e) => {
@@ -331,14 +333,38 @@ export function RegisterView() {
             <Typography variant="caption" sx={{ color: '#94a3b8' }}>{t('auth.or')}</Typography>
           </Divider>
 
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
             <Typography variant="body2" sx={{ color: '#64748b' }}>
               {t('auth.hasAccount')}{' '}
               <Link href="/login" style={{ color: '#6366f1', fontWeight: 700, textDecoration: 'none' }}>
-                Log in
+                {t('auth.login')}
               </Link>
             </Typography>
           </Box>
+
+          <Stack direction="row" justifyContent="center">
+            <ToggleButtonGroup
+              value={i18n.language?.startsWith('vi') ? 'vi' : 'en'}
+              exclusive
+              size="small"
+              onChange={(_, val) => { if (val) i18n.changeLanguage(val); }}
+              sx={{
+                '& .MuiToggleButton-root': {
+                  color: '#94a3b8',
+                  borderColor: '#e2e8f0',
+                  px: 1.5,
+                  py: 0.5,
+                  fontWeight: 600,
+                  fontSize: 12,
+                  textTransform: 'none',
+                  '&.Mui-selected': { color: '#6366f1', bgcolor: '#eef2ff', borderColor: '#a5b4fc' },
+                },
+              }}
+            >
+              <ToggleButton value="en">EN</ToggleButton>
+              <ToggleButton value="vi">VI</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
         </Box>
       </Box>
     </Box>

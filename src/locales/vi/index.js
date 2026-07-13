@@ -52,6 +52,12 @@ export default {
     "confirmPassword": "Xác nhận mật khẩu",
     "passwordMismatch": "Mật khẩu không khớp",
     "passwordStrength": { "weak": "Yếu", "fair": "Khá", "good": "Tốt", "strong": "Mạnh" },
+    "usernameMin": "Tên đăng nhập phải có ít nhất 3 ký tự",
+    "usernameMax": "Tên đăng nhập tối đa 30 ký tự",
+    "usernameRegex": "Chỉ chấp nhận chữ, số và dấu gạch dưới",
+    "passwordRequired": "Vui lòng nhập mật khẩu",
+    "passwordMin": "Mật khẩu phải có ít nhất 6 ký tự",
+    "passwordMax": "Mật khẩu tối đa 72 ký tự",
     "usernameHelp": "3–30 ký tự: chữ, số, dấu gạch dưới",
     "passwordHelp": "Ít nhất 6 ký tự",
     "displayNameHelp": "Tên hiển thị tối đa 50 ký tự"
@@ -476,7 +482,10 @@ export default {
       "step2": "Nhấn Bắt đầu trên đồng hồ",
       "step2desc": "Nhấn play trên Đồng hồ học để bắt đầu.",
       "step3": "Học trong khi đồng hồ chạy",
-      "step3desc": "Từ vựng, luyện nói, bài kiểm tra — tất cả đều được tính."
+      "step3desc": "Từ vựng, luyện nói, bài kiểm tra — tất cả đều được tính.",
+      "subtitle": "Thời gian học hàng ngày",
+      "gotIt": "Hiểu rồi — xem đồng hồ",
+      "dismiss": "Nhắc sau"
     }
   },
   "topic": {

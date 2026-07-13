@@ -11,6 +11,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import BoltIcon from '@mui/icons-material/Bolt';
 import Fade from '@mui/material/Fade';
+import { useTranslation } from 'react-i18next';
 
 const WELCOME_KEY = 'study-timer-welcome-seen';
 
@@ -35,31 +36,15 @@ export function markWelcomeDialogSeen() {
   }
 }
 
-const STEPS = [
-  {
-    icon: TimerIcon,
-    color: '#6366f1',
-    bg: alpha('#6366f1', 0.1),
-    title: '60 minutes every day',
-    desc: 'A fresh hour of study time each day.',
-  },
-  {
-    icon: PlayCircleOutlineIcon,
-    color: '#8b5cf6',
-    bg: alpha('#8b5cf6', 0.1),
-    title: 'Press Start on the timer',
-    desc: 'Hit play on the Study Timer to begin.',
-  },
-  {
-    icon: AutoStoriesIcon,
-    color: '#0ea5e9',
-    bg: alpha('#0ea5e9', 0.1),
-    title: 'Learn while the clock runs',
-    desc: 'Vocabulary, speaking, quizzes — it all counts.',
-  },
-];
-
 export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
+  const { t } = useTranslation();
+
+  const STEPS = [
+    { icon: TimerIcon, color: '#6366f1', bg: alpha('#6366f1', 0.1), title: t('timer.welcome.step1'), desc: t('timer.welcome.step1desc') },
+    { icon: PlayCircleOutlineIcon, color: '#8b5cf6', bg: alpha('#8b5cf6', 0.1), title: t('timer.welcome.step2'), desc: t('timer.welcome.step2desc') },
+    { icon: AutoStoriesIcon, color: '#0ea5e9', bg: alpha('#0ea5e9', 0.1), title: t('timer.welcome.step3'), desc: t('timer.welcome.step3desc') },
+  ];
+
   return (
     <Dialog
       open={open}
@@ -88,7 +73,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
         },
       }}
     >
-      {/* Header — compact, icon inline (no overlap) */}
+      {/* Header */}
       <Box
         sx={{
           flexShrink: 0,
@@ -127,7 +112,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
                   fontSize: { xs: '0.65rem', sm: '0.7rem' },
                 }}
               >
-                Daily study allowance
+                {t('timer.welcome.subtitle')}
               </Typography>
             </Stack>
             <Typography
@@ -135,7 +120,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
               fontWeight={800}
               sx={{ color: 'white', lineHeight: 1.25, fontSize: { xs: '1.05rem', sm: '1.25rem' } }}
             >
-              Ready to learn today?
+              {t('timer.welcome.title')}
             </Typography>
           </Box>
         </Stack>
@@ -152,7 +137,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
           py: { xs: 2, sm: 2.5 },
         }}
       >
-        {/* 60 min highlight — flat card, no floating badge */}
+        {/* 60 min highlight */}
         <Box
           sx={{
             textAlign: 'center',
@@ -178,20 +163,20 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            60
+            {t('timer.welcome.highlight')}
           </Typography>
           <Typography
             variant="subtitle1"
             fontWeight={700}
             sx={{ color: '#334155', mt: 0.5, fontSize: { xs: '0.95rem', sm: '1.1rem' } }}
           >
-            minutes per day
+            {t('timer.welcome.unit')}
           </Typography>
           <Typography
             variant="caption"
             sx={{ color: '#64748b', fontWeight: 500, display: 'block', mt: 0.5 }}
           >
-            Your personal focus window for English practice
+            {t('timer.welcome.desc')}
           </Typography>
         </Box>
 
@@ -245,7 +230,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
         </Stack>
       </Box>
 
-      {/* Fixed footer — buttons always visible */}
+      {/* Fixed footer */}
       <Box
         sx={{
           flexShrink: 0,
@@ -275,7 +260,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
             },
           }}
         >
-          Got it — show me the timer
+          {t('timer.welcome.gotIt')}
         </Button>
 
         <Button
@@ -291,7 +276,7 @@ export function StudyTimerWelcomeDialog({ open, onClose, onGotIt }) {
             '&:hover': { bgcolor: 'transparent', color: '#64748b' },
           }}
         >
-          Remind me later
+          {t('timer.welcome.dismiss')}
         </Button>
       </Box>
     </Dialog>

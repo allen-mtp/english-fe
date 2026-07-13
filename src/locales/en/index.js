@@ -52,6 +52,12 @@ export default {
     "confirmPassword": "Confirm password",
     "passwordMismatch": "Passwords do not match",
     "passwordStrength": { "weak": "Weak", "fair": "Fair", "good": "Good", "strong": "Strong" },
+    "usernameMin": "Username must be at least 3 characters",
+    "usernameMax": "Username must be at most 30 characters",
+    "usernameRegex": "Only letters, numbers, and underscores",
+    "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 6 characters",
+    "passwordMax": "Password must be at most 72 characters",
     "usernameHelp": "3–30 chars: letters, numbers, underscores",
     "passwordHelp": "At least 6 characters",
     "displayNameHelp": "Display name must be at most 50 characters"
@@ -466,7 +472,7 @@ export default {
     "startAgain": "Start again (60:00)",
     "start": "Start",
     "pause": "Pause",
-    "welcome": { "title": "Ready to learn today?", "highlight": "60", "unit": "minutes per day", "desc": "Your personal focus window for English practice", "step1": "60 minutes every day", "step1desc": "A fresh hour of study time each day.", "step2": "Press Start on the timer", "step2desc": "Hit play on the Study Timer to begin.", "step3": "Learn while the clock runs", "step3desc": "Vocabulary, speaking, quizzes — it all counts." }
+    "welcome": { "title": "Ready to learn today?", "subtitle": "Daily study allowance", "highlight": "60", "unit": "minutes per day", "desc": "Your personal focus window for English practice", "step1": "60 minutes every day", "step1desc": "A fresh hour of study time each day.", "step2": "Press Start on the timer", "step2desc": "Hit play on the Study Timer to begin.", "step3": "Learn while the clock runs", "step3desc": "Vocabulary, speaking, quizzes — it all counts.", "gotIt": "Got it — show me the timer", "dismiss": "Remind me later" }
   },
   "topic": {
     "label": "Topic (optional)",

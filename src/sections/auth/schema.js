@@ -1,38 +1,47 @@
 import { z } from 'zod';
+import i18n from 'src/locales/i18n';
 
-export const loginSchema = z.object({
-  username: z
-    .string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(30, 'Username must be at most 30 characters')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores'),
-  password: z
-    .string()
-    .min(1, 'Password is required'),
-});
+function t(key) {
+  return i18n.t(key);
+}
 
-export const registerSchema = z
-  .object({
+export function getLoginSchema() {
+  return z.object({
     username: z
       .string()
-      .min(3, 'Username must be at least 3 characters')
-      .max(30, 'Username must be at most 30 characters')
-      .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores'),
-    name: z
-      .string()
-      .max(50, 'Display name must be at most 50 characters')
-      .optional()
-      .or(z.literal('')),
+      .min(3, t('auth.usernameMin'))
+      .max(30, t('auth.usernameMax'))
+      .regex(/^[a-zA-Z0-9_]+$/, t('auth.usernameRegex')),
     password: z
       .string()
-      .min(6, 'Password must be at least 6 characters')
-      .max(72, 'Password must be at most 72 characters'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
+      .min(1, t('auth.passwordRequired')),
   });
+}
+
+export function getRegisterSchema() {
+  return z
+    .object({
+      username: z
+        .string()
+        .min(3, t('auth.usernameMin'))
+        .max(30, t('auth.usernameMax'))
+        .regex(/^[a-zA-Z0-9_]+$/, t('auth.usernameRegex')),
+      name: z
+        .string()
+        .max(50, t('auth.displayNameHelp'))
+        .optional()
+        .or(z.literal('')),
+      password: z
+        .string()
+        .min(6, t('auth.passwordMin'))
+        .max(72, t('auth.passwordMax')),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('auth.passwordMismatch'),
+      path: ['confirmPassword'],
+    });
+}
 
 export function getFieldError(errors, field) {
   return errors?.[field]?._errors?.[0];
