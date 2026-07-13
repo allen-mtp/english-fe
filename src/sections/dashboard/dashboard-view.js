@@ -36,6 +36,7 @@ export function DashboardView() {
     { label: t('dashboard.quickActions.chat'), desc: t('dashboard.quickActions.chatDesc'), icon: ChatIcon, href: '/dashboard/conversations', color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #34d399)' },
   ];
   const [roadmap, setRoadmap] = useState(null);
+  const [stats, setStats] = useState(null);
   const [weekly, setWeekly] = useState(null);
   const [loading, setLoading] = useState(true);
 

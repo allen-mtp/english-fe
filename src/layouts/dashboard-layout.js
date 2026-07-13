@@ -34,6 +34,8 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import QuizIcon from '@mui/icons-material/Quiz';
 import LogoutIcon from '@mui/icons-material/Logout';
 import TranslateIcon from '@mui/icons-material/Translate';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { useAuth } from 'src/contexts/auth-context';
 import { StudyTimer } from 'src/components/study-timer/study-timer';
 import { useTranslation } from 'react-i18next';
