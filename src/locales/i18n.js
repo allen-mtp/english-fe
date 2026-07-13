@@ -5,11 +5,14 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './en';
 import vi from './vi';
 
+const isServer = typeof window === 'undefined';
+
 i18n
-  .use(LanguageDetector)
+  .use(isServer ? undefined : LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: { en: { translation: en }, vi: { translation: vi } },
+    lng: isServer ? 'en' : undefined,
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     detection: {
